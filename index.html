@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BCOM-C — Dashboard</title>
+<link rel="stylesheet" href="assets/css/bcom.css" />
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-title">BCOM-C</div>
+  <div class="topbar-right">
+    <a class="nav-btn active" href="index.html"><span class="nav-arrow">&#8592;</span> DASHBOARD</a>
+    <a class="nav-btn" href="pages/data-gen.html">DATA GEN</a>
+    <a class="nav-btn" href="pages/pipeline.html">PIPELINE</a>
+    <a class="nav-btn" href="pages/resources.html">RESOURCES</a>
+    <a class="nav-btn" href="pages/reports.html">REPORTS</a>
+    <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
+  </div>
+</div>
+
+<!-- ACTION BAR -->
+<div class="actionbar">
+  <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>
+  <button class="action-btn danger" onclick="triggerAction('RESTART LLM')">RESTART LLM</button>
+  <button class="action-btn" onclick="triggerAction('DOWNLOAD MODEL')">DOWNLOAD MODEL</button>
+  <button class="action-btn" onclick="triggerAction('ASK ADVISOR')">ASK ADVISOR</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="panel-row">
+
+    <!-- SPARK-BOB -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-label"><div class="status-dot" id="dot-spark"></div>SPARK-BOB</div>
+        <div class="panel-status" id="status-spark">ONLINE</div>
+      </div>
+      <div class="panel-body">
+        <div class="gauges-and-metrics">
+          <div class="gauges-row">
+            <div class="gauge-wrap">
+              <div class="gauge">
+                <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-spark-cpu" cx="70" cy="70" r="50"/></svg>
+                <div class="gauge-needle" id="gn-spark-cpu"></div><div class="gauge-center"></div>
+              </div>
+              <div class="gauge-value" id="gv-spark-cpu">68%</div>
+              <div class="gauge-label">CPU LOAD</div>
+            </div>
+            <div class="gauge-wrap">
+              <div class="gauge">
+                <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-spark-gpu" cx="70" cy="70" r="50"/></svg>
+                <div class="gauge-needle" id="gn-spark-gpu"></div><div class="gauge-center"></div>
+              </div>
+              <div class="gauge-value" id="gv-spark-gpu">74%</div>
+              <div class="gauge-label">GPU LOAD</div>
+            </div>
+            <div class="gauge-wrap">
+              <div class="gauge">
+                <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-spark-vram" cx="70" cy="70" r="50"/></svg>
+                <div class="gauge-needle" id="gn-spark-vram"></div><div class="gauge-center"></div>
+              </div>
+              <div class="gauge-value" id="gv-spark-vram">55%</div>
+              <div class="gauge-label">VRAM USED</div>
+            </div>
+          </div>
+          <div class="metrics">
+            <div class="metric">VRAM<span id="vram-spark-gb">--</span></div>
+            <div class="metric">GPU TEMP<span id="gpu-temp-spark">--</span></div>
+            <div class="metric">UPTIME<span id="uptime-spark">--</span></div>
+          </div>
+        </div>
+        <div class="temp-section">
+          <div class="temp-header"><span>CPU TEMPERATURE</span><span id="spark-cpu-temp-val">--</span></div>
+          <div class="temp-bar-track"><div class="temp-bar-fill" id="spark-cpu-temp-bar" style="width:0%"></div></div>
+          <div class="temp-zones"><span>SAFE &lt;70°C</span><span>WARN 70–90°C</span><span>DANGER &gt;90°C</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINUX-DSKTP -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-label"><div class="status-dot" id="dot-linux"></div>LINUX-DSKTP</div>
+        <div class="panel-status" id="status-linux">ONLINE</div>
+      </div>
+      <div class="panel-body">
+        <div class="gauges-and-metrics">
+          <div class="gauges-row">
+            <div class="gauge-wrap">
+              <div class="gauge">
+                <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-linux-cpu" cx="70" cy="70" r="50"/></svg>
+                <div class="gauge-needle" id="gn-linux-cpu"></div><div class="gauge-center"></div>
+              </div>
+              <div class="gauge-value" id="gv-linux-cpu">42%</div>
+              <div class="gauge-label">CPU LOAD</div>
+            </div>
+            <div class="gauge-wrap">
+              <div class="gauge">
+                <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-linux-gpu" cx="70" cy="70" r="50"/></svg>
+                <div class="gauge-needle" id="gn-linux-gpu"></div><div class="gauge-center"></div>
+              </div>
+              <div class="gauge-value" id="gv-linux-gpu">31%</div>
+              <div class="gauge-label">GPU LOAD</div>
+            </div>
+          </div>
+          <div class="metrics">
+            <div class="metric">RAM<span id="ram-linux-gb">--</span></div>
+            <div class="metric">UPTIME<span id="uptime-linux">--</span></div>
+          </div>
+        </div>
+        <div class="temp-section">
+          <div class="temp-header"><span>CPU TEMPERATURE</span><span id="linux-cpu-temp-val">--</span></div>
+          <div class="temp-bar-track"><div class="temp-bar-fill" id="linux-cpu-temp-bar" style="width:0%"></div></div>
+          <div class="temp-zones"><span>SAFE &lt;70°C</span><span>WARN 70–85°C</span><span>DANGER &gt;85°C</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOG -->
+  <div class="log-panel" id="log">
+    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">BCOM-C initialized. Awaiting data source connection...</span></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>BOB-AI // BCOM-C v0.1</span>
+  <span id="footer-date"></span>
+  <span>SESSION ACTIVE</span>
+</div>
+
+<script src="assets/js/bcom.js"></script>
+<script>
+  // ── Polling config ─────────────────────────────────────────────────────
+  // When your API server is ready, set BCOM.apiBase to its root URL, e.g.:
+  //   BCOM.apiBase = 'http://192.168.1.50:8080';
+  // The dashboard will immediately start polling /api/metrics every 5 seconds.
+  // ──────────────────────────────────────────────────────────────────────
+  // BCOM.apiBase = '';          // ← uncomment + set on deployment
+
+  BCOM.pollInterval = 5000;     // refresh every 5 s — adjust as needed
+  startPolling();               // starts polling (silent no-op if apiBase is empty)
+
+  // Render clean zero state while awaiting connection
+  applyDashboard({});
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BCOM-C — Resources</title>
+<link rel="stylesheet" href="../assets/css/bcom.css" />
+<style>
+  .standby-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 40px 16px;
+  }
+  .standby-label {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--orange-dark);
+    text-shadow: 0 0 20px rgba(184,97,58,0.3);
+  }
+  .standby-sub {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #444;
+  }
+  .standby-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #555;
+    border: 1px solid #2a1a0e;
+    padding: 6px 16px;
+  }
+  .standby-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #f39c12;
+    box-shadow: 0 0 6px #f39c12;
+    animation: pulse 2s infinite;
+  }
+  .standby-divider {
+    width: clamp(200px, 30%, 400px);
+    height: 1px;
+    background: linear-gradient(to right, transparent, #3a1a0a, transparent);
+  }
+  .standby-desc {
+    font-size: 9px;
+    color: #3a3a3a;
+    letter-spacing: 1.5px;
+    text-align: center;
+    max-width: 500px;
+    line-height: 2;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">BCOM-C</div>
+  <div class="topbar-right">
+    <a class="nav-btn" href="../index.html"><span class="nav-arrow">&#8592;</span> DASHBOARD</a>
+    <a class="nav-btn" href="data-gen.html">DATA GEN</a>
+    <a class="nav-btn" href="pipeline.html">PIPELINE</a>
+    <a class="nav-btn active" href="resources.html">RESOURCES</a>
+    <a class="nav-btn" href="reports.html">REPORTS</a>
+    <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
+  </div>
+</div>
+
+<div class="actionbar">
+  <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>
+  <button class="action-btn danger" onclick="triggerAction('RESTART LLM')">RESTART LLM</button>
+  <button class="action-btn" onclick="triggerAction('DOWNLOAD MODEL')">DOWNLOAD MODEL</button>
+  <button class="action-btn" onclick="triggerAction('ASK ADVISOR')">ASK ADVISOR</button>
+</div>
+
+<div class="main">
+  <div class="standby-wrap">
+    <div class="standby-label">RESOURCES</div>
+    <div class="standby-divider"></div>
+    <div class="standby-status">
+      <div class="standby-dot"></div>
+      MODULE STANDBY
+    </div>
+    <div class="standby-desc">
+      RESOURCES MODULE // PENDING IMPLEMENTATION<br>
+      MODEL REGISTRY · STORAGE · COMPUTE ALLOCATION · QUOTAS
+    </div>
+  </div>
+
+  <div class="log-panel" id="log">
+    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">RESOURCES module initialized. Awaiting configuration...</span></div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>BOB-AI // BCOM-C v0.1</span>
+  <span id="footer-date"></span>
+  <span>SESSION ACTIVE</span>
+</div>
+
+<script src="../assets/js/bcom.js"></script>
+</body>
+</html>
