@@ -491,6 +491,24 @@
         </div>
       </div>
 
+      <!-- NODE HARDWARE METRICS -->
+      <div class="deploy-section">
+        <div class="deploy-section-label">Node Hardware</div>
+        <div style="font-size:8px;color:#333;letter-spacing:1px;line-height:2;">
+          <div style="color:#888;letter-spacing:2px;margin-bottom:2px;font-size:7px;">SPARK-BOB</div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">CPU</span><span id="orch-spark-cpu" style="color:#7fb3cc;">--%</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">GPU</span><span id="orch-spark-gpu" style="color:#7fb3cc;">--%</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">VRAM</span><span id="orch-spark-vram" style="color:#7fb3cc;">--</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">TEMP</span><span id="orch-spark-temp" style="color:#555;">--</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">UPTIME</span><span id="orch-spark-uptime" style="color:#555;">--</span></div>
+          <div style="color:#888;letter-spacing:2px;margin:4px 0 2px;font-size:7px;">LINUX-DSKTP</div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">CPU</span><span id="orch-linux-cpu" style="color:#7fb3cc;">--%</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">RAM</span><span id="orch-linux-ram" style="color:#7fb3cc;">--</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">TEMP</span><span id="orch-linux-temp" style="color:#555;">--</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#3a3a3a;">UPTIME</span><span id="orch-linux-uptime" style="color:#555;">--</span></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1113,6 +1131,32 @@ setInterval(tickClock, 1000);
 tickClock();
 
 orchLog('Orchestrator UI ready — connect API to enable live agent dispatching', 'sys');
+
+/* ── Node Hardware polling ──────────────────────────────── */
+async function pollOrchMetrics() {
+  try {
+    const res = await fetch('/api/metrics', { cache: 'no-store' });
+    if (!res.ok) return;
+    const d = await res.json();
+    const s = d.spark || {};
+    const l = d.linux  || {};
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    set('orch-spark-cpu',    s.cpu_pct  != null ? s.cpu_pct + '%'  : '--%');
+    set('orch-spark-gpu',    s.gpu_pct  != null ? s.gpu_pct + '%'  : '--%');
+    set('orch-spark-vram',   s.vram_gb  ?? '--');
+    set('orch-spark-temp',   s.cpu_temp != null ? s.cpu_temp + '°C' : '--');
+    set('orch-spark-uptime', s.uptime   ?? '--');
+
+    set('orch-linux-cpu',    l.cpu_pct  != null ? l.cpu_pct + '%'  : '--%');
+    set('orch-linux-ram',    l.ram_gb   ?? '--');
+    set('orch-linux-temp',   l.cpu_temp != null ? l.cpu_temp + '°C' : '--');
+    set('orch-linux-uptime', l.uptime   ?? '--');
+  } catch (_) {}
+}
+pollOrchMetrics();
+setInterval(pollOrchMetrics, 10000);
 </script>
 </body>
 </html>
