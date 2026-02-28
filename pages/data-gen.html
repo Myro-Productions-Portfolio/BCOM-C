@@ -144,7 +144,7 @@
       <div class="job-wrap">
         <table class="job-table">
           <thead>
-            <tr><th>JOB ID</th><th>TYPE</th><th>DOMAIN</th><th>NODE</th><th>COUNT</th><th>PROGRESS</th><th>STATUS</th><th></th></tr>
+            <tr><th>JOB ID</th><th>TYPE</th><th>DOMAIN</th><th>NODE</th><th>COUNT</th><th>CHUNK</th><th>ELAPSED</th><th>PROGRESS</th><th>STATUS</th><th></th></tr>
           </thead>
           <tbody id="active-jobs-body">
             <tr><td colspan="8" class="empty">NO ACTIVE JOBS</td></tr>
@@ -215,7 +215,24 @@
   BCOM.pollInterval = 5000;
   startPolling();
 
-  let _jobSeq = 1, _jobs = [], _history = [];
+  let _jobSeq = 1, _jobs = [], _apiJobs = [], _history = [];
+
+  // ── Live job poller — hits /api/jobs/ every 5s ─────────────────────────
+  async function pollJobs() {
+    try {
+      const res = await fetch('/api/jobs/', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      // Merge: API jobs keyed by id; don't overwrite local-only entries
+      const apiIds = new Set(data.map(j => j.id));
+      _apiJobs = data;
+      // Drop local entries that the API now owns
+      _jobs = _jobs.filter(j => !apiIds.has(j.id));
+      renderActiveJobs();
+    } catch (_) { /* soft fail — table stays as-is */ }
+  }
+  pollJobs();
+  setInterval(pollJobs, 5000);
 
   function submitJob() {
     const typeEl  = document.getElementById('dg-type');
@@ -260,11 +277,20 @@
 
   function renderActiveJobs() {
     const tb = document.getElementById('active-jobs-body');
-    const active = _jobs.filter(j => j.status !== 'done' && j.status !== 'error');
-    if (!active.length) { tb.innerHTML = '<tr><td colspan="8" class="empty">NO ACTIVE JOBS</td></tr>'; return; }
+    // Merge API jobs + local queued/running jobs
+    const active = [
+      ..._apiJobs,
+      ..._jobs.filter(j => j.status !== 'done' && j.status !== 'error')
+    ];
+    if (!active.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO ACTIVE JOBS</td></tr>'; return; }
     tb.innerHTML = active.map(j => `<tr>
       <td style="color:var(--orange-dark)">${j.id}</td>
-      <td>${j.type}</td><td>${j.domain}</td><td>${j.node}</td><td>${j.count}</td>
+      <td>${j.type}</td>
+      <td>${j.domain}</td>
+      <td>${j.node}</td>
+      <td>${j.count}${j.severities ? ' <span style="color:#555;font-size:9px">×'+j.severities+'</span>' : ''}</td>
+      <td style="color:#777;font-size:10px">${j.chunk ?? '--'}</td>
+      <td style="color:#777;font-size:10px">${j.elapsed ?? '--'}</td>
       <td style="min-width:90px">${j.progress}%<div class="prog-track"><div class="prog-fill" style="width:${j.progress}%"></div></div></td>
       <td><span class="job-status ${j.status}">${j.status.toUpperCase()}</span></td>
       <td><button class="ctr-btn" onclick="cancelJob('${j.id}')">CANCEL</button></td>
@@ -290,7 +316,7 @@
     renderActiveJobs(); renderHistory();
   }
 
-  function refreshJobs() { logLine('Jobs refreshed', 'info'); renderActiveJobs(); renderHistory(); }
+  function refreshJobs() { logLine('Jobs refreshed', 'info'); pollJobs(); renderHistory(); }
   function exportHistory() { logLine('CMD: EXPORT HISTORY', 'info'); if (BCOM.apiBase === null) logLine('No API — export unavailable', 'warn'); }
 
   // Terminal
