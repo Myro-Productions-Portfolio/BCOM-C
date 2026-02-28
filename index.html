@@ -31,6 +31,8 @@
 
 <!-- MAIN -->
 <div class="main">
+
+  <!-- ── GAUGE PANELS ─────────────────────────────────── -->
   <div class="panel-row">
 
     <!-- SPARK-BOB -->
@@ -47,7 +49,7 @@
                 <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-spark-cpu" cx="70" cy="70" r="50"/></svg>
                 <div class="gauge-needle" id="gn-spark-cpu"></div><div class="gauge-center"></div>
               </div>
-              <div class="gauge-value" id="gv-spark-cpu">68%</div>
+              <div class="gauge-value" id="gv-spark-cpu">--%</div>
               <div class="gauge-label">CPU LOAD</div>
             </div>
             <div class="gauge-wrap">
@@ -55,7 +57,7 @@
                 <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-spark-gpu" cx="70" cy="70" r="50"/></svg>
                 <div class="gauge-needle" id="gn-spark-gpu"></div><div class="gauge-center"></div>
               </div>
-              <div class="gauge-value" id="gv-spark-gpu">74%</div>
+              <div class="gauge-value" id="gv-spark-gpu">--%</div>
               <div class="gauge-label">GPU LOAD</div>
             </div>
             <div class="gauge-wrap">
@@ -63,7 +65,7 @@
                 <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-spark-vram" cx="70" cy="70" r="50"/></svg>
                 <div class="gauge-needle" id="gn-spark-vram"></div><div class="gauge-center"></div>
               </div>
-              <div class="gauge-value" id="gv-spark-vram">55%</div>
+              <div class="gauge-value" id="gv-spark-vram">--%</div>
               <div class="gauge-label">VRAM USED</div>
             </div>
           </div>
@@ -95,7 +97,7 @@
                 <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-linux-cpu" cx="70" cy="70" r="50"/></svg>
                 <div class="gauge-needle" id="gn-linux-cpu"></div><div class="gauge-center"></div>
               </div>
-              <div class="gauge-value" id="gv-linux-cpu">42%</div>
+              <div class="gauge-value" id="gv-linux-cpu">--%</div>
               <div class="gauge-label">CPU LOAD</div>
             </div>
             <div class="gauge-wrap">
@@ -103,7 +105,7 @@
                 <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-linux-gpu" cx="70" cy="70" r="50"/></svg>
                 <div class="gauge-needle" id="gn-linux-gpu"></div><div class="gauge-center"></div>
               </div>
-              <div class="gauge-value" id="gv-linux-gpu">31%</div>
+              <div class="gauge-value" id="gv-linux-gpu">--%</div>
               <div class="gauge-label">GPU LOAD</div>
             </div>
           </div>
@@ -120,13 +122,210 @@
       </div>
     </div>
 
-  </div>
+  </div><!-- end panel-row -->
+
+  <!-- ── INFO CARDS ────────────────────────────────────── -->
+  <div class="info-grid">
+
+    <!-- CONTAINERS -->
+    <div class="info-card">
+      <div class="info-card-hdr">Containers</div>
+      <div class="node-cols">
+        <div class="node-col">
+          <div class="node-col-hdr"><div class="status-dot" id="dot-ctr-spark"></div>SPARK-BOB</div>
+          <div id="ctr-spark"><div class="await-row">AWAITING CONNECTION</div></div>
+        </div>
+        <div class="node-col">
+          <div class="node-col-hdr"><div class="status-dot" id="dot-ctr-linux"></div>LINUX-DSKTP</div>
+          <div id="ctr-linux"><div class="await-row">AWAITING CONNECTION</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODELS -->
+    <div class="info-card">
+      <div class="info-card-hdr">Models</div>
+      <div class="node-cols">
+        <div class="node-col">
+          <div class="node-col-hdr"><div class="status-dot" id="dot-mdl-spark"></div>SPARK-BOB</div>
+          <div id="mdl-spark"><div class="await-row">AWAITING CONNECTION</div></div>
+        </div>
+        <div class="node-col">
+          <div class="node-col-hdr"><div class="status-dot" id="dot-mdl-linux"></div>LINUX-DSKTP</div>
+          <div id="mdl-linux"><div class="await-row">AWAITING CONNECTION</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVAL HISTORY -->
+    <div class="info-card">
+      <div class="info-card-hdr">Eval History</div>
+      <div class="eval-wrap">
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th>RUN ID</th><th>DATE</th><th>MODEL</th><th>BACKEND</th>
+              <th>JUDGE</th><th>SUITE</th><th>SCORE</th><th>PASS RATE</th>
+              <th>TIME</th><th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="eval-tbody">
+            <tr><td colspan="10" class="eval-empty">NO EVAL RUNS YET</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DATASET GEN + FINE-TUNING side by side -->
+    <div class="forms-row">
+
+      <!-- DATASET GENERATION -->
+      <div class="info-card">
+        <div class="info-card-hdr">Dataset Generation</div>
+        <div class="form-body">
+          <div class="form-group">
+            <label class="form-label">Services (e.g. IAM, S3, Lambda)</label>
+            <input class="form-input" id="dg-services" type="text" placeholder="CloudFormation, IAM..." />
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Count</label>
+              <input class="form-input" id="dg-count" type="number" value="10" min="1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Node</label>
+              <select class="form-select" id="dg-node">
+                <option value="spark">SPARK-BOB</option>
+                <option value="linux">LINUX-DSKTP</option>
+              </select>
+            </div>
+          </div>
+          <button class="form-submit" onclick="submitForm('GENERATE DATA', 'dg-services', 'dg-output')">Start Generation</button>
+          <div class="form-output" id="dg-output">--</div>
+        </div>
+      </div>
+
+      <!-- FINE-TUNING (LoRA) -->
+      <div class="info-card">
+        <div class="info-card-hdr">Fine-Tuning (LoRA)</div>
+        <div class="form-body">
+          <div class="form-group">
+            <label class="form-label">Base Model</label>
+            <input class="form-input" id="ft-model" type="text" placeholder="e.g. gpt-oss-20b" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dataset Path</label>
+            <input class="form-input" id="ft-dataset" type="text" placeholder="path/to/dataset.jsonl" />
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Node</label>
+              <select class="form-select" id="ft-node"><option>SPARK-BOB</option><option>LINUX-DSKTP</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rank</label>
+              <input class="form-input" id="ft-rank" type="number" value="16" min="1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Epochs</label>
+              <input class="form-input" id="ft-epochs" type="number" value="3" min="1" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Learning Rate</label>
+              <input class="form-input" id="ft-lr" type="text" value="0.0002" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">&nbsp;</label>
+              <button class="form-submit" style="margin-top:0" onclick="submitForm('START FINE-TUNE', 'ft-model', 'ft-output')">Start Training</button>
+            </div>
+          </div>
+          <div class="form-output" id="ft-output">NO FINE-TUNING JOBS YET</div>
+        </div>
+      </div>
+
+    </div><!-- end forms-row -->
+
+    <!-- TRAINING PIPELINE — CLOSED LOOP -->
+    <div class="info-card">
+      <div class="info-card-hdr">Training Pipeline — Closed Loop</div>
+      <div class="form-body">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Model</label>
+            <input class="form-input" id="pl-model" type="text" placeholder="e.g. gpt-oss-20b" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Backend</label>
+            <select class="form-select" id="pl-backend">
+              <option>vLLM</option><option>Ollama</option><option>Bedrock</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Suite</label>
+            <input class="form-input" id="pl-suite" type="text" value="hard_15" />
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Node</label>
+            <select class="form-select" id="pl-node"><option>SPARK-BOB</option><option>LINUX-DSKTP</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target %</label>
+            <input class="form-input" id="pl-target" type="number" value="80" min="1" max="100" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Iterations</label>
+            <input class="form-input" id="pl-maxiter" type="number" value="3" min="1" />
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <label class="form-check-row">
+            <input type="checkbox" id="pl-auto" /> AUTO-LOOP
+          </label>
+          <button class="form-submit" style="flex:1; margin-top:0" onclick="submitForm('LAUNCH PIPELINE', 'pl-model', null)">Launch Pipeline</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MCP SERVERS -->
+    <div class="info-card">
+      <div class="info-card-hdr">MCP Servers</div>
+      <div class="node-cols">
+        <div class="node-col">
+          <div class="node-col-hdr"><div class="status-dot" id="dot-mcp-spark"></div>SPARK-BOB</div>
+          <div id="mcp-spark"><div class="await-row">AWAITING CONNECTION</div></div>
+        </div>
+        <div class="node-col">
+          <div class="node-col-hdr"><div class="status-dot" id="dot-mcp-linux"></div>LINUX-DSKTP</div>
+          <div id="mcp-linux"><div class="await-row">AWAITING CONNECTION</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRAINING ADVISOR -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Training Advisor</span>
+        <button class="action-btn" style="font-size:8px;padding:3px 10px;" onclick="runAdvisor()">Analyze Results</button>
+      </div>
+      <div class="advisor-body">
+        <div class="advisor-output" id="advisor-output">
+          Click "Analyze Results" to get AI-powered training recommendations based on recent eval runs.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end info-grid -->
 
   <!-- LOG -->
   <div class="log-panel" id="log">
     <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">BCOM-C initialized. Awaiting data source connection...</span></div>
   </div>
-</div>
+
+</div><!-- end .main -->
 
 <!-- FOOTER -->
 <div class="footer">
@@ -135,20 +334,118 @@
   <span>SESSION ACTIVE</span>
 </div>
 
+<!-- ── TERMINAL DOCK (fixed bottom) ─────────────────── -->
+<div class="terminal-dock" id="terminal-dock">
+  <div class="terminal-bar">
+    <div class="terminal-tabs">
+      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
+      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
+    </div>
+    <div class="terminal-controls">
+      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminal-body">
+    <div class="terminal-output" id="term-out-spark">
+      <div class="term-line sys">[bcom-c] terminal ready — connect API to enable remote shell</div>
+    </div>
+    <div class="terminal-output" id="term-out-linux" style="display:none">
+      <div class="term-line sys">[bcom-c] terminal ready — connect API to enable remote shell</div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="term-prompt" id="term-prompt">$</span>
+      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
 <script src="assets/js/bcom.js"></script>
 <script>
   // ── Polling config ─────────────────────────────────────────────────────
-  // When your API server is ready, set BCOM.apiBase to its root URL, e.g.:
-  //   BCOM.apiBase = 'http://192.168.1.50:8080';
-  // The dashboard will immediately start polling /api/metrics every 5 seconds.
-  // ──────────────────────────────────────────────────────────────────────
-  // BCOM.apiBase = '';          // ← uncomment + set on deployment
-
-  BCOM.pollInterval = 5000;     // refresh every 5 s — adjust as needed
-  startPolling();               // starts polling (silent no-op if apiBase is empty)
-
-  // Render clean zero state while awaiting connection
+  // BCOM.apiBase = 'http://YOUR_SERVER:PORT';   // ← set on deployment
+  BCOM.pollInterval = 5000;
+  startPolling();
   applyDashboard({});
+
+  // ── Form submit handler ────────────────────────────────────────────────
+  function submitForm(action, inputId, outputId) {
+    const val = inputId ? (document.getElementById(inputId)?.value || '').trim() : '';
+    if (inputId && !val) { logLine('Form error: required field empty', 'warn'); return; }
+    logLine(`CMD: ${action}${val ? ' — ' + val : ''} — submitted by operator`, 'info');
+    if (outputId) {
+      const out = document.getElementById(outputId);
+      if (out) {
+        const t = new Date().toTimeString().split(' ')[0];
+        out.textContent = `[${t}] ${action} queued. Awaiting API connection...`;
+        out.style.color = 'var(--orange-dark)';
+      }
+    }
+    if (!BCOM.apiBase) logLine('No API configured — command logged locally only', 'warn');
+  }
+
+  // ── Training Advisor ───────────────────────────────────────────────────
+  function runAdvisor() {
+    const out = document.getElementById('advisor-output');
+    out.textContent = 'Analyzing eval results...';
+    logLine('CMD: ANALYZE RESULTS — initiated by operator', 'info');
+    if (!BCOM.apiBase) {
+      out.textContent = 'No API connection. Advisor requires live eval data.';
+      out.style.color = '#555';
+    }
+  }
+
+  // ── Terminal ───────────────────────────────────────────────────────────
+  let _termNode = 'spark';
+
+  function switchTerm(node) {
+    _termNode = node;
+    document.querySelectorAll('.terminal-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.term === node));
+    ['spark','linux'].forEach(n => {
+      const el = document.getElementById('term-out-' + n);
+      if (el) el.style.display = n === node ? 'block' : 'none';
+    });
+    document.getElementById('term-prompt').textContent =
+      (node === 'spark' ? 'spark-bob' : 'linux-dsktp') + ' $';
+    document.getElementById('terminal-input').focus();
+  }
+
+  function termLine(text, cls) {
+    const out = document.getElementById('term-out-' + _termNode);
+    if (!out) return;
+    const div = document.createElement('div');
+    div.className = 'term-line' + (cls ? ' ' + cls : '');
+    div.textContent = text;
+    out.appendChild(div);
+    out.scrollTop = out.scrollHeight;
+  }
+
+  document.getElementById('terminal-input').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const cmd = e.target.value.trim();
+    if (!cmd) return;
+    const label = _termNode === 'spark' ? 'spark-bob' : 'linux-dsktp';
+    termLine(label + ' $ ' + cmd);
+    e.target.value = '';
+    if (!BCOM.apiBase) {
+      termLine('[bcom-c] no API connection — command not sent', 'dim');
+    }
+    // TODO: send cmd via BCOM.apiBase WebSocket
+  });
+
+  document.getElementById('term-minimize').addEventListener('click', () => {
+    const dock  = document.getElementById('terminal-dock');
+    const body  = document.getElementById('terminal-body');
+    const btn   = document.getElementById('term-minimize');
+    const isMin = dock.classList.toggle('minimized');
+    body.style.display = isMin ? 'none' : '';
+    btn.textContent    = isMin ? '▲' : '_';
+    document.body.style.paddingBottom = isMin ? '34px' : '220px';
+  });
+
+  // Set initial prompt label
+  switchTerm('spark');
 </script>
 </body>
 </html>
