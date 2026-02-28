@@ -6,6 +6,9 @@
 <title>BCOM-C — Orchestrator</title>
 <link rel="stylesheet" href="../assets/css/bcom.css?v=3" />
 <style>
+/* ── DARK BG OVERRIDE ─── */
+:root { --bg: #575757 !important; --bg-panel: #575757 !important; --bg-deep: #575757 !important; --bg-bar: #575757 !important; }
+
 /* ── ORCHESTRATOR PAGE ─────────────────────────────────── */
 .orch-layout {
   flex: 1;
@@ -27,7 +30,7 @@
   overflow: hidden;
 }
 .orch-panel-hdr {
-  background: #1a0e06;
+  background: #575757;
   border-bottom: 1px solid var(--border-dim);
   padding: 5px 12px;
   font-size: 9px;
@@ -62,7 +65,7 @@
 .orch-label { font-size: 7px; color: #3a3a3a; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1px; }
 
 .orch-input {
-  background: #0d0d0d; border: 1px solid var(--border-dim);
+  background: #575757; border: 1px solid var(--border-dim);
   color: var(--orange); font-family: 'Courier New', monospace;
   font-size: 9px; padding: 4px 8px; width: 100%; box-sizing: border-box;
 }
@@ -70,7 +73,7 @@
 .orch-input::placeholder { color: #222; }
 
 .orch-textarea {
-  background: #0d0d0d; border: 1px solid var(--border-dim);
+  background: #575757; border: 1px solid var(--border-dim);
   color: var(--orange); font-family: 'Courier New', monospace;
   font-size: 9px; padding: 5px 8px; width: 100%; box-sizing: border-box;
   resize: vertical; min-height: 60px; max-height: 110px; line-height: 1.5;
@@ -79,12 +82,12 @@
 .orch-textarea::placeholder { color: #222; }
 
 .orch-select {
-  background: #0d0d0d; border: 1px solid var(--border-dim);
+  background: #575757; border: 1px solid var(--border-dim);
   color: var(--orange); font-family: 'Courier New', monospace;
   font-size: 9px; padding: 4px 8px; width: 100%; box-sizing: border-box;
 }
 .orch-select:focus { outline: none; border-color: var(--orange); }
-.orch-select option { background: #0d0d0d; }
+.orch-select option { background: #575757; }
 
 .orch-file-zone {
   border: 1px dashed #252525; padding: 7px 8px; cursor: pointer;
@@ -123,7 +126,7 @@
   display: flex; flex-direction: column;
 }
 .orch-canvas-hdr {
-  background: #1a0e06; border-bottom: 1px solid var(--border-dim);
+  background: #575757; border-bottom: 1px solid var(--border-dim);
   padding: 5px 12px; display: flex; align-items: center;
   justify-content: space-between; flex-shrink: 0;
 }
@@ -137,7 +140,7 @@
 }
 .orch-canvas-controls { display: flex; gap: 6px; }
 .orch-ctrl-btn {
-  background: #0d0d0d; border: 1px solid var(--border-dim); color: #555;
+  background: #575757; border: 1px solid var(--border-dim); color: #555;
   font-family: 'Courier New', monospace; font-size: 8px; letter-spacing: 1px;
   padding: 2px 8px; cursor: pointer; text-transform: uppercase;
 }
@@ -148,7 +151,7 @@
 
 #orch-tooltip {
   position: absolute; pointer-events: none;
-  background: #080808; border: 1px solid var(--orange-dark);
+  background: #575757; border: 1px solid var(--orange-dark);
   padding: 6px 10px; font-size: 8px; letter-spacing: 1px;
   color: var(--orange); display: none; z-index: 50; min-width: 140px;
 }
@@ -172,7 +175,7 @@
 
 /* Orchestrator card */
 .oc-orch-card {
-  background: #0e0a07; border: 1px solid var(--orange-dark); border-radius: 1px;
+  background: #575757; border: 1px solid var(--orange-dark); border-radius: 1px;
   padding: 8px 10px; display: flex; flex-direction: column; gap: 5px;
 }
 .oc-orch-hdr { display: flex; align-items: center; gap: 6px; }
@@ -202,7 +205,7 @@
 
 /* Agent card */
 .oc-agent-card {
-  background: #060d12; border: 1px solid #0e2030; border-radius: 1px;
+  background: #575757; border: 1px solid #0e2030; border-radius: 1px;
   padding: 6px 10px; display: flex; flex-direction: column; gap: 3px;
   transition: opacity 0.5s, transform 0.3s;
   animation: cardIn 0.35s cubic-bezier(0.16,1,0.3,1);
@@ -244,7 +247,7 @@
   border-radius: 2px; display: flex; flex-direction: column; overflow: hidden;
 }
 .orch-task-hdr {
-  background: #1a0e06; border-bottom: 1px solid var(--border-dim);
+  background: #575757; border-bottom: 1px solid var(--border-dim);
   padding: 5px 12px; display: flex; align-items: center;
   justify-content: space-between; font-size: 9px; font-weight: 700;
   letter-spacing: 2px; color: var(--orange-dark); flex-shrink: 0;
@@ -261,14 +264,14 @@
 .orch-task-table { width: 100%; border-collapse: collapse; font-size: 8px; }
 .orch-task-table th {
   color: #333; border-bottom: 1px solid #151515; padding: 4px 10px;
-  text-align: left; letter-spacing: 1px; font-weight: 700; background: #090909;
+  text-align: left; letter-spacing: 1px; font-weight: 700; background: #575757;
   white-space: nowrap; position: sticky; top: 0; z-index: 1;
 }
 .orch-task-table td {
   padding: 4px 10px; color: #555; border-bottom: 1px solid #0f0f0f;
   white-space: nowrap; letter-spacing: 0.5px;
 }
-.orch-task-table tbody tr:hover td { background: #0f0f0f; }
+.orch-task-table tbody tr:hover td { background: #575757; }
 .task-id    { color: #2a2a2a; font-family: 'Courier New', monospace; }
 .task-name  { color: var(--orange) !important; font-weight: 700; }
 .task-agent { color: #7fb3cc !important; }
@@ -777,7 +780,7 @@ function drawNode(n) {
   // Node fill
   ctx.beginPath();
   ctx.arc(x, y, sr, 0, Math.PI * 2);
-  ctx.fillStyle = n.type === 'orchestrator' ? '#160e08' : '#071018';
+  ctx.fillStyle = n.type === 'orchestrator' ? '#444' : '#464e54';
   ctx.globalAlpha = a;
   ctx.fill();
   ctx.strokeStyle = n.color;
@@ -798,7 +801,7 @@ function drawNode(n) {
 
   // Sub-label (model name for BOB AI)
   ctx.font = `600 7px "Courier New", monospace`;
-  ctx.fillStyle = n.type === 'orchestrator' ? '#c87a5a' : '#2e5a78';
+  ctx.fillStyle = n.type === 'orchestrator' ? '#c87a5a' : '#7fb3cc';
   ctx.fillText(n.sub, x, y + 6);
 
   // Task badge
@@ -824,7 +827,7 @@ function render() {
 
   // Grid
   ctx.save();
-  ctx.strokeStyle = '#141414';
+  ctx.strokeStyle = '#686868';
   ctx.lineWidth = 0.5;
   const gs = 44;
   for (let gx = 0; gx < W; gx += gs) { ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke(); }
@@ -1086,7 +1089,7 @@ function renderTaskTable() {
     const sc  = t.status === 'complete' ? 'complete' : t.status === 'error' ? 'error' : t.status === 'running' ? 'running' : 'queued';
     const pc  = PRIORITY_COLORS[t.priority] || '#555';
     const el  = Math.floor((Date.now() - t.queuedAt) / 1000);
-    const bar = `<div style="width:100%;background:#111;border-radius:1px;height:5px;overflow:hidden">
+    const bar = `<div style="width:100%;background:#575757;border-radius:1px;height:5px;overflow:hidden">
       <div style="width:${t.progress}%;background:${t.status==='error'?'#e74c3c':'var(--orange)'};height:5px;border-radius:1px;transition:width .4s"></div></div>`;
     const sid = t.id.length > 12 ? t.id.slice(0,8)+'…' : t.id;
     return `<tr onclick="viewRun('${t.id}')" style="cursor:pointer">
