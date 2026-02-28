@@ -6,57 +6,23 @@
 <title>BCOM-C — Reports</title>
 <link rel="stylesheet" href="../assets/css/bcom.css" />
 <style>
-  .standby-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 40px 16px;
-  }
-  .standby-label {
-    font-size: clamp(28px, 4vw, 48px);
-    font-weight: 700;
-    letter-spacing: 6px;
-    color: var(--orange-dark);
-    text-shadow: 0 0 20px rgba(184,97,58,0.3);
-  }
-  .standby-sub {
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: #444;
-  }
-  .standby-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #555;
-    border: 1px solid #2a1a0e;
-    padding: 6px 16px;
-  }
-  .standby-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #f39c12;
-    box-shadow: 0 0 6px #f39c12;
-    animation: pulse 2s infinite;
-  }
-  .standby-divider {
-    width: clamp(200px, 30%, 400px);
-    height: 1px;
-    background: linear-gradient(to right, transparent, #3a1a0a, transparent);
-  }
-  .standby-desc {
-    font-size: 9px;
-    color: #3a3a3a;
-    letter-spacing: 1.5px;
-    text-align: center;
-    max-width: 500px;
-    line-height: 2;
-  }
+  .rpt-table { width:100%; border-collapse:collapse; font-size:10px; letter-spacing:.5px; }
+  .rpt-table th { background:#0e0a06; color:#444; font-weight:600; letter-spacing:1.5px; padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .rpt-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; }
+  .rpt-table tr:hover td { background:#0e0905; }
+  .rpt-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
+  .rpt-pill { display:inline-block; font-size:7px; letter-spacing:1.5px; padding:2px 7px; border:1px solid; }
+  .rpt-pill.pass  { color:#27ae60; border-color:#27ae60; }
+  .rpt-pill.fail  { color:#e74c3c; border-color:#e74c3c; }
+  .rpt-pill.error { color:#f39c12; border-color:#f39c12; }
+  .score-hi  { color:#27ae60; font-weight:700; }
+  .score-mid { color:var(--orange); font-weight:700; }
+  .score-lo  { color:#e74c3c; font-weight:700; }
+  .summary-row { display:flex; gap:12px; flex-wrap:wrap; }
+  .sum-chip { border:1px solid #1a0e05; padding:8px 14px; background:#090603; font-size:9px; letter-spacing:1px; color:#555; }
+  .sum-chip span { display:block; font-size:16px; font-weight:700; color:var(--orange); margin-top:2px; }
+  .filter-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .filter-bar label { font-size:8px; letter-spacing:1px; color:#444; }
 </style>
 </head>
 <body>
@@ -76,26 +42,93 @@
 <div class="actionbar">
   <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>
   <button class="action-btn danger" onclick="triggerAction('RESTART LLM')">RESTART LLM</button>
-  <button class="action-btn" onclick="triggerAction('DOWNLOAD MODEL')">DOWNLOAD MODEL</button>
-  <button class="action-btn" onclick="triggerAction('ASK ADVISOR')">ASK ADVISOR</button>
+  <button class="action-btn" onclick="exportAll('eval')">&#8659; EXPORT EVALS</button>
+  <button class="action-btn" onclick="exportAll('runs')">&#8659; EXPORT RUNS</button>
 </div>
 
 <div class="main">
-  <div class="standby-wrap">
-    <div class="standby-label">REPORTS</div>
-    <div class="standby-divider"></div>
-    <div class="standby-status">
-      <div class="standby-dot"></div>
-      MODULE STANDBY
+  <div class="info-grid">
+
+    <!-- SUMMARY -->
+    <div class="info-card">
+      <div class="info-card-hdr">Session Summary</div>
+      <div class="summary-row">
+        <div class="sum-chip">EVAL RUNS<span id="sum-evals">--</span></div>
+        <div class="sum-chip">PIPELINE RUNS<span id="sum-pipelines">--</span></div>
+        <div class="sum-chip">DATA JOBS<span id="sum-datajobs">--</span></div>
+        <div class="sum-chip">BEST SCORE<span id="sum-bestscore">--</span></div>
+        <div class="sum-chip">AVG SCORE<span id="sum-avgscore">--</span></div>
+        <div class="sum-chip">FINE-TUNES<span id="sum-ft">--</span></div>
+      </div>
     </div>
-    <div class="standby-desc">
-      REPORTS MODULE // PENDING IMPLEMENTATION<br>
-      RUN LOGS · PERFORMANCE HISTORY · EXPORT · AUDIT TRAIL
+
+    <!-- EVAL HISTORY -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span>Eval History</span>
+        <div class="filter-bar">
+          <label>MODEL</label>
+          <input class="form-input" id="flt-model" type="text" placeholder="filter..." style="width:110px;font-size:8px;padding:3px 8px;" oninput="renderEvals()" />
+          <label>SUITE</label>
+          <input class="form-input" id="flt-suite" type="text" placeholder="filter..." style="width:80px;font-size:8px;padding:3px 8px;" oninput="renderEvals()" />
+          <select class="form-select" id="flt-status" style="font-size:8px;padding:2px 8px;width:auto;" onchange="renderEvals()">
+            <option value="all">ALL</option><option value="pass">PASS</option><option value="fail">FAIL</option>
+          </select>
+          <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportAll('eval')">&#8659; CSV</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="rpt-table">
+          <thead>
+            <tr><th>RUN ID</th><th>DATE</th><th>MODEL</th><th>BACKEND</th><th>JUDGE</th><th>SUITE</th><th>SCORE</th><th>PASS RATE</th><th>TIME</th><th>STATUS</th></tr>
+          </thead>
+          <tbody id="eval-tbody">
+            <tr><td colspan="10" class="empty">NO EVAL RUNS YET</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+
+    <!-- TRAINING RUNS -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Training Run History</span>
+        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportAll('train')">&#8659; CSV</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="rpt-table">
+          <thead>
+            <tr><th>RUN ID</th><th>MODEL</th><th>DATASET</th><th>RANK</th><th>EPOCHS</th><th>LR</th><th>NODE</th><th>DURATION</th><th>FINAL LOSS</th><th>STATUS</th></tr>
+          </thead>
+          <tbody id="train-tbody">
+            <tr><td colspan="10" class="empty">NO TRAINING RUNS YET</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PIPELINE RUNS -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Pipeline Run History</span>
+        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportAll('pipeline')">&#8659; CSV</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="rpt-table">
+          <thead>
+            <tr><th>RUN ID</th><th>MODEL</th><th>BACKEND</th><th>SUITE</th><th>TARGET</th><th>ITERS</th><th>FINAL SCORE</th><th>NODE</th><th>DURATION</th><th>STATUS</th></tr>
+          </thead>
+          <tbody id="pipeline-tbody">
+            <tr><td colspan="10" class="empty">NO PIPELINE RUNS YET</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <div class="log-panel" id="log">
-    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">REPORTS module initialized. Awaiting configuration...</span></div>
+    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">REPORTS module ready. Historical data populates as runs complete.</span></div>
   </div>
 </div>
 
@@ -105,6 +138,147 @@
   <span>SESSION ACTIVE</span>
 </div>
 
+<!-- TERMINAL DOCK -->
+<div class="terminal-dock" id="terminal-dock">
+  <div class="terminal-bar">
+    <div class="terminal-tabs">
+      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
+      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
+    </div>
+    <div class="terminal-controls">
+      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminal-body">
+    <div class="terminal-output" id="term-out-spark"><div class="term-line sys">[bcom-c] reports terminal ready</div></div>
+    <div class="terminal-output" id="term-out-linux" style="display:none"><div class="term-line sys">[bcom-c] reports terminal ready</div></div>
+    <div class="terminal-input-row">
+      <span class="term-prompt" id="term-prompt">$</span>
+      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
+    </div>
+  </div>
+</div>
+
 <script src="../assets/js/bcom.js"></script>
+<script>
+  BCOM.pollInterval = 5000;
+  startPolling();
+
+  const DEMO_EVALS = [
+    { id:'EVL-0041', date:'2026-02-28', model:'gpt-oss-20b-ft3', backend:'vLLM',   judge:'claude-3-5', suite:'hard_15',  score:84, passrate:'84%', time:'4m 12s', status:'pass' },
+    { id:'EVL-0040', date:'2026-02-28', model:'gpt-oss-20b-ft2', backend:'vLLM',   judge:'claude-3-5', suite:'hard_15',  score:71, passrate:'71%', time:'4m 02s', status:'fail' },
+    { id:'EVL-0039', date:'2026-02-27', model:'gpt-oss-20b-ft1', backend:'vLLM',   judge:'claude-3-5', suite:'hard_15',  score:63, passrate:'63%', time:'3m 58s', status:'fail' },
+    { id:'EVL-0038', date:'2026-02-27', model:'mistral-7b-q4',   backend:'Ollama', judge:'gpt-4o',     suite:'easy_20',  score:91, passrate:'91%', time:'6m 44s', status:'pass' },
+    { id:'EVL-0037', date:'2026-02-26', model:'llama3-8b-inst',  backend:'Ollama', judge:'gpt-4o',     suite:'easy_20',  score:88, passrate:'88%', time:'7m 01s', status:'pass' },
+    { id:'EVL-0036', date:'2026-02-26', model:'qwen2.5-14b',     backend:'Ollama', judge:'claude-3-5', suite:'hard_15',  score:77, passrate:'77%', time:'5m 22s', status:'fail' },
+    { id:'EVL-0035', date:'2026-02-25', model:'phi-3-mini',      backend:'Ollama', judge:'gpt-4o-mini',suite:'basic_30', score:95, passrate:'95%', time:'8m 34s', status:'pass' },
+  ];
+  const DEMO_TRAINS = [
+    { id:'FT-0012', model:'gpt-oss-20b', dataset:'/data/gen/hard_15_200.jsonl', rank:16, epochs:3, lr:'2e-4', node:'SPARK-BOB',   dur:'38m',   loss:'0.0812', status:'pass' },
+    { id:'FT-0011', model:'gpt-oss-20b', dataset:'/data/gen/hard_15_200.jsonl', rank:16, epochs:3, lr:'2e-4', node:'SPARK-BOB',   dur:'36m',   loss:'0.1104', status:'pass' },
+    { id:'FT-0010', model:'gpt-oss-20b', dataset:'/data/gen/hard_15_200.jsonl', rank:8,  epochs:2, lr:'3e-4', node:'SPARK-BOB',   dur:'22m',   loss:'0.1432', status:'pass' },
+    { id:'FT-0009', model:'mistral-7b',  dataset:'/data/gen/easy_20_500.jsonl', rank:32, epochs:5, lr:'1e-4', node:'LINUX-DSKTP', dur:'1h 12m',loss:'0.0621', status:'pass' },
+  ];
+  const DEMO_PIPELINES = [
+    { id:'PLR-0005', model:'gpt-oss-20b-ft3', backend:'vLLM',   suite:'hard_15', target:'80%', iters:3, score:'84%', node:'SPARK-BOB',   dur:'2h 14m', status:'pass' },
+    { id:'PLR-0004', model:'gpt-oss-20b-ft2', backend:'vLLM',   suite:'hard_15', target:'80%', iters:3, score:'71%', node:'SPARK-BOB',   dur:'2h 08m', status:'fail' },
+    { id:'PLR-0003', model:'gpt-oss-20b',     backend:'vLLM',   suite:'hard_15', target:'80%', iters:3, score:'63%', node:'SPARK-BOB',   dur:'1h 54m', status:'fail' },
+    { id:'PLR-0002', model:'mistral-7b',      backend:'Ollama', suite:'easy_20', target:'85%', iters:2, score:'91%', node:'LINUX-DSKTP', dur:'3h 22m', status:'pass' },
+  ];
+
+  function sc(n) { return n >= 80 ? 'score-hi' : n >= 65 ? 'score-mid' : 'score-lo'; }
+
+  function renderEvals() {
+    const fm  = document.getElementById('flt-model').value.toLowerCase();
+    const fs  = document.getElementById('flt-suite').value.toLowerCase();
+    const fst = document.getElementById('flt-status').value;
+    let d = DEMO_EVALS;
+    if (fm)        d = d.filter(r => r.model.toLowerCase().includes(fm));
+    if (fs)        d = d.filter(r => r.suite.toLowerCase().includes(fs));
+    if (fst!=='all') d = d.filter(r => r.status === fst);
+    const tb = document.getElementById('eval-tbody');
+    if (!d.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO MATCHING RUNS</td></tr>'; return; }
+    tb.innerHTML = d.map(r => `<tr>
+      <td style="color:var(--orange-dark)">${r.id}</td>
+      <td style="color:#444">${r.date}</td><td>${r.model}</td><td>${r.backend}</td>
+      <td>${r.judge}</td><td>${r.suite}</td>
+      <td class="${sc(r.score)}">${r.score}%</td>
+      <td>${r.passrate}</td><td style="color:#444">${r.time}</td>
+      <td><span class="rpt-pill ${r.status}">${r.status.toUpperCase()}</span></td>
+    </tr>`).join('');
+  }
+
+  function renderTrains() {
+    const tb = document.getElementById('train-tbody');
+    if (!DEMO_TRAINS.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO TRAINING RUNS</td></tr>'; return; }
+    tb.innerHTML = DEMO_TRAINS.map(r => `<tr>
+      <td style="color:var(--orange-dark)">${r.id}</td>
+      <td>${r.model}</td><td style="font-size:8px;color:#444">${r.dataset}</td>
+      <td>${r.rank}</td><td>${r.epochs}</td><td>${r.lr}</td><td>${r.node}</td>
+      <td>${r.dur}</td><td class="${sc(parseFloat(r.loss)<0.09?85:parseFloat(r.loss)<0.12?70:55)}">${r.loss}</td>
+      <td><span class="rpt-pill ${r.status}">${r.status.toUpperCase()}</span></td>
+    </tr>`).join('');
+  }
+
+  function renderPipelines() {
+    const tb = document.getElementById('pipeline-tbody');
+    if (!DEMO_PIPELINES.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO PIPELINE RUNS</td></tr>'; return; }
+    tb.innerHTML = DEMO_PIPELINES.map(r => `<tr>
+      <td style="color:var(--orange-dark)">${r.id}</td>
+      <td>${r.model}</td><td>${r.backend}</td><td>${r.suite}</td><td>${r.target}</td>
+      <td>${r.iters}</td><td class="${sc(parseInt(r.score))}">${r.score}</td>
+      <td>${r.node}</td><td>${r.dur}</td>
+      <td><span class="rpt-pill ${r.status}">${r.status.toUpperCase()}</span></td>
+    </tr>`).join('');
+  }
+
+  function renderSummary() {
+    const scores = DEMO_EVALS.map(r => r.score);
+    document.getElementById('sum-evals').textContent     = DEMO_EVALS.length;
+    document.getElementById('sum-pipelines').textContent = DEMO_PIPELINES.length;
+    document.getElementById('sum-datajobs').textContent  = '9';
+    document.getElementById('sum-bestscore').textContent = Math.max(...scores) + '%';
+    document.getElementById('sum-avgscore').textContent  = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) + '%';
+    document.getElementById('sum-ft').textContent        = DEMO_TRAINS.length;
+  }
+
+  function exportAll(type) {
+    logLine(`CMD: EXPORT ${type.toUpperCase()} — CSV`, 'info');
+    if (!BCOM.apiBase) logLine('No API — export unavailable', 'warn');
+  }
+
+  renderSummary(); renderEvals(); renderTrains(); renderPipelines();
+
+  // Terminal
+  let _termNode = 'spark';
+  function switchTerm(node) {
+    _termNode = node;
+    document.querySelectorAll('.terminal-tab').forEach(t => t.classList.toggle('active', t.dataset.term === node));
+    ['spark','linux'].forEach(n => { const el = document.getElementById('term-out-'+n); if (el) el.style.display = n===node?'block':'none'; });
+    document.getElementById('term-prompt').textContent = (node==='spark'?'spark-bob':'linux-dsktp')+' $';
+    document.getElementById('terminal-input').focus();
+  }
+  function termLine(text, cls) {
+    const out = document.getElementById('term-out-'+_termNode); if (!out) return;
+    const div = document.createElement('div'); div.className = 'term-line'+(cls?' '+cls:''); div.textContent = text;
+    out.appendChild(div); out.scrollTop = out.scrollHeight;
+  }
+  document.getElementById('terminal-input').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const cmd = e.target.value.trim(); if (!cmd) return;
+    termLine((_termNode==='spark'?'spark-bob':'linux-dsktp')+' $ '+cmd); e.target.value = '';
+    if (!BCOM.apiBase) termLine('[bcom-c] no API — command not sent', 'dim');
+  });
+  document.getElementById('term-minimize').addEventListener('click', () => {
+    const dock = document.getElementById('terminal-dock');
+    const body = document.getElementById('terminal-body');
+    const btn  = document.getElementById('term-minimize');
+    const isMin = dock.classList.toggle('minimized');
+    body.style.display = isMin ? 'none' : '';
+    btn.textContent = isMin ? '▲' : '_';
+    document.body.style.paddingBottom = isMin ? '34px' : '220px';
+  });
+  switchTerm('spark');
+</script>
 </body>
 </html>

@@ -6,57 +6,23 @@
 <title>BCOM-C — Data Gen</title>
 <link rel="stylesheet" href="../assets/css/bcom.css" />
 <style>
-  .standby-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 40px 16px;
-  }
-  .standby-label {
-    font-size: clamp(28px, 4vw, 48px);
-    font-weight: 700;
-    letter-spacing: 6px;
-    color: var(--orange-dark);
-    text-shadow: 0 0 20px rgba(184,97,58,0.3);
-  }
-  .standby-sub {
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: #444;
-  }
-  .standby-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #555;
-    border: 1px solid #2a1a0e;
-    padding: 6px 16px;
-  }
-  .standby-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #f39c12;
-    box-shadow: 0 0 6px #f39c12;
-    animation: pulse 2s infinite;
-  }
-  .standby-divider {
-    width: clamp(200px, 30%, 400px);
-    height: 1px;
-    background: linear-gradient(to right, transparent, #3a1a0a, transparent);
-  }
-  .standby-desc {
-    font-size: 9px;
-    color: #3a3a3a;
-    letter-spacing: 1.5px;
-    text-align: center;
-    max-width: 500px;
-    line-height: 2;
-  }
+  .job-table { width:100%; border-collapse:collapse; font-size:10px; letter-spacing:.5px; }
+  .job-table th { background:#0e0a06; color:#444; font-weight:600; letter-spacing:1.5px;
+                   padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .job-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; }
+  .job-table tr:hover td { background:#0e0905; }
+  .job-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
+  .job-status { display:inline-block; font-size:8px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
+  .job-status.running { color:#27ae60; border-color:#27ae60; }
+  .job-status.queued  { color:#f39c12; border-color:#f39c12; }
+  .job-status.done    { color:#444;    border-color:#333; }
+  .job-status.error   { color:#e74c3c; border-color:#e74c3c; }
+  .job-wrap { overflow-x:auto; }
+  .opt-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .opt-toggle { display:flex; align-items:center; gap:8px; font-size:9px; letter-spacing:1px; color:#555; cursor:pointer; }
+  .opt-toggle input { accent-color:var(--orange-dark); }
+  .prog-track { background:#0e0905; height:4px; margin-top:4px; }
+  .prog-fill   { height:4px; background:var(--orange-dark); transition:width .4s; }
 </style>
 </head>
 <body>
@@ -69,6 +35,7 @@
     <a class="nav-btn" href="pipeline.html">PIPELINE</a>
     <a class="nav-btn" href="resources.html">RESOURCES</a>
     <a class="nav-btn" href="reports.html">REPORTS</a>
+    <a class="nav-btn" href="orchestrator.html">ORCHESTRATOR</a>
     <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
   </div>
 </div>
@@ -77,25 +44,137 @@
   <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>
   <button class="action-btn danger" onclick="triggerAction('RESTART LLM')">RESTART LLM</button>
   <button class="action-btn" onclick="triggerAction('DOWNLOAD MODEL')">DOWNLOAD MODEL</button>
-  <button class="action-btn" onclick="triggerAction('ASK ADVISOR')">ASK ADVISOR</button>
+  <button class="action-btn" onclick="submitJob()">&#9654; START JOB</button>
 </div>
 
 <div class="main">
-  <div class="standby-wrap">
-    <div class="standby-label">DATA GEN</div>
-    <div class="standby-divider"></div>
-    <div class="standby-status">
-      <div class="standby-dot"></div>
-      MODULE STANDBY
+  <div class="info-grid">
+
+    <!-- JOB CONFIGURATION -->
+    <div class="info-card">
+      <div class="info-card-hdr">Job Configuration</div>
+      <div class="form-body">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Job Type</label>
+            <select class="form-select" id="dg-type">
+              <option value="qa">Q&amp;A Pairs</option>
+              <option value="inst">Instruction Set</option>
+              <option value="reason">Reasoning Chain</option>
+              <option value="code">Code Problems</option>
+              <option value="conv">Conversations</option>
+              <option value="schema">Schema Structured</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Domain / Services</label>
+            <input class="form-input" id="dg-domain" type="text" placeholder="e.g. IAM, S3, Lambda" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Source Model</label>
+            <select class="form-select" id="dg-model">
+              <option>claude-3-5-sonnet</option>
+              <option>gpt-4o</option>
+              <option>local/spark-model</option>
+              <option>local/linux-model</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Count</label>
+            <input class="form-input" id="dg-count" type="number" value="100" min="1" max="10000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Output Format</label>
+            <select class="form-select" id="dg-format">
+              <option>JSONL</option><option>JSON</option><option>CSV</option><option>Parquet</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Node</label>
+            <select class="form-select" id="dg-node">
+              <option value="spark">SPARK-BOB</option>
+              <option value="linux">LINUX-DSKTP</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Output Path</label>
+          <input class="form-input" id="dg-path" type="text" placeholder="/data/gen/output.jsonl" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">System Prompt Override (optional)</label>
+          <textarea class="form-input" id="dg-sysprompt" rows="3"
+            style="resize:vertical;font-family:inherit;line-height:1.6;"
+            placeholder="Custom system prompt for generation model..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Options</label>
+          <div class="opt-grid">
+            <label class="opt-toggle"><input type="checkbox" id="dg-dedup" checked /> DEDUP PAIRS</label>
+            <label class="opt-toggle"><input type="checkbox" id="dg-shuffle" checked /> SHUFFLE OUTPUT</label>
+            <label class="opt-toggle"><input type="checkbox" id="dg-validate" checked /> VALIDATE SCHEMA</label>
+            <label class="opt-toggle"><input type="checkbox" id="dg-stream" /> STREAM RESULTS</label>
+            <label class="opt-toggle"><input type="checkbox" id="dg-overwrite" /> OVERWRITE FILE</label>
+            <label class="opt-toggle"><input type="checkbox" id="dg-autoeval" /> AUTO-EVAL AFTER</label>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Temperature</label>
+            <input class="form-input" id="dg-temp" type="number" value="0.8" min="0" max="2" step="0.05" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Seed (blank = random)</label>
+            <input class="form-input" id="dg-seed" type="number" placeholder="--" />
+          </div>
+        </div>
+        <button class="form-submit" onclick="submitJob()">&#9654; Enqueue Job</button>
+        <div class="form-output" id="dg-output">--</div>
+      </div>
     </div>
-    <div class="standby-desc">
-      DATA GENERATION MODULE // PENDING IMPLEMENTATION<br>
-      SYNTHETIC DATA PIPELINES · SCHEMA CONFIG · BATCH JOBS
+
+    <!-- ACTIVE JOBS -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Active Jobs</span>
+        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="refreshJobs()">&#8635; Refresh</button>
+      </div>
+      <div class="job-wrap">
+        <table class="job-table">
+          <thead>
+            <tr><th>JOB ID</th><th>TYPE</th><th>DOMAIN</th><th>NODE</th><th>COUNT</th><th>PROGRESS</th><th>STATUS</th><th></th></tr>
+          </thead>
+          <tbody id="active-jobs-body">
+            <tr><td colspan="8" class="empty">NO ACTIVE JOBS</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+
+    <!-- JOB HISTORY -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Job History</span>
+        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportHistory()">&#8659; Export CSV</button>
+      </div>
+      <div class="job-wrap">
+        <table class="job-table">
+          <thead>
+            <tr><th>JOB ID</th><th>TYPE</th><th>DOMAIN</th><th>NODE</th><th>COUNT</th><th>FORMAT</th><th>DURATION</th><th>STATUS</th><th>OUTPUT</th></tr>
+          </thead>
+          <tbody id="history-body">
+            <tr><td colspan="9" class="empty">NO JOB HISTORY</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <div class="log-panel" id="log">
-    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">DATA GEN module initialized. Awaiting configuration...</span></div>
+    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">DATA GEN ready. Configure and enqueue a job.</span></div>
   </div>
 </div>
 
@@ -105,6 +184,144 @@
   <span>SESSION ACTIVE</span>
 </div>
 
+<!-- TERMINAL DOCK -->
+<div class="terminal-dock" id="terminal-dock">
+  <div class="terminal-bar">
+    <div class="terminal-tabs">
+      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
+      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
+    </div>
+    <div class="terminal-controls">
+      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminal-body">
+    <div class="terminal-output" id="term-out-spark">
+      <div class="term-line sys">[bcom-c] data-gen terminal ready</div>
+    </div>
+    <div class="terminal-output" id="term-out-linux" style="display:none">
+      <div class="term-line sys">[bcom-c] data-gen terminal ready</div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="term-prompt" id="term-prompt">$</span>
+      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
+    </div>
+  </div>
+</div>
+
 <script src="../assets/js/bcom.js"></script>
+<script>
+  BCOM.pollInterval = 5000;
+  startPolling();
+
+  let _jobSeq = 1, _jobs = [], _history = [];
+
+  function submitJob() {
+    const typeEl  = document.getElementById('dg-type');
+    const domain  = document.getElementById('dg-domain').value.trim();
+    const count   = document.getElementById('dg-count').value || '100';
+    const node    = document.getElementById('dg-node').value;
+    const fmt     = document.getElementById('dg-format').value;
+    const path    = document.getElementById('dg-path').value.trim() || '/data/gen/output.jsonl';
+    const typeLabel = typeEl.options[typeEl.selectedIndex].text;
+    if (!domain) { logLine('Form error: Domain is required', 'warn'); return; }
+    const id = 'DGJ-' + String(_jobSeq++).padStart(4,'0');
+    const t  = new Date().toTimeString().split(' ')[0];
+    const job = { id, type:typeLabel, domain, node: node==='spark'?'SPARK-BOB':'LINUX-DSKTP',
+                  count, fmt, path, status:'queued', progress:0, start:t };
+    _jobs.unshift(job);
+    logLine(`CMD: DATA GEN — ${id} queued [${count} ${typeLabel} / ${domain}]`, 'info');
+    const out = document.getElementById('dg-output');
+    out.textContent = `[${t}] ${id} queued — ${count} ${typeLabel} on ${job.node}`;
+    out.style.color = 'var(--orange-dark)';
+    if (!BCOM.apiBase) { logLine('No API — simulating locally', 'warn'); simulateJob(job); }
+    renderActiveJobs();
+  }
+
+  function simulateJob(job) {
+    let prog = 0;
+    job.status = 'running';
+    renderActiveJobs();
+    const iv = setInterval(() => {
+      prog += Math.floor(Math.random() * 15) + 5;
+      if (prog >= 100) {
+        prog = 100; job.status = 'done'; job.duration = (Math.floor(Math.random()*55)+5)+'s';
+        clearInterval(iv);
+        _history.unshift(job); if (_history.length > 50) _history.pop();
+        _jobs = _jobs.filter(j => j !== job);
+        logLine(`JOB ${job.id} — complete (${job.count} records → ${job.path})`, 'info');
+        renderActiveJobs(); renderHistory();
+      }
+      job.progress = Math.min(prog, 100);
+      renderActiveJobs();
+    }, 700);
+  }
+
+  function renderActiveJobs() {
+    const tb = document.getElementById('active-jobs-body');
+    const active = _jobs.filter(j => j.status !== 'done' && j.status !== 'error');
+    if (!active.length) { tb.innerHTML = '<tr><td colspan="8" class="empty">NO ACTIVE JOBS</td></tr>'; return; }
+    tb.innerHTML = active.map(j => `<tr>
+      <td style="color:var(--orange-dark)">${j.id}</td>
+      <td>${j.type}</td><td>${j.domain}</td><td>${j.node}</td><td>${j.count}</td>
+      <td style="min-width:90px">${j.progress}%<div class="prog-track"><div class="prog-fill" style="width:${j.progress}%"></div></div></td>
+      <td><span class="job-status ${j.status}">${j.status.toUpperCase()}</span></td>
+      <td><button class="ctr-btn" onclick="cancelJob('${j.id}')">CANCEL</button></td>
+    </tr>`).join('');
+  }
+
+  function renderHistory() {
+    const tb = document.getElementById('history-body');
+    if (!_history.length) { tb.innerHTML = '<tr><td colspan="9" class="empty">NO JOB HISTORY</td></tr>'; return; }
+    tb.innerHTML = _history.map(j => `<tr>
+      <td style="color:var(--orange-dark)">${j.id}</td>
+      <td>${j.type}</td><td>${j.domain}</td><td>${j.node}</td><td>${j.count}</td>
+      <td>${j.fmt}</td><td>${j.duration||'--'}</td>
+      <td><span class="job-status ${j.status}">${j.status.toUpperCase()}</span></td>
+      <td style="font-size:8px;color:#444">${j.path}</td>
+    </tr>`).join('');
+  }
+
+  function cancelJob(id) {
+    const j = _jobs.find(x => x.id === id);
+    if (j) { j.status = 'error'; j.duration = '--'; _history.unshift(j); _jobs = _jobs.filter(x => x.id !== id); }
+    logLine(`CMD: CANCEL — ${id}`, 'warn');
+    renderActiveJobs(); renderHistory();
+  }
+
+  function refreshJobs() { logLine('Jobs refreshed', 'info'); renderActiveJobs(); renderHistory(); }
+  function exportHistory() { logLine('CMD: EXPORT HISTORY', 'info'); if (!BCOM.apiBase) logLine('No API — export unavailable', 'warn'); }
+
+  // Terminal
+  let _termNode = 'spark';
+  function switchTerm(node) {
+    _termNode = node;
+    document.querySelectorAll('.terminal-tab').forEach(t => t.classList.toggle('active', t.dataset.term === node));
+    ['spark','linux'].forEach(n => { const el = document.getElementById('term-out-'+n); if (el) el.style.display = n===node?'block':'none'; });
+    document.getElementById('term-prompt').textContent = (node==='spark'?'spark-bob':'linux-dsktp')+' $';
+    document.getElementById('terminal-input').focus();
+  }
+  function termLine(text, cls) {
+    const out = document.getElementById('term-out-'+_termNode); if (!out) return;
+    const div = document.createElement('div'); div.className = 'term-line'+(cls?' '+cls:''); div.textContent = text;
+    out.appendChild(div); out.scrollTop = out.scrollHeight;
+  }
+  document.getElementById('terminal-input').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const cmd = e.target.value.trim(); if (!cmd) return;
+    termLine((_termNode==='spark'?'spark-bob':'linux-dsktp')+' $ '+cmd); e.target.value = '';
+    if (!BCOM.apiBase) termLine('[bcom-c] no API — command not sent', 'dim');
+  });
+  document.getElementById('term-minimize').addEventListener('click', () => {
+    const dock = document.getElementById('terminal-dock');
+    const body = document.getElementById('terminal-body');
+    const btn  = document.getElementById('term-minimize');
+    const isMin = dock.classList.toggle('minimized');
+    body.style.display = isMin ? 'none' : '';
+    btn.textContent = isMin ? '▲' : '_';
+    document.body.style.paddingBottom = isMin ? '34px' : '220px';
+  });
+  switchTerm('spark');
+</script>
 </body>
 </html>

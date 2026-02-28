@@ -6,57 +6,44 @@
 <title>BCOM-C — Pipeline</title>
 <link rel="stylesheet" href="../assets/css/bcom.css" />
 <style>
-  .standby-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 40px 16px;
+  /* Pipeline stage flow */
+  .stage-flow { display:flex; align-items:center; gap:0; margin:16px 0; overflow-x:auto; padding-bottom:4px; }
+  .stage-box {
+    flex-shrink:0; min-width:110px; text-align:center;
+    border:1px solid #1e1008; padding:10px 14px;
+    font-size:9px; letter-spacing:2px; color:#444;
+    position:relative; background:#090603;
   }
-  .standby-label {
-    font-size: clamp(28px, 4vw, 48px);
-    font-weight: 700;
-    letter-spacing: 6px;
-    color: var(--orange-dark);
-    text-shadow: 0 0 20px rgba(184,97,58,0.3);
+  .stage-box.active   { border-color:var(--orange-dark); color:var(--orange); box-shadow:0 0 10px rgba(218,119,86,0.15); }
+  .stage-box.done     { border-color:#27ae60; color:#27ae60; }
+  .stage-box.error    { border-color:#e74c3c; color:#e74c3c; }
+  .stage-icon { font-size:16px; display:block; margin-bottom:4px; }
+  .stage-name { font-weight:700; }
+  .stage-sub  { font-size:7px; color:#333; margin-top:2px; letter-spacing:1px; }
+  .stage-arrow { color:#2a1508; font-size:18px; flex-shrink:0; margin:0 4px; }
+  .stage-arrow.lit { color:var(--orange-dark); }
+  /* Run table */
+  .run-table { width:100%; border-collapse:collapse; font-size:10px; letter-spacing:.5px; }
+  .run-table th { background:#0e0a06; color:#444; font-weight:600; letter-spacing:1.5px;
+                  padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .run-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; }
+  .run-table tr:hover td { background:#0e0905; }
+  .run-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
+  .run-status { display:inline-block; font-size:8px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
+  .run-status.running  { color:#27ae60; border-color:#27ae60; }
+  .run-status.queued   { color:#f39c12; border-color:#f39c12; }
+  .run-status.done     { color:#444;    border-color:#333; }
+  .run-status.error    { color:#e74c3c; border-color:#e74c3c; }
+  /* Active pipeline banner */
+  .active-banner {
+    border:1px solid var(--orange-dark); padding:12px 16px;
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    background:#0c0703; margin-bottom:2px;
   }
-  .standby-sub {
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: #444;
-  }
-  .standby-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #555;
-    border: 1px solid #2a1a0e;
-    padding: 6px 16px;
-  }
-  .standby-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #f39c12;
-    box-shadow: 0 0 6px #f39c12;
-    animation: pulse 2s infinite;
-  }
-  .standby-divider {
-    width: clamp(200px, 30%, 400px);
-    height: 1px;
-    background: linear-gradient(to right, transparent, #3a1a0a, transparent);
-  }
-  .standby-desc {
-    font-size: 9px;
-    color: #3a3a3a;
-    letter-spacing: 1.5px;
-    text-align: center;
-    max-width: 500px;
-    line-height: 2;
-  }
+  .banner-field { font-size:9px; letter-spacing:1px; color:#555; }
+  .banner-field span { color:var(--orange); display:block; margin-top:2px; font-weight:700; }
+  .prog-track { background:#0e0905; height:6px; margin-top:6px; flex:1; min-width:120px; }
+  .prog-fill   { height:6px; background:var(--orange-dark); transition:width .4s; }
 </style>
 </head>
 <body>
@@ -69,6 +56,7 @@
     <a class="nav-btn active" href="pipeline.html">PIPELINE</a>
     <a class="nav-btn" href="resources.html">RESOURCES</a>
     <a class="nav-btn" href="reports.html">REPORTS</a>
+    <a class="nav-btn" href="orchestrator.html">ORCHESTRATOR</a>
     <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
   </div>
 </div>
@@ -76,26 +64,138 @@
 <div class="actionbar">
   <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>
   <button class="action-btn danger" onclick="triggerAction('RESTART LLM')">RESTART LLM</button>
-  <button class="action-btn" onclick="triggerAction('DOWNLOAD MODEL')">DOWNLOAD MODEL</button>
-  <button class="action-btn" onclick="triggerAction('ASK ADVISOR')">ASK ADVISOR</button>
+  <button class="action-btn" onclick="launchPipeline()">&#9654; LAUNCH PIPELINE</button>
+  <button class="action-btn" id="btn-stop" style="display:none" onclick="stopPipeline()">&#9632; STOP</button>
 </div>
 
 <div class="main">
-  <div class="standby-wrap">
-    <div class="standby-label">PIPELINE</div>
-    <div class="standby-divider"></div>
-    <div class="standby-status">
-      <div class="standby-dot"></div>
-      MODULE STANDBY
+  <div class="info-grid">
+
+    <!-- PIPELINE STAGE FLOW -->
+    <div class="info-card">
+      <div class="info-card-hdr">Closed-Loop Pipeline</div>
+      <div class="stage-flow" id="stage-flow">
+        <div class="stage-box" id="st-data"><span class="stage-icon">&#9674;</span><div class="stage-name">DATA GEN</div><div class="stage-sub">Q&amp;A PAIRS</div></div>
+        <div class="stage-arrow" id="arr-0">&#8250;</div>
+        <div class="stage-box" id="st-train"><span class="stage-icon">&#9881;</span><div class="stage-name">FINE-TUNE</div><div class="stage-sub">LoRA</div></div>
+        <div class="stage-arrow" id="arr-1">&#8250;</div>
+        <div class="stage-box" id="st-deploy"><span class="stage-icon">&#9650;</span><div class="stage-name">DEPLOY</div><div class="stage-sub">vLLM / Ollama</div></div>
+        <div class="stage-arrow" id="arr-2">&#8250;</div>
+        <div class="stage-box" id="st-eval"><span class="stage-icon">&#9733;</span><div class="stage-name">EVAL</div><div class="stage-sub">JUDGE + SUITE</div></div>
+        <div class="stage-arrow" id="arr-3">&#8250;</div>
+        <div class="stage-box" id="st-check"><span class="stage-icon">&#10003;</span><div class="stage-name">CHECK</div><div class="stage-sub">PASS / LOOP</div></div>
+      </div>
+      <!-- Active pipeline banner (hidden by default) -->
+      <div class="active-banner" id="active-banner" style="display:none">
+        <div class="banner-field">RUN ID<span id="bp-id">--</span></div>
+        <div class="banner-field">MODEL<span id="bp-model">--</span></div>
+        <div class="banner-field">BACKEND<span id="bp-backend">--</span></div>
+        <div class="banner-field">NODE<span id="bp-node">--</span></div>
+        <div class="banner-field">ITERATION<span id="bp-iter">--</span></div>
+        <div class="banner-field">SCORE<span id="bp-score">--</span></div>
+        <div class="banner-field" style="flex:1">
+          PROGRESS
+          <div class="prog-track"><div class="prog-fill" id="bp-prog" style="width:0%"></div></div>
+        </div>
+      </div>
     </div>
-    <div class="standby-desc">
-      AI PIPELINE MODULE // PENDING IMPLEMENTATION<br>
-      INGEST · TRANSFORM · INFERENCE · OUTPUT ROUTING
+
+    <!-- LAUNCH CONFIG -->
+    <div class="info-card">
+      <div class="info-card-hdr">Pipeline Configuration</div>
+      <div class="form-body">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Base Model</label>
+            <input class="form-input" id="pl-model" type="text" placeholder="e.g. gpt-oss-20b" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Backend</label>
+            <select class="form-select" id="pl-backend">
+              <option>vLLM</option><option>Ollama</option><option>Bedrock</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Node</label>
+            <select class="form-select" id="pl-node">
+              <option value="spark">SPARK-BOB</option>
+              <option value="linux">LINUX-DSKTP</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Eval Suite</label>
+            <input class="form-input" id="pl-suite" type="text" value="hard_15" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Score %</label>
+            <input class="form-input" id="pl-target" type="number" value="80" min="1" max="100" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Iterations</label>
+            <input class="form-input" id="pl-maxiter" type="number" value="3" min="1" />
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">LoRA Rank</label>
+            <input class="form-input" id="pl-rank" type="number" value="16" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Epochs / Iter</label>
+            <input class="form-input" id="pl-epochs" type="number" value="3" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Learning Rate</label>
+            <input class="form-input" id="pl-lr" type="text" value="0.0002" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Data Gen Count / Iter</label>
+            <input class="form-input" id="pl-dgcount" type="number" value="200" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data Domain</label>
+            <input class="form-input" id="pl-domain" type="text" placeholder="e.g. IAM, S3" />
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:1px;color:#555;cursor:pointer;">
+            <input type="checkbox" id="pl-auto" style="accent-color:var(--orange-dark);" /> AUTO-LOOP UNTIL TARGET
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:1px;color:#555;cursor:pointer;">
+            <input type="checkbox" id="pl-notify" checked /> NOTIFY ON COMPLETE
+          </label>
+        </div>
+        <button class="form-submit" style="margin-top:12px;" onclick="launchPipeline()">&#9654; Launch Pipeline</button>
+        <div class="form-output" id="pl-output">--</div>
+      </div>
     </div>
+
+    <!-- PIPELINE RUN HISTORY -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Run History</span>
+        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportRuns()">&#8659; Export</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="run-table">
+          <thead>
+            <tr><th>RUN ID</th><th>MODEL</th><th>BACKEND</th><th>NODE</th><th>SUITE</th><th>ITERS</th><th>FINAL SCORE</th><th>TARGET</th><th>STATUS</th><th>DURATION</th></tr>
+          </thead>
+          <tbody id="run-history-body">
+            <tr><td colspan="10" class="empty">NO PIPELINE RUNS YET</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <div class="log-panel" id="log">
-    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">PIPELINE module initialized. Awaiting configuration...</span></div>
+    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">PIPELINE module ready. Configure and launch a run.</span></div>
   </div>
 </div>
 
@@ -105,6 +205,179 @@
   <span>SESSION ACTIVE</span>
 </div>
 
+<!-- TERMINAL DOCK -->
+<div class="terminal-dock" id="terminal-dock">
+  <div class="terminal-bar">
+    <div class="terminal-tabs">
+      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
+      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
+    </div>
+    <div class="terminal-controls">
+      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminal-body">
+    <div class="terminal-output" id="term-out-spark">
+      <div class="term-line sys">[bcom-c] pipeline terminal ready</div>
+    </div>
+    <div class="terminal-output" id="term-out-linux" style="display:none">
+      <div class="term-line sys">[bcom-c] pipeline terminal ready</div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="term-prompt" id="term-prompt">$</span>
+      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
+    </div>
+  </div>
+</div>
+
 <script src="../assets/js/bcom.js"></script>
+<script>
+  BCOM.pollInterval = 5000;
+  startPolling();
+
+  const STAGES = ['st-data','st-train','st-deploy','st-eval','st-check'];
+  const ARROWS  = ['arr-0','arr-1','arr-2','arr-3'];
+  let _runSeq = 1, _runs = [], _activeRun = null, _simIv = null;
+
+  function setStage(idx) {
+    STAGES.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.className = 'stage-box' + (i < idx ? ' done' : i === idx ? ' active' : '');
+    });
+    ARROWS.forEach((id, i) => {
+      document.getElementById(id).className = 'stage-arrow' + (i < idx ? ' lit' : '');
+    });
+  }
+
+  function launchPipeline() {
+    if (_activeRun) { logLine('Pipeline already running', 'warn'); return; }
+    const model   = document.getElementById('pl-model').value.trim();
+    const backend = document.getElementById('pl-backend').value;
+    const node    = document.getElementById('pl-node').value;
+    const suite   = document.getElementById('pl-suite').value.trim() || 'hard_15';
+    const target  = parseInt(document.getElementById('pl-target').value) || 80;
+    const maxiter = parseInt(document.getElementById('pl-maxiter').value) || 3;
+    if (!model) { logLine('Form error: Base Model required', 'warn'); return; }
+
+    const id = 'PLR-' + String(_runSeq++).padStart(4,'0');
+    const t  = new Date().toTimeString().split(' ')[0];
+    _activeRun = { id, model, backend, node: node==='spark'?'SPARK-BOB':'LINUX-DSKTP',
+                   suite, target, maxiter, iter:1, score:0, status:'running', start:t };
+
+    logLine(`CMD: LAUNCH PIPELINE — ${id} [${model} / ${backend} / ${suite}]`, 'info');
+    const out = document.getElementById('pl-output');
+    out.textContent = `[${t}] ${id} launched — ${model} on ${_activeRun.node}`;
+    out.style.color = 'var(--orange-dark)';
+
+    document.getElementById('active-banner').style.display = 'flex';
+    document.getElementById('btn-stop').style.display = '';
+    document.getElementById('bp-id').textContent      = id;
+    document.getElementById('bp-model').textContent   = model;
+    document.getElementById('bp-backend').textContent = backend;
+    document.getElementById('bp-node').textContent    = _activeRun.node;
+
+    if (!BCOM.apiBase) simulatePipeline();
+  }
+
+  function simulatePipeline() {
+    let stage = 0, prog = 0;
+    setStage(stage);
+    const stageNames = ['Data Gen','Fine-Tune','Deploy','Eval','Check'];
+    const r = _activeRun;
+
+    _simIv = setInterval(() => {
+      prog += Math.floor(Math.random()*12) + 4;
+      const totalProg = Math.min(((stage * 100) + Math.min(prog,100)) / STAGES.length, 100);
+      document.getElementById('bp-prog').style.width = totalProg + '%';
+      document.getElementById('bp-iter').textContent = `${r.iter} / ${r.maxiter}`;
+
+      if (prog >= 100) {
+        prog = 0;
+        logLine(`[${r.id}] Stage ${stage+1}: ${stageNames[stage]} — complete`, 'info');
+        stage++;
+
+        if (stage >= STAGES.length) {
+          r.score = Math.floor(Math.random()*35) + 55;
+          document.getElementById('bp-score').textContent = r.score + '%';
+          logLine(`[${r.id}] Iter ${r.iter} — score: ${r.score}% / target: ${r.target}%`, 'info');
+
+          if (r.score >= r.target || r.iter >= r.maxiter) {
+            clearInterval(_simIv); _simIv = null;
+            r.status = r.score >= r.target ? 'done' : 'error';
+            r.duration = Math.floor(Math.random()*120+30)+'m';
+            logLine(`[${r.id}] Pipeline ${r.status === 'done' ? 'PASSED' : 'MAX ITERS — STOPPED'} (${r.score}%)`, r.status==='done'?'info':'warn');
+            _runs.unshift(r); _activeRun = null;
+            setStage(r.status==='done' ? STAGES.length : stage-1);
+            document.getElementById('btn-stop').style.display = 'none';
+            renderRuns();
+          } else {
+            r.iter++; stage = 0; setStage(0);
+            logLine(`[${r.id}] Score below target — starting iter ${r.iter}`, 'warn');
+          }
+          return;
+        }
+        setStage(stage);
+      }
+    }, 600);
+  }
+
+  function stopPipeline() {
+    if (!_activeRun) return;
+    if (_simIv) { clearInterval(_simIv); _simIv = null; }
+    logLine(`CMD: STOP PIPELINE — ${_activeRun.id}`, 'warn');
+    _activeRun.status = 'error'; _activeRun.duration = '--';
+    _runs.unshift(_activeRun); _activeRun = null;
+    document.getElementById('btn-stop').style.display = 'none';
+    document.getElementById('active-banner').style.display = 'none';
+    STAGES.forEach(id => { document.getElementById(id).className = 'stage-box'; });
+    ARROWS.forEach(id => { document.getElementById(id).className = 'stage-arrow'; });
+    renderRuns();
+  }
+
+  function renderRuns() {
+    const tb = document.getElementById('run-history-body');
+    if (!_runs.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO PIPELINE RUNS YET</td></tr>'; return; }
+    tb.innerHTML = _runs.map(r => `<tr>
+      <td style="color:var(--orange-dark)">${r.id}</td>
+      <td>${r.model}</td><td>${r.backend}</td><td>${r.node}</td><td>${r.suite}</td>
+      <td>${r.iter}</td><td>${r.score}%</td><td>${r.target}%</td>
+      <td><span class="run-status ${r.status}">${r.status.toUpperCase()}</span></td>
+      <td>${r.duration||'--'}</td>
+    </tr>`).join('');
+  }
+
+  function exportRuns() { logLine('CMD: EXPORT RUN HISTORY', 'info'); if (!BCOM.apiBase) logLine('No API — unavailable', 'warn'); }
+
+  // Terminal
+  let _termNode = 'spark';
+  function switchTerm(node) {
+    _termNode = node;
+    document.querySelectorAll('.terminal-tab').forEach(t => t.classList.toggle('active', t.dataset.term === node));
+    ['spark','linux'].forEach(n => { const el = document.getElementById('term-out-'+n); if (el) el.style.display = n===node?'block':'none'; });
+    document.getElementById('term-prompt').textContent = (node==='spark'?'spark-bob':'linux-dsktp')+' $';
+    document.getElementById('terminal-input').focus();
+  }
+  function termLine(text, cls) {
+    const out = document.getElementById('term-out-'+_termNode); if (!out) return;
+    const div = document.createElement('div'); div.className = 'term-line'+(cls?' '+cls:''); div.textContent = text;
+    out.appendChild(div); out.scrollTop = out.scrollHeight;
+  }
+  document.getElementById('terminal-input').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const cmd = e.target.value.trim(); if (!cmd) return;
+    termLine((_termNode==='spark'?'spark-bob':'linux-dsktp')+' $ '+cmd); e.target.value = '';
+    if (!BCOM.apiBase) termLine('[bcom-c] no API — command not sent', 'dim');
+  });
+  document.getElementById('term-minimize').addEventListener('click', () => {
+    const dock = document.getElementById('terminal-dock');
+    const body = document.getElementById('terminal-body');
+    const btn  = document.getElementById('term-minimize');
+    const isMin = dock.classList.toggle('minimized');
+    body.style.display = isMin ? 'none' : '';
+    btn.textContent = isMin ? '▲' : '_';
+    document.body.style.paddingBottom = isMin ? '34px' : '220px';
+  });
+  switchTerm('spark');
+</script>
 </body>
 </html>

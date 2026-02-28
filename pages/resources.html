@@ -6,57 +6,28 @@
 <title>BCOM-C — Resources</title>
 <link rel="stylesheet" href="../assets/css/bcom.css" />
 <style>
-  .standby-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 40px 16px;
-  }
-  .standby-label {
-    font-size: clamp(28px, 4vw, 48px);
-    font-weight: 700;
-    letter-spacing: 6px;
-    color: var(--orange-dark);
-    text-shadow: 0 0 20px rgba(184,97,58,0.3);
-  }
-  .standby-sub {
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: #444;
-  }
-  .standby-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #555;
-    border: 1px solid #2a1a0e;
-    padding: 6px 16px;
-  }
-  .standby-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #f39c12;
-    box-shadow: 0 0 6px #f39c12;
-    animation: pulse 2s infinite;
-  }
-  .standby-divider {
-    width: clamp(200px, 30%, 400px);
-    height: 1px;
-    background: linear-gradient(to right, transparent, #3a1a0a, transparent);
-  }
-  .standby-desc {
-    font-size: 9px;
-    color: #3a3a3a;
-    letter-spacing: 1.5px;
-    text-align: center;
-    max-width: 500px;
-    line-height: 2;
-  }
+  .reg-table { width:100%; border-collapse:collapse; font-size:10px; letter-spacing:.5px; }
+  .reg-table th { background:#0e0a06; color:#444; font-weight:600; letter-spacing:1.5px; padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .reg-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; }
+  .reg-table tr:hover td { background:#0e0905; }
+  .reg-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
+  .mdl-pill { display:inline-block; font-size:7px; letter-spacing:1.5px; padding:2px 7px; border:1px solid; }
+  .mdl-pill.loaded  { color:#27ae60; border-color:#27ae60; }
+  .mdl-pill.cached  { color:var(--orange); border-color:var(--orange-dark); }
+  .mdl-pill.avail   { color:#444; border-color:#333; }
+  .mdl-pill.pulling { color:#f39c12; border-color:#f39c12; }
+  .stor-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .stor-node { padding:12px; border:1px solid #1a0e05; background:#090603; }
+  .stor-hdr  { font-size:9px; letter-spacing:2px; color:var(--orange-dark); margin-bottom:10px; font-weight:700; }
+  .stor-row  { margin-bottom:8px; }
+  .stor-label{ font-size:8px; letter-spacing:1px; color:#444; display:flex; justify-content:space-between; margin-bottom:3px; }
+  .stor-track{ background:#0e0905; height:6px; }
+  .stor-fill { height:6px; background:var(--orange-dark); transition:width .6s; }
+  .stor-fill.warn   { background:#f39c12; }
+  .stor-fill.danger { background:#e74c3c; }
+  .compute-chip { font-size:9px; letter-spacing:1px; color:#555; border:1px solid #1a0e05; padding:6px 12px; background:#090603; min-width:120px; }
+  .compute-chip span { color:var(--orange); display:block; font-weight:700; font-size:11px; margin-top:2px; }
+  .compute-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
 </style>
 </head>
 <body>
@@ -76,26 +47,159 @@
 <div class="actionbar">
   <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>
   <button class="action-btn danger" onclick="triggerAction('RESTART LLM')">RESTART LLM</button>
-  <button class="action-btn" onclick="triggerAction('DOWNLOAD MODEL')">DOWNLOAD MODEL</button>
-  <button class="action-btn" onclick="triggerAction('ASK ADVISOR')">ASK ADVISOR</button>
+  <button class="action-btn" onclick="pullModel()">&#8659; PULL MODEL</button>
+  <button class="action-btn" onclick="refreshAll()">&#8635; REFRESH</button>
 </div>
 
 <div class="main">
-  <div class="standby-wrap">
-    <div class="standby-label">RESOURCES</div>
-    <div class="standby-divider"></div>
-    <div class="standby-status">
-      <div class="standby-dot"></div>
-      MODULE STANDBY
+  <div class="info-grid">
+
+    <!-- MODEL REGISTRY -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Model Registry</span>
+        <div style="display:flex;gap:8px;">
+          <select class="form-select" id="reg-filter-node" style="font-size:8px;padding:2px 8px;width:auto;" onchange="renderRegistry()">
+            <option value="all">ALL NODES</option>
+            <option value="spark">SPARK-BOB</option>
+            <option value="linux">LINUX-DSKTP</option>
+          </select>
+          <select class="form-select" id="reg-filter-status" style="font-size:8px;padding:2px 8px;width:auto;" onchange="renderRegistry()">
+            <option value="all">ALL STATUS</option>
+            <option value="loaded">LOADED</option>
+            <option value="cached">CACHED</option>
+            <option value="avail">AVAILABLE</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="reg-table">
+          <thead>
+            <tr><th>MODEL</th><th>TYPE</th><th>SIZE</th><th>BACKEND</th><th>NODE</th><th>VRAM REQ</th><th>QUANT</th><th>STATUS</th><th>ACTIONS</th></tr>
+          </thead>
+          <tbody id="reg-body">
+            <tr><td colspan="9" class="empty">AWAITING CONNECTION</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="standby-desc">
-      RESOURCES MODULE // PENDING IMPLEMENTATION<br>
-      MODEL REGISTRY · STORAGE · COMPUTE ALLOCATION · QUOTAS
+
+    <!-- PULL MODEL -->
+    <div class="info-card">
+      <div class="info-card-hdr">Pull / Register Model</div>
+      <div class="form-body">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Model ID or Path</label>
+            <input class="form-input" id="pull-id" type="text" placeholder="e.g. mistral:7b-q4" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Backend</label>
+            <select class="form-select" id="pull-backend">
+              <option>Ollama</option><option>vLLM</option><option>HuggingFace</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Node</label>
+            <select class="form-select" id="pull-node">
+              <option value="spark">SPARK-BOB</option>
+              <option value="linux">LINUX-DSKTP</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Quantization</label>
+            <select class="form-select" id="pull-quant">
+              <option>Q4_K_M</option><option>Q5_K_M</option><option>Q8_0</option><option>FP16</option><option>FP32</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tag / Version</label>
+            <input class="form-input" id="pull-tag" type="text" placeholder="latest" />
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end;">
+            <button class="form-submit" style="margin-top:0;width:100%" onclick="pullModel()">&#8659; Pull</button>
+          </div>
+        </div>
+        <div class="form-output" id="pull-output">--</div>
+      </div>
     </div>
+
+    <!-- STORAGE -->
+    <div class="info-card">
+      <div class="info-card-hdr">Storage Overview</div>
+      <div class="stor-grid">
+        <div class="stor-node">
+          <div class="stor-hdr">SPARK-BOB</div>
+          <div class="stor-row">
+            <div class="stor-label"><span>MODELS</span><span id="stor-spark-models">-- / --</span></div>
+            <div class="stor-track"><div class="stor-fill" id="sf-spark-models" style="width:0%"></div></div>
+          </div>
+          <div class="stor-row">
+            <div class="stor-label"><span>DATASETS</span><span id="stor-spark-data">-- / --</span></div>
+            <div class="stor-track"><div class="stor-fill" id="sf-spark-data" style="width:0%"></div></div>
+          </div>
+          <div class="stor-row">
+            <div class="stor-label"><span>CHECKPOINTS</span><span id="stor-spark-ckpt">-- / --</span></div>
+            <div class="stor-track"><div class="stor-fill" id="sf-spark-ckpt" style="width:0%"></div></div>
+          </div>
+          <div class="stor-row">
+            <div class="stor-label"><span>ROOT FS</span><span id="stor-spark-root">-- / --</span></div>
+            <div class="stor-track"><div class="stor-fill" id="sf-spark-root" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="stor-node">
+          <div class="stor-hdr">LINUX-DSKTP</div>
+          <div class="stor-row">
+            <div class="stor-label"><span>MODELS</span><span id="stor-linux-models">-- / --</span></div>
+            <div class="stor-track"><div class="stor-fill" id="sf-linux-models" style="width:0%"></div></div>
+          </div>
+          <div class="stor-row">
+            <div class="stor-label"><span>DATASETS</span><span id="stor-linux-data">-- / --</span></div>
+            <div class="stor-track"><div class="stor-fill" id="sf-linux-data" style="width:0%"></div></div>
+          </div>
+          <div class="stor-row">
+            <div class="stor-label"><span>CHECKPOINTS</span><span id="stor-linux-ckpt">-- / --</span></div>
+            <div class="stor-track"><div class="stor-fill" id="sf-linux-ckpt" style="width:0%"></div></div>
+          </div>
+          <div class="stor-row">
+            <div class="stor-label"><span>ROOT FS</span><span id="stor-linux-root">-- / --</span></div>
+            <div class="stor-track"><div class="stor-fill" id="sf-linux-root" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPUTE ALLOCATION -->
+    <div class="info-card">
+      <div class="info-card-hdr">Compute Allocation</div>
+      <div class="node-cols">
+        <div class="node-col">
+          <div class="node-col-hdr"><div class="status-dot"></div>SPARK-BOB</div>
+          <div class="compute-row">
+            <div class="compute-chip">GPU ALLOC<span id="ca-spark-gpu">--</span></div>
+            <div class="compute-chip">VRAM USED<span id="ca-spark-vram">--</span></div>
+            <div class="compute-chip">CPU CORES<span id="ca-spark-cpu">--</span></div>
+            <div class="compute-chip">PROCESSES<span id="ca-spark-procs">--</span></div>
+          </div>
+        </div>
+        <div class="node-col">
+          <div class="node-col-hdr"><div class="status-dot"></div>LINUX-DSKTP</div>
+          <div class="compute-row">
+            <div class="compute-chip">GPU ALLOC<span id="ca-linux-gpu">--</span></div>
+            <div class="compute-chip">RAM USED<span id="ca-linux-ram">--</span></div>
+            <div class="compute-chip">CPU CORES<span id="ca-linux-cpu">--</span></div>
+            <div class="compute-chip">PROCESSES<span id="ca-linux-procs">--</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="log-panel" id="log">
-    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">RESOURCES module initialized. Awaiting configuration...</span></div>
+    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">RESOURCES module ready. Connect API to populate live data.</span></div>
   </div>
 </div>
 
@@ -105,6 +209,140 @@
   <span>SESSION ACTIVE</span>
 </div>
 
+<!-- TERMINAL DOCK -->
+<div class="terminal-dock" id="terminal-dock">
+  <div class="terminal-bar">
+    <div class="terminal-tabs">
+      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
+      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
+    </div>
+    <div class="terminal-controls">
+      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminal-body">
+    <div class="terminal-output" id="term-out-spark"><div class="term-line sys">[bcom-c] resources terminal ready</div></div>
+    <div class="terminal-output" id="term-out-linux" style="display:none"><div class="term-line sys">[bcom-c] resources terminal ready</div></div>
+    <div class="terminal-input-row">
+      <span class="term-prompt" id="term-prompt">$</span>
+      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
+    </div>
+  </div>
+</div>
+
 <script src="../assets/js/bcom.js"></script>
+<script>
+  BCOM.pollInterval = 5000;
+  startPolling();
+
+  const DEMO_MODELS = [
+    { id:'mistral-7b-q4',   type:'LLM',    size:'4.1 GB',  backend:'Ollama', node:'spark', vram:'5 GB',   quant:'Q4_K_M', status:'loaded'  },
+    { id:'llama3-8b-inst',  type:'LLM',    size:'8.0 GB',  backend:'vLLM',   node:'spark', vram:'10 GB',  quant:'FP16',   status:'loaded'  },
+    { id:'qwen2.5-14b',     type:'LLM',    size:'9.2 GB',  backend:'Ollama', node:'spark', vram:'12 GB',  quant:'Q5_K_M', status:'cached'  },
+    { id:'gpt-oss-20b-ft1', type:'FT-LLM', size:'14.0 GB', backend:'vLLM',   node:'spark', vram:'18 GB',  quant:'FP16',   status:'avail'   },
+    { id:'mistral-7b-q8',   type:'LLM',    size:'7.7 GB',  backend:'Ollama', node:'linux', vram:'9 GB',   quant:'Q8_0',   status:'loaded'  },
+    { id:'phi-3-mini',      type:'SLM',    size:'2.2 GB',  backend:'Ollama', node:'linux', vram:'3 GB',   quant:'Q4_K_M', status:'cached'  },
+    { id:'nomic-embed-v1',  type:'EMBED',  size:'0.3 GB',  backend:'Ollama', node:'linux', vram:'0.5 GB', quant:'F32',    status:'loaded'  },
+  ];
+
+  function renderRegistry() {
+    const fn = document.getElementById('reg-filter-node').value;
+    const fs = document.getElementById('reg-filter-status').value;
+    let m = DEMO_MODELS;
+    if (fn !== 'all') m = m.filter(x => x.node === fn);
+    if (fs !== 'all') m = m.filter(x => x.status === fs);
+    const tb = document.getElementById('reg-body');
+    if (!m.length) { tb.innerHTML = '<tr><td colspan="9" class="empty">NO MODELS MATCH</td></tr>'; return; }
+    tb.innerHTML = m.map(x => `<tr>
+      <td style="color:var(--orange-dark);font-weight:600">${x.id}</td>
+      <td>${x.type}</td><td>${x.size}</td><td>${x.backend}</td>
+      <td>${x.node==='spark'?'SPARK-BOB':'LINUX-DSKTP'}</td>
+      <td>${x.vram}</td><td style="color:#555">${x.quant}</td>
+      <td><span class="mdl-pill ${x.status}">${x.status.toUpperCase()}</span></td>
+      <td style="display:flex;gap:4px;">
+        <button class="ctr-btn" onclick="loadModel('${x.id}')">LOAD</button>
+        <button class="ctr-btn" onclick="removeModel('${x.id}')">RM</button>
+      </td>
+    </tr>`).join('');
+  }
+
+  function loadModel(id)   { logLine(`CMD: LOAD — ${id}`, 'info'); }
+  function removeModel(id) { logLine(`CMD: REMOVE — ${id}`, 'warn'); }
+
+  function pullModel() {
+    const id = document.getElementById('pull-id').value.trim();
+    const bk = document.getElementById('pull-backend').value;
+    const nd = document.getElementById('pull-node').value;
+    if (!id) { logLine('Form error: Model ID required', 'warn'); return; }
+    const t = new Date().toTimeString().split(' ')[0];
+    logLine(`CMD: PULL — ${id} via ${bk} on ${nd==='spark'?'SPARK-BOB':'LINUX-DSKTP'}`, 'info');
+    const out = document.getElementById('pull-output');
+    out.textContent = `[${t}] Pull queued: ${id}`;
+    out.style.color = 'var(--orange-dark)';
+    if (!BCOM.apiBase) logLine('No API — pull not sent', 'warn');
+  }
+
+  function setStorBar(id, labelId, used, total) {
+    const pct = Math.round(used/total*100);
+    const el = document.getElementById(id);
+    el.style.width = pct + '%';
+    el.className = 'stor-fill' + (pct>=90?' danger':pct>=75?' warn':'');
+    document.getElementById(labelId).textContent = `${used} GB / ${total} GB`;
+  }
+
+  function refreshAll() {
+    logLine('Resources refreshed', 'info');
+    renderRegistry();
+    setStorBar('sf-spark-models','stor-spark-models',36,80);
+    setStorBar('sf-spark-data',  'stor-spark-data',  22,60);
+    setStorBar('sf-spark-ckpt',  'stor-spark-ckpt',  18,60);
+    setStorBar('sf-spark-root',  'stor-spark-root',  48,120);
+    setStorBar('sf-linux-models','stor-linux-models',12,40);
+    setStorBar('sf-linux-data',  'stor-linux-data',  8,40);
+    setStorBar('sf-linux-ckpt',  'stor-linux-ckpt',  5,40);
+    setStorBar('sf-linux-root',  'stor-linux-root',  38,80);
+    document.getElementById('ca-spark-gpu').textContent   = '2× A100 80GB';
+    document.getElementById('ca-spark-vram').textContent  = '44.2 / 160 GB';
+    document.getElementById('ca-spark-cpu').textContent   = '64 cores';
+    document.getElementById('ca-spark-procs').textContent = '7 active';
+    document.getElementById('ca-linux-gpu').textContent   = '1× RTX 4090';
+    document.getElementById('ca-linux-ram').textContent   = '28.1 / 64 GB';
+    document.getElementById('ca-linux-cpu').textContent   = '24 cores';
+    document.getElementById('ca-linux-procs').textContent = '4 active';
+  }
+
+  refreshAll();
+
+  // Terminal
+  let _termNode = 'spark';
+  function switchTerm(node) {
+    _termNode = node;
+    document.querySelectorAll('.terminal-tab').forEach(t => t.classList.toggle('active', t.dataset.term === node));
+    ['spark','linux'].forEach(n => { const el = document.getElementById('term-out-'+n); if (el) el.style.display = n===node?'block':'none'; });
+    document.getElementById('term-prompt').textContent = (node==='spark'?'spark-bob':'linux-dsktp')+' $';
+    document.getElementById('terminal-input').focus();
+  }
+  function termLine(text, cls) {
+    const out = document.getElementById('term-out-'+_termNode); if (!out) return;
+    const div = document.createElement('div'); div.className = 'term-line'+(cls?' '+cls:''); div.textContent = text;
+    out.appendChild(div); out.scrollTop = out.scrollHeight;
+  }
+  document.getElementById('terminal-input').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const cmd = e.target.value.trim(); if (!cmd) return;
+    termLine((_termNode==='spark'?'spark-bob':'linux-dsktp')+' $ '+cmd); e.target.value = '';
+    if (!BCOM.apiBase) termLine('[bcom-c] no API — command not sent', 'dim');
+  });
+  document.getElementById('term-minimize').addEventListener('click', () => {
+    const dock = document.getElementById('terminal-dock');
+    const body = document.getElementById('terminal-body');
+    const btn  = document.getElementById('term-minimize');
+    const isMin = dock.classList.toggle('minimized');
+    body.style.display = isMin ? 'none' : '';
+    btn.textContent = isMin ? '▲' : '_';
+    document.body.style.paddingBottom = isMin ? '34px' : '220px';
+  });
+  switchTerm('spark');
+</script>
 </body>
 </html>
