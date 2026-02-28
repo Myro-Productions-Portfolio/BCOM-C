@@ -4,6 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BCOM-C — Resources</title>
+<script>
+  (function(){
+    var t=localStorage.getItem("bcom-theme")||"dark";
+    document.documentElement.setAttribute("data-theme",t);
+    try { var raw=localStorage.getItem("bcom-theme-vars"); if(raw){ var vars=JSON.parse(raw); Object.keys(vars).forEach(function(k){ document.documentElement.style.setProperty(k,vars[k]); }); } } catch(_) {}
+  })();
+</script>
 <link rel="stylesheet" href="../assets/css/bcom.css?v=3" />
 <style>
   .reg-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }

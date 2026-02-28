@@ -7,8 +7,46 @@
 <link rel="stylesheet" href="../assets/css/bcom.css?v=4" />
 <script>
   /* Apply theme before render to avoid flash */
-  (function(){ var t=localStorage.getItem('bcom-theme')||'dark'; document.documentElement.setAttribute('data-theme',t); })();
+  (function(){
+    var t=localStorage.getItem('bcom-theme')||'dark';
+    document.documentElement.setAttribute('data-theme',t);
+    /* Restore saved theme vars immediately to avoid flash */
+    try {
+      var raw=localStorage.getItem('bcom-theme-vars');
+      if(raw){ var vars=JSON.parse(raw); Object.keys(vars).forEach(function(k){ document.documentElement.style.setProperty(k,vars[k]); }); }
+    } catch(_) {}
+  })();
 </script>
+<style>
+/* ── THEME EDITOR ───────────────────────────────────────── */
+.theme-picker-row { padding: 5px 12px; }
+.theme-picker-wrap { display:flex; align-items:center; gap:8px; }
+.theme-picker {
+  width:32px; height:24px; padding:1px;
+  border:1.5px solid var(--border-dim); background:transparent;
+  cursor:pointer; border-radius:2px;
+}
+.theme-hex { font-size:11px; color:var(--text-muted); letter-spacing:1px; min-width:64px; }
+.saved-theme-row {
+  display:flex; align-items:center; gap:6px;
+  padding:5px 8px; border:1px solid var(--border-dim);
+  border-radius:2px; background:rgba(255,255,255,0.03);
+}
+.saved-theme-name { flex:1; font-size:11px; letter-spacing:1px; color:var(--text); }
+.saved-theme-dot-row { display:flex; gap:3px; margin-right:6px; }
+.saved-theme-dot { width:10px; height:10px; border-radius:50%; border:1px solid rgba(255,255,255,0.15); }
+.saved-theme-btn {
+  font-family:'Courier New',monospace; font-size:9px; letter-spacing:1px;
+  padding:2px 8px; cursor:pointer; text-transform:uppercase;
+  border:1px solid var(--border-dim); background:transparent;
+  color:var(--text-muted);
+}
+.saved-theme-btn:hover { color:var(--orange); border-color:var(--orange-dark); }
+.saved-theme-btn.del { color:#e74c3c; border-color:#e74c3c; }
+.saved-theme-btn.del:hover { background:#e74c3c22; }
+#theme-name-modal { display:none; }
+#theme-name-modal.open { display:flex; }
+</style>
 </head>
 <body>
 
@@ -641,7 +679,153 @@
     </div>
   </div>
 
+
+  <!-- ── THEME EDITOR ──────────────────────────────────────── -->
+  <div class="sett-section" id="theme-editor-section">
+    <div class="sett-hdr"><span class="sett-hdr-icon">🎨</span> Theme Editor</div>
+
+    <!-- Color layers -->
+    <div class="sett-row" style="background:rgba(218,119,86,0.04);">
+      <label style="color:var(--text-dim);font-weight:700;letter-spacing:1px;">BACKGROUNDS</label>
+    </div>
+
+    <div class="sett-row theme-picker-row">
+      <label>Body</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--bg" value="#3b3b3b" oninput="themePreview('--bg',this.value)" />
+        <span class="theme-hex" id="th--bg">#3b3b3b</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Panels</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--bg-panel" value="#3b3b3b" oninput="themePreview('--bg-panel',this.value)" />
+        <span class="theme-hex" id="th--bg-panel">#3b3b3b</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Nav / Bar</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--bg-bar" value="#3b3b3b" oninput="themePreview('--bg-bar',this.value)" />
+        <span class="theme-hex" id="th--bg-bar">#3b3b3b</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Deep / Headers</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--bg-deep" value="#3b3b3b" oninput="themePreview('--bg-deep',this.value)" />
+        <span class="theme-hex" id="th--bg-deep">#3b3b3b</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Input BG</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--input-bg" value="#2e2e2e" oninput="themePreview('--input-bg',this.value)" />
+        <span class="theme-hex" id="th--input-bg">#2e2e2e</span>
+      </div>
+    </div>
+
+    <div class="sett-row" style="background:rgba(218,119,86,0.04);margin-top:4px;">
+      <label style="color:var(--text-dim);font-weight:700;letter-spacing:1px;">TEXT</label>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Primary Text</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--text" value="#ffffff" oninput="themePreview('--text',this.value)" />
+        <span class="theme-hex" id="th--text">#ffffff</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Dim Text</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--text-dim" value="#e0e0e0" oninput="themePreview('--text-dim',this.value)" />
+        <span class="theme-hex" id="th--text-dim">#e0e0e0</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Muted Text</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--text-muted" value="#aaaaaa" oninput="themePreview('--text-muted',this.value)" />
+        <span class="theme-hex" id="th--text-muted">#aaaaaa</span>
+      </div>
+    </div>
+
+    <div class="sett-row" style="background:rgba(218,119,86,0.04);margin-top:4px;">
+      <label style="color:var(--text-dim);font-weight:700;letter-spacing:1px;">ACCENT</label>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Accent</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--orange" value="#DA7756" oninput="themePreview('--orange',this.value)" />
+        <span class="theme-hex" id="th--orange">#DA7756</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Accent Dark</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--orange-dark" value="#b8613a" oninput="themePreview('--orange-dark',this.value)" />
+        <span class="theme-hex" id="th--orange-dark">#b8613a</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Accent Deep</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--orange-deep" value="#6b3020" oninput="themePreview('--orange-deep',this.value)" />
+        <span class="theme-hex" id="th--orange-deep">#6b3020</span>
+      </div>
+    </div>
+
+    <div class="sett-row" style="background:rgba(218,119,86,0.04);margin-top:4px;">
+      <label style="color:var(--text-dim);font-weight:700;letter-spacing:1px;">BORDERS</label>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Border</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--border" value="#b8613a" oninput="themePreview('--border',this.value)" />
+        <span class="theme-hex" id="th--border">#b8613a</span>
+      </div>
+    </div>
+    <div class="sett-row theme-picker-row">
+      <label>Border Dim</label>
+      <div class="theme-picker-wrap">
+        <input type="color" class="theme-picker" id="tc--border-dim" value="#5a3a28" oninput="themePreview('--border-dim',this.value)" />
+        <span class="theme-hex" id="th--border-dim">#5a3a28</span>
+      </div>
+    </div>
+
+    <!-- Action row -->
+    <div class="sett-row" style="gap:8px;flex-wrap:wrap;padding:10px 12px;">
+      <button class="sett-btn" onclick="themeReset()" style="font-size:10px;">RESET TO DEFAULT</button>
+      <button class="sett-btn" onclick="themeApply()" style="font-size:10px;color:var(--orange);border-color:var(--orange);">APPLY THEME</button>
+      <button class="sett-btn success" onclick="themeSavePrompt()" style="font-size:10px;">SAVE THEME…</button>
+    </div>
+
+    <!-- Saved themes list -->
+    <div class="sett-row" style="background:rgba(218,119,86,0.04);margin-top:4px;">
+      <label style="color:var(--text-dim);font-weight:700;letter-spacing:1px;">SAVED THEMES</label>
+      <button class="sett-btn" onclick="themeLoadList()" style="font-size:9px;padding:2px 8px;">REFRESH</button>
+    </div>
+    <div id="saved-themes-list" style="padding:6px 12px;display:flex;flex-direction:column;gap:4px;min-height:32px;">
+      <span style="font-size:10px;color:var(--text-muted);letter-spacing:1px;">Loading…</span>
+    </div>
+  </div>
+
 </div><!-- end .sett-layout -->
+
+<!-- THEME NAME MODAL -->
+<div id="theme-name-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-panel);border:1.5px solid var(--orange-dark);border-radius:3px;padding:22px 26px;min-width:280px;max-width:360px;font-family:'Courier New',monospace;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--orange);margin-bottom:14px;">SAVE THEME</div>
+    <input id="theme-name-input" type="text" maxlength="48"
+      placeholder="My Theme Name"
+      style="width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--border-dim);color:var(--text);font-family:'Courier New',monospace;font-size:12px;padding:7px 10px;letter-spacing:1px;outline:none;margin-bottom:12px;"
+      onkeydown="if(event.key==='Enter')themeSaveConfirm(); if(event.key==='Escape')themeSaveCancel();" />
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="sett-btn" onclick="themeSaveCancel()" style="font-size:10px;">CANCEL</button>
+      <button class="sett-btn success" onclick="themeSaveConfirm()" style="font-size:10px;">SAVE</button>
+    </div>
+  </div>
+</div>
 
 <!-- SAVE BAR -->
 <div class="sett-save-bar">
@@ -863,6 +1047,216 @@ syncAllLabels();
 
 /* Auto-run connection test on load */
 setTimeout(testConnection, 800);
+
+/* ═══════════════════════════════════════════════════════
+   THEME EDITOR
+   ═══════════════════════════════════════════════════════ */
+
+const THEME_VARS = [
+  '--bg', '--bg-panel', '--bg-bar', '--bg-deep', '--input-bg',
+  '--text', '--text-dim', '--text-muted',
+  '--orange', '--orange-dark', '--orange-deep',
+  '--border', '--border-dim',
+];
+
+const THEME_DEFAULTS = {
+  '--bg':           '#3b3b3b',
+  '--bg-panel':     '#3b3b3b',
+  '--bg-bar':       '#3b3b3b',
+  '--bg-deep':      '#3b3b3b',
+  '--input-bg':     '#2e2e2e',
+  '--text':         '#ffffff',
+  '--text-dim':     '#e0e0e0',
+  '--text-muted':   '#aaaaaa',
+  '--orange':       '#DA7756',
+  '--orange-dark':  '#b8613a',
+  '--orange-deep':  '#6b3020',
+  '--border':       '#b8613a',
+  '--border-dim':   '#5a3a28',
+};
+
+function _apiBase() {
+  const stored = localStorage.getItem('bcom-settings');
+  try { const obj = JSON.parse(stored||'{}'); if (obj['api-base-url']) return obj['api-base-url'].replace(/\/$/,''); } catch(_) {}
+  return '';
+}
+
+/* Read current live CSS variable values and populate pickers */
+function themeReadCurrent() {
+  const root = document.documentElement;
+  THEME_VARS.forEach(v => {
+    const el  = document.getElementById('tc-' + v);
+    const hex = document.getElementById('th-' + v);
+    if (!el) return;
+    const cur = getComputedStyle(root).getPropertyValue(v).trim() || THEME_DEFAULTS[v] || '#888888';
+    const hex6 = cssToHex(cur);
+    el.value = hex6;
+    if (hex) hex.textContent = hex6;
+  });
+}
+
+/* Convert any CSS color string to #rrggbb for <input type=color> */
+function cssToHex(str) {
+  str = str.trim();
+  if (/^#[0-9a-f]{6}$/i.test(str)) return str;
+  if (/^#[0-9a-f]{3}$/i.test(str)) {
+    const [,a,b,c] = str; return '#'+a+a+b+b+c+c;
+  }
+  const m = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (m) return '#'+[m[1],m[2],m[3]].map(n=>parseInt(n).toString(16).padStart(2,'0')).join('');
+  return '#888888';
+}
+
+/* Live preview — update CSS var immediately */
+function themePreview(varName, value) {
+  document.documentElement.style.setProperty(varName, value);
+  const hexEl = document.getElementById('th-' + varName);
+  if (hexEl) hexEl.textContent = value.toUpperCase();
+}
+
+/* Collect current picker values into an object */
+function themeCollect() {
+  const vars = {};
+  THEME_VARS.forEach(v => {
+    const el = document.getElementById('tc-' + v);
+    if (el) vars[v] = el.value;
+  });
+  return vars;
+}
+
+/* Apply: write collected vars to :root style */
+function themeApply() {
+  const vars = themeCollect();
+  Object.entries(vars).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
+  localStorage.setItem('bcom-theme-vars', JSON.stringify(vars));
+  _flashMsg('✓ THEME APPLIED');
+}
+
+/* Reset to defaults */
+function themeReset() {
+  Object.entries(THEME_DEFAULTS).forEach(([k,v]) => {
+    document.documentElement.style.setProperty(k, v);
+    const el = document.getElementById('tc-' + k);
+    const hexEl = document.getElementById('th-' + k);
+    if (el) el.value = v;
+    if (hexEl) hexEl.textContent = v;
+  });
+  localStorage.removeItem('bcom-theme-vars');
+  _flashMsg('✓ THEME RESET');
+}
+
+/* Restore theme vars from localStorage on page load */
+function themeRestoreLocal() {
+  const raw = localStorage.getItem('bcom-theme-vars');
+  if (!raw) return;
+  try {
+    const vars = JSON.parse(raw);
+    Object.entries(vars).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
+  } catch(_) {}
+}
+
+/* ── Save prompt ─────────────────────────────────────────── */
+function themeSavePrompt() {
+  const modal = document.getElementById('theme-name-modal');
+  document.getElementById('theme-name-input').value = '';
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('theme-name-input').focus(), 80);
+}
+function themeSaveCancel() {
+  document.getElementById('theme-name-modal').classList.remove('open');
+}
+async function themeSaveConfirm() {
+  const name = document.getElementById('theme-name-input').value.trim();
+  if (!name) { document.getElementById('theme-name-input').focus(); return; }
+  themeSaveCancel();
+  const vars = themeCollect();
+  try {
+    const r = await fetch(_apiBase() + '/api/themes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, vars }),
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(()=>({}));
+      _flashMsg('✗ ' + (err.detail || 'SAVE FAILED'), true);
+      return;
+    }
+    _flashMsg('✓ THEME SAVED: ' + name.toUpperCase());
+    themeLoadList();
+  } catch(e) {
+    _flashMsg('✗ NETWORK ERROR', true);
+  }
+}
+
+/* ── Load themes list from backend ──────────────────────── */
+async function themeLoadList() {
+  const container = document.getElementById('saved-themes-list');
+  container.innerHTML = '<span style="font-size:10px;color:var(--text-muted);letter-spacing:1px;">Loading…</span>';
+  try {
+    const r = await fetch(_apiBase() + '/api/themes');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const themes = await r.json();
+    if (!themes.length) {
+      container.innerHTML = '<span style="font-size:10px;color:var(--text-muted);letter-spacing:1px;">No saved themes yet.</span>';
+      return;
+    }
+    container.innerHTML = themes.map(t => {
+      const dots = ['--bg','--orange','--text','--border'].map(v => {
+        const c = (t.vars||{})[v] || '#888';
+        return `<div class="saved-theme-dot" style="background:${c};"></div>`;
+      }).join('');
+      return `<div class="saved-theme-row">
+        <div class="saved-theme-dot-row">${dots}</div>
+        <span class="saved-theme-name">${t.name}</span>
+        <button class="saved-theme-btn" onclick="themeLoad(${JSON.stringify(JSON.stringify(t.vars))})">LOAD</button>
+        <button class="saved-theme-btn del" onclick="themeDelete('${t.id}','${t.name.replace(/'/g,"\\'")}')">✕</button>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<span style="font-size:10px;color:#e74c3c;letter-spacing:1px;">Failed to load themes — is the API reachable?</span>';
+  }
+}
+
+/* Apply a saved theme from the list */
+function themeLoad(varsJson) {
+  const vars = JSON.parse(varsJson);
+  Object.entries(vars).forEach(([k,v]) => {
+    document.documentElement.style.setProperty(k, v);
+    const el = document.getElementById('tc-' + k);
+    const hexEl = document.getElementById('th-' + k);
+    if (el) el.value = cssToHex(v);
+    if (hexEl) hexEl.textContent = v.toUpperCase();
+  });
+  localStorage.setItem('bcom-theme-vars', JSON.stringify(vars));
+  _flashMsg('✓ THEME LOADED');
+}
+
+/* Delete a saved theme */
+async function themeDelete(id, name) {
+  if (!confirm('Delete theme "' + name + '"?')) return;
+  try {
+    const r = await fetch(_apiBase() + '/api/themes/' + id, { method: 'DELETE' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    _flashMsg('✓ THEME DELETED');
+    themeLoadList();
+  } catch(e) {
+    _flashMsg('✗ DELETE FAILED', true);
+  }
+}
+
+function _flashMsg(msg, err) {
+  const el = document.getElementById('save-msg');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = err ? '#e74c3c' : '';
+  el.classList.add('show');
+  setTimeout(() => { el.classList.remove('show'); el.textContent = '✓ SETTINGS SAVED'; el.style.color=''; }, 2800);
+}
+
+/* ── Init theme editor ───────────────────────────────────── */
+themeRestoreLocal();
+themeReadCurrent();
+themeLoadList();
 
 </script>
 </body>

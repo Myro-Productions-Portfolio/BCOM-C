@@ -7,22 +7,22 @@
   --orange:       #DA7756;
   --orange-dark:  #b8613a;
   --orange-deep:  #6b3020;
-  --bg:           #1a1a1a;
-  --bg-panel:     #111;
-  --bg-bar:       #1e1208;
-  --bg-deep:      #180e06;
+  --bg:           #3b3b3b;
+  --bg-panel:     #3b3b3b;
+  --bg-bar:       #3b3b3b;
+  --bg-deep:      #3b3b3b;
   --border:       #b8613a;
-  --border-dim:   #4a2a18;
+  --border-dim:   #5a3a28;
   /* text tokens */
-  --text:         #f0f0f0;
-  --text-dim:     #aaa;
-  --text-muted:   #555;
-  --text-label:   #3a3a3a;
+  --text:         #ffffff;
+  --text-dim:     #e0e0e0;
+  --text-muted:   #aaaaaa;
+  --text-label:   #cccccc;
   /* nav hover */
-  --nav-hover-bg: #2a1a0e;
+  --nav-hover-bg: #4a3a30;
   /* card/input bg for settings */
-  --input-bg:     #0e0e0e;
-  --input-border: #333;
+  --input-bg:     #2e2e2e;
+  --input-border: #555;
 }
 
 /* ── LIGHT MODE ────────────────────────────────────────── */
