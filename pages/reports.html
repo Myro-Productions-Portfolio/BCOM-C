@@ -166,27 +166,10 @@
   BCOM.pollInterval = 5000;
   startPolling();
 
-  const DEMO_EVALS = [
-    { id:'EVL-0041', date:'2026-02-28', model:'gpt-oss-20b-ft3', backend:'vLLM',   judge:'claude-3-5', suite:'hard_15',  score:84, passrate:'84%', time:'4m 12s', status:'pass' },
-    { id:'EVL-0040', date:'2026-02-28', model:'gpt-oss-20b-ft2', backend:'vLLM',   judge:'claude-3-5', suite:'hard_15',  score:71, passrate:'71%', time:'4m 02s', status:'fail' },
-    { id:'EVL-0039', date:'2026-02-27', model:'gpt-oss-20b-ft1', backend:'vLLM',   judge:'claude-3-5', suite:'hard_15',  score:63, passrate:'63%', time:'3m 58s', status:'fail' },
-    { id:'EVL-0038', date:'2026-02-27', model:'mistral-7b-q4',   backend:'Ollama', judge:'gpt-4o',     suite:'easy_20',  score:91, passrate:'91%', time:'6m 44s', status:'pass' },
-    { id:'EVL-0037', date:'2026-02-26', model:'llama3-8b-inst',  backend:'Ollama', judge:'gpt-4o',     suite:'easy_20',  score:88, passrate:'88%', time:'7m 01s', status:'pass' },
-    { id:'EVL-0036', date:'2026-02-26', model:'qwen2.5-14b',     backend:'Ollama', judge:'claude-3-5', suite:'hard_15',  score:77, passrate:'77%', time:'5m 22s', status:'fail' },
-    { id:'EVL-0035', date:'2026-02-25', model:'phi-3-mini',      backend:'Ollama', judge:'gpt-4o-mini',suite:'basic_30', score:95, passrate:'95%', time:'8m 34s', status:'pass' },
-  ];
-  const DEMO_TRAINS = [
-    { id:'FT-0012', model:'gpt-oss-20b', dataset:'/data/gen/hard_15_200.jsonl', rank:16, epochs:3, lr:'2e-4', node:'SPARK-BOB',   dur:'38m',   loss:'0.0812', status:'pass' },
-    { id:'FT-0011', model:'gpt-oss-20b', dataset:'/data/gen/hard_15_200.jsonl', rank:16, epochs:3, lr:'2e-4', node:'SPARK-BOB',   dur:'36m',   loss:'0.1104', status:'pass' },
-    { id:'FT-0010', model:'gpt-oss-20b', dataset:'/data/gen/hard_15_200.jsonl', rank:8,  epochs:2, lr:'3e-4', node:'SPARK-BOB',   dur:'22m',   loss:'0.1432', status:'pass' },
-    { id:'FT-0009', model:'mistral-7b',  dataset:'/data/gen/easy_20_500.jsonl', rank:32, epochs:5, lr:'1e-4', node:'LINUX-DSKTP', dur:'1h 12m',loss:'0.0621', status:'pass' },
-  ];
-  const DEMO_PIPELINES = [
-    { id:'PLR-0005', model:'gpt-oss-20b-ft3', backend:'vLLM',   suite:'hard_15', target:'80%', iters:3, score:'84%', node:'SPARK-BOB',   dur:'2h 14m', status:'pass' },
-    { id:'PLR-0004', model:'gpt-oss-20b-ft2', backend:'vLLM',   suite:'hard_15', target:'80%', iters:3, score:'71%', node:'SPARK-BOB',   dur:'2h 08m', status:'fail' },
-    { id:'PLR-0003', model:'gpt-oss-20b',     backend:'vLLM',   suite:'hard_15', target:'80%', iters:3, score:'63%', node:'SPARK-BOB',   dur:'1h 54m', status:'fail' },
-    { id:'PLR-0002', model:'mistral-7b',      backend:'Ollama', suite:'easy_20', target:'85%', iters:2, score:'91%', node:'LINUX-DSKTP', dur:'3h 22m', status:'pass' },
-  ];
+  // ── Live data arrays (populated by API) ─────────────────────────────
+  let _evals     = [];
+  let _trains    = [];
+  let _pipelines = [];
 
   function sc(n) { return n >= 80 ? 'score-hi' : n >= 65 ? 'score-mid' : 'score-lo'; }
 
@@ -194,12 +177,12 @@
     const fm  = document.getElementById('flt-model').value.toLowerCase();
     const fs  = document.getElementById('flt-suite').value.toLowerCase();
     const fst = document.getElementById('flt-status').value;
-    let d = DEMO_EVALS;
-    if (fm)        d = d.filter(r => r.model.toLowerCase().includes(fm));
-    if (fs)        d = d.filter(r => r.suite.toLowerCase().includes(fs));
-    if (fst!=='all') d = d.filter(r => r.status === fst);
+    let d = _evals;
+    if (fm)          d = d.filter(r => r.model.toLowerCase().includes(fm));
+    if (fs)          d = d.filter(r => r.suite.toLowerCase().includes(fs));
+    if (fst !== 'all') d = d.filter(r => r.status === fst);
     const tb = document.getElementById('eval-tbody');
-    if (!d.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO MATCHING RUNS</td></tr>'; return; }
+    if (!d.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO EVAL RUNS YET</td></tr>'; return; }
     tb.innerHTML = d.map(r => `<tr>
       <td style="color:var(--orange-dark)">${r.id}</td>
       <td style="color:#999">${r.date}</td><td>${r.model}</td><td>${r.backend}</td>
@@ -212,8 +195,8 @@
 
   function renderTrains() {
     const tb = document.getElementById('train-tbody');
-    if (!DEMO_TRAINS.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO TRAINING RUNS</td></tr>'; return; }
-    tb.innerHTML = DEMO_TRAINS.map(r => `<tr>
+    if (!_trains.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO TRAINING RUNS YET</td></tr>'; return; }
+    tb.innerHTML = _trains.map(r => `<tr>
       <td style="color:var(--orange-dark)">${r.id}</td>
       <td>${r.model}</td><td style="font-size:10px;color:#999">${r.dataset}</td>
       <td>${r.rank}</td><td>${r.epochs}</td><td>${r.lr}</td><td>${r.node}</td>
@@ -224,8 +207,8 @@
 
   function renderPipelines() {
     const tb = document.getElementById('pipeline-tbody');
-    if (!DEMO_PIPELINES.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO PIPELINE RUNS</td></tr>'; return; }
-    tb.innerHTML = DEMO_PIPELINES.map(r => `<tr>
+    if (!_pipelines.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO PIPELINE RUNS YET</td></tr>'; return; }
+    tb.innerHTML = _pipelines.map(r => `<tr>
       <td style="color:var(--orange-dark)">${r.id}</td>
       <td>${r.model}</td><td>${r.backend}</td><td>${r.suite}</td><td>${r.target}</td>
       <td>${r.iters}</td><td class="${sc(parseInt(r.score))}">${r.score}</td>
@@ -244,26 +227,29 @@
       setText('sum-pipelines', d.pipelines     ?? '--');
       setText('sum-datajobs',  d.datagen_jobs  ?? '--');
       setText('sum-ft',        d.finetune_jobs ?? '--');
-      // best/avg score only meaningful when there are eval records
       if (!d.eval_runs) {
         setText('sum-bestscore', '--');
         setText('sum-avgscore',  '--');
       }
     } catch (err) {
       logLine('Reports summary error: ' + err.message, 'warn');
-      // fall back to demo counts if API unavailable
-      renderSummaryDemo();
     }
   }
 
-  function renderSummaryDemo() {
-    const scores = DEMO_EVALS.map(r => r.score);
-    setText('sum-evals',     DEMO_EVALS.length);
-    setText('sum-pipelines', DEMO_PIPELINES.length);
-    setText('sum-datajobs',  '9');
-    setText('sum-bestscore', Math.max(...scores) + '%');
-    setText('sum-avgscore',  Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) + '%');
-    setText('sum-ft',        DEMO_TRAINS.length);
+  // ── Live table data from API ─────────────────────────────────────────
+  async function pollReportsTables() {
+    const [evalsRes, trainsRes, plRes] = await Promise.allSettled([
+      fetch('/api/evals/',          { cache: 'no-store' }),
+      fetch('/api/training/runs/',  { cache: 'no-store' }),
+      fetch('/api/pipelines/runs/', { cache: 'no-store' }),
+    ]);
+    if (evalsRes.status === 'fulfilled' && evalsRes.value.ok)
+      try { _evals = await evalsRes.value.json(); } catch(_) {}
+    if (trainsRes.status === 'fulfilled' && trainsRes.value.ok)
+      try { _trains = await trainsRes.value.json(); } catch(_) {}
+    if (plRes.status === 'fulfilled' && plRes.value.ok)
+      try { _pipelines = await plRes.value.json(); } catch(_) {}
+    renderEvals(); renderTrains(); renderPipelines();
   }
 
   function renderSummary() { pollReportsSummary(); }
@@ -273,7 +259,9 @@
     if (BCOM.apiBase === null) logLine('No API — export unavailable', 'warn');
   }
 
-  renderSummary(); renderEvals(); renderTrains(); renderPipelines();
+  renderSummary();
+  pollReportsTables();
+  setInterval(pollReportsTables, 30000);
 
   // Terminal
   let _termNode = 'spark';
