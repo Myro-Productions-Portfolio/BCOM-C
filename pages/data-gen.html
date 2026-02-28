@@ -6,20 +6,20 @@
 <title>BCOM-C — Data Gen</title>
 <link rel="stylesheet" href="../assets/css/bcom.css" />
 <style>
-  .job-table { width:100%; border-collapse:collapse; font-size:10px; letter-spacing:.5px; }
-  .job-table th { background:#0e0a06; color:#444; font-weight:600; letter-spacing:1.5px;
+  .job-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
+  .job-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px;
                    padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
-  .job-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; }
+  .job-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
   .job-table tr:hover td { background:#0e0905; }
   .job-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
-  .job-status { display:inline-block; font-size:8px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
+  .job-status { display:inline-block; font-size:10px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
   .job-status.running { color:#27ae60; border-color:#27ae60; }
   .job-status.queued  { color:#f39c12; border-color:#f39c12; }
   .job-status.done    { color:#444;    border-color:#333; }
   .job-status.error   { color:#e74c3c; border-color:#e74c3c; }
   .job-wrap { overflow-x:auto; }
   .opt-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
-  .opt-toggle { display:flex; align-items:center; gap:8px; font-size:9px; letter-spacing:1px; color:#555; cursor:pointer; }
+  .opt-toggle { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:1px; color:#ccc; cursor:pointer; }
   .opt-toggle input { accent-color:var(--orange-dark); }
   .prog-track { background:#0e0905; height:4px; margin-top:4px; }
   .prog-fill   { height:4px; background:var(--orange-dark); transition:width .4s; }
@@ -139,7 +139,7 @@
     <div class="info-card">
       <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
         <span>Active Jobs</span>
-        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="refreshJobs()">&#8635; Refresh</button>
+        <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="refreshJobs()">&#8635; Refresh</button>
       </div>
       <div class="job-wrap">
         <table class="job-table">
@@ -157,7 +157,7 @@
     <div class="info-card">
       <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
         <span>Job History</span>
-        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportHistory()">&#8659; Export CSV</button>
+        <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="exportHistory()">&#8659; Export CSV</button>
       </div>
       <div class="job-wrap">
         <table class="job-table">
@@ -278,7 +278,7 @@
       <td>${j.type}</td><td>${j.domain}</td><td>${j.node}</td><td>${j.count}</td>
       <td>${j.fmt}</td><td>${j.duration||'--'}</td>
       <td><span class="job-status ${j.status}">${j.status.toUpperCase()}</span></td>
-      <td style="font-size:8px;color:#444">${j.path}</td>
+      <td style="font-size:10px;color:#999">${j.path}</td>
     </tr>`).join('');
   }
 

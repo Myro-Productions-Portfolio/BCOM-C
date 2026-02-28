@@ -6,12 +6,12 @@
 <title>BCOM-C — Reports</title>
 <link rel="stylesheet" href="../assets/css/bcom.css" />
 <style>
-  .rpt-table { width:100%; border-collapse:collapse; font-size:10px; letter-spacing:.5px; }
-  .rpt-table th { background:#0e0a06; color:#444; font-weight:600; letter-spacing:1.5px; padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
-  .rpt-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; }
+  .rpt-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
+  .rpt-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px; padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .rpt-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
   .rpt-table tr:hover td { background:#0e0905; }
   .rpt-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
-  .rpt-pill { display:inline-block; font-size:7px; letter-spacing:1.5px; padding:2px 7px; border:1px solid; }
+  .rpt-pill { display:inline-block; font-size:9px; letter-spacing:1.5px; padding:2px 7px; border:1px solid; }
   .rpt-pill.pass  { color:#27ae60; border-color:#27ae60; }
   .rpt-pill.fail  { color:#e74c3c; border-color:#e74c3c; }
   .rpt-pill.error { color:#f39c12; border-color:#f39c12; }
@@ -19,10 +19,10 @@
   .score-mid { color:var(--orange); font-weight:700; }
   .score-lo  { color:#e74c3c; font-weight:700; }
   .summary-row { display:flex; gap:12px; flex-wrap:wrap; }
-  .sum-chip { border:1px solid #1a0e05; padding:8px 14px; background:#090603; font-size:9px; letter-spacing:1px; color:#555; }
+  .sum-chip { border:1px solid #1a0e05; padding:8px 14px; background:#090603; font-size:11px; letter-spacing:1px; color:#ccc; }
   .sum-chip span { display:block; font-size:16px; font-weight:700; color:var(--orange); margin-top:2px; }
   .filter-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .filter-bar label { font-size:8px; letter-spacing:1px; color:#444; }
+  .filter-bar label { font-size:10px; letter-spacing:1px; color:#ccc; }
 </style>
 </head>
 <body>
@@ -69,13 +69,13 @@
         <span>Eval History</span>
         <div class="filter-bar">
           <label>MODEL</label>
-          <input class="form-input" id="flt-model" type="text" placeholder="filter..." style="width:110px;font-size:8px;padding:3px 8px;" oninput="renderEvals()" />
+          <input class="form-input" id="flt-model" type="text" placeholder="filter..." style="width:110px;font-size:10px;padding:3px 8px;" oninput="renderEvals()" />
           <label>SUITE</label>
-          <input class="form-input" id="flt-suite" type="text" placeholder="filter..." style="width:80px;font-size:8px;padding:3px 8px;" oninput="renderEvals()" />
-          <select class="form-select" id="flt-status" style="font-size:8px;padding:2px 8px;width:auto;" onchange="renderEvals()">
+          <input class="form-input" id="flt-suite" type="text" placeholder="filter..." style="width:80px;font-size:10px;padding:3px 8px;" oninput="renderEvals()" />
+          <select class="form-select" id="flt-status" style="font-size:10px;padding:2px 8px;width:auto;" onchange="renderEvals()">
             <option value="all">ALL</option><option value="pass">PASS</option><option value="fail">FAIL</option>
           </select>
-          <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportAll('eval')">&#8659; CSV</button>
+          <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="exportAll('eval')">&#8659; CSV</button>
         </div>
       </div>
       <div style="overflow-x:auto">
@@ -94,7 +94,7 @@
     <div class="info-card">
       <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
         <span>Training Run History</span>
-        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportAll('train')">&#8659; CSV</button>
+        <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="exportAll('train')">&#8659; CSV</button>
       </div>
       <div style="overflow-x:auto">
         <table class="rpt-table">
@@ -112,7 +112,7 @@
     <div class="info-card">
       <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
         <span>Pipeline Run History</span>
-        <button class="action-btn" style="font-size:8px;padding:2px 10px;" onclick="exportAll('pipeline')">&#8659; CSV</button>
+        <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="exportAll('pipeline')">&#8659; CSV</button>
       </div>
       <div style="overflow-x:auto">
         <table class="rpt-table">
@@ -201,10 +201,10 @@
     if (!d.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO MATCHING RUNS</td></tr>'; return; }
     tb.innerHTML = d.map(r => `<tr>
       <td style="color:var(--orange-dark)">${r.id}</td>
-      <td style="color:#444">${r.date}</td><td>${r.model}</td><td>${r.backend}</td>
+      <td style="color:#999">${r.date}</td><td>${r.model}</td><td>${r.backend}</td>
       <td>${r.judge}</td><td>${r.suite}</td>
       <td class="${sc(r.score)}">${r.score}%</td>
-      <td>${r.passrate}</td><td style="color:#444">${r.time}</td>
+      <td>${r.passrate}</td><td style="color:#999">${r.time}</td>
       <td><span class="rpt-pill ${r.status}">${r.status.toUpperCase()}</span></td>
     </tr>`).join('');
   }
@@ -214,7 +214,7 @@
     if (!DEMO_TRAINS.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO TRAINING RUNS</td></tr>'; return; }
     tb.innerHTML = DEMO_TRAINS.map(r => `<tr>
       <td style="color:var(--orange-dark)">${r.id}</td>
-      <td>${r.model}</td><td style="font-size:8px;color:#444">${r.dataset}</td>
+      <td>${r.model}</td><td style="font-size:10px;color:#999">${r.dataset}</td>
       <td>${r.rank}</td><td>${r.epochs}</td><td>${r.lr}</td><td>${r.node}</td>
       <td>${r.dur}</td><td class="${sc(parseFloat(r.loss)<0.09?85:parseFloat(r.loss)<0.12?70:55)}">${r.loss}</td>
       <td><span class="rpt-pill ${r.status}">${r.status.toUpperCase()}</span></td>

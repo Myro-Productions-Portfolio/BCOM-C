@@ -6,27 +6,27 @@
 <title>BCOM-C — Resources</title>
 <link rel="stylesheet" href="../assets/css/bcom.css" />
 <style>
-  .reg-table { width:100%; border-collapse:collapse; font-size:10px; letter-spacing:.5px; }
-  .reg-table th { background:#0e0a06; color:#444; font-weight:600; letter-spacing:1.5px; padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
-  .reg-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; }
+  .reg-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
+  .reg-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px; padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .reg-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
   .reg-table tr:hover td { background:#0e0905; }
   .reg-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
-  .mdl-pill { display:inline-block; font-size:7px; letter-spacing:1.5px; padding:2px 7px; border:1px solid; }
+  .mdl-pill { display:inline-block; font-size:9px; letter-spacing:1.5px; padding:2px 7px; border:1px solid; }
   .mdl-pill.loaded  { color:#27ae60; border-color:#27ae60; }
   .mdl-pill.cached  { color:var(--orange); border-color:var(--orange-dark); }
   .mdl-pill.avail   { color:#444; border-color:#333; }
   .mdl-pill.pulling { color:#f39c12; border-color:#f39c12; }
   .stor-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   .stor-node { padding:12px; border:1px solid #1a0e05; background:#090603; }
-  .stor-hdr  { font-size:9px; letter-spacing:2px; color:var(--orange-dark); margin-bottom:10px; font-weight:700; }
+  .stor-hdr  { font-size:11px; letter-spacing:2px; color:var(--orange-dark); margin-bottom:10px; font-weight:700; }
   .stor-row  { margin-bottom:8px; }
-  .stor-label{ font-size:8px; letter-spacing:1px; color:#444; display:flex; justify-content:space-between; margin-bottom:3px; }
+  .stor-label{ font-size:10px; letter-spacing:1px; color:#ccc; display:flex; justify-content:space-between; margin-bottom:3px; }
   .stor-track{ background:#0e0905; height:6px; }
   .stor-fill { height:6px; background:var(--orange-dark); transition:width .6s; }
   .stor-fill.warn   { background:#f39c12; }
   .stor-fill.danger { background:#e74c3c; }
-  .compute-chip { font-size:9px; letter-spacing:1px; color:#555; border:1px solid #1a0e05; padding:6px 12px; background:#090603; min-width:120px; }
-  .compute-chip span { color:var(--orange); display:block; font-weight:700; font-size:11px; margin-top:2px; }
+  .compute-chip { font-size:11px; letter-spacing:1px; color:#ccc; border:1px solid #1a0e05; padding:6px 12px; background:#090603; min-width:120px; }
+  .compute-chip span { color:var(--orange); display:block; font-weight:700; font-size:13px; margin-top:2px; }
   .compute-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
 </style>
 </head>
@@ -60,12 +60,12 @@
       <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
         <span>Model Registry</span>
         <div style="display:flex;gap:8px;">
-          <select class="form-select" id="reg-filter-node" style="font-size:8px;padding:2px 8px;width:auto;" onchange="renderRegistry()">
+          <select class="form-select" id="reg-filter-node" style="font-size:10px;padding:2px 8px;width:auto;" onchange="renderRegistry()">
             <option value="all">ALL NODES</option>
             <option value="spark">SPARK-BOB</option>
             <option value="linux">LINUX-DSKTP</option>
           </select>
-          <select class="form-select" id="reg-filter-status" style="font-size:8px;padding:2px 8px;width:auto;" onchange="renderRegistry()">
+          <select class="form-select" id="reg-filter-status" style="font-size:10px;padding:2px 8px;width:auto;" onchange="renderRegistry()">
             <option value="all">ALL STATUS</option>
             <option value="loaded">LOADED</option>
             <option value="cached">CACHED</option>
@@ -258,7 +258,7 @@
       <td style="color:var(--orange-dark);font-weight:600">${x.id}</td>
       <td>${x.type}</td><td>${x.size}</td><td>${x.backend}</td>
       <td>${x.node==='spark'?'SPARK-BOB':'LINUX-DSKTP'}</td>
-      <td>${x.vram}</td><td style="color:#555">${x.quant}</td>
+      <td>${x.vram}</td><td style="color:#999">${x.quant}</td>
       <td><span class="mdl-pill ${x.status}">${x.status.toUpperCase()}</span></td>
       <td style="display:flex;gap:4px;">
         <button class="ctr-btn" onclick="loadModel('${x.id}')">LOAD</button>

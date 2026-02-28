@@ -748,3 +748,50 @@ body {
 
 /* ── BODY PADDING for terminal dock ───────────────── */
 body { padding-bottom: 220px; }
+
+/* ══════════════════════════════════════════════════════
+   READABILITY PASS — white text, font +2
+   ════════════════════════════════════════════════════ */
+
+/* Panel status */
+.panel-status { font-size: 11px !important; color: #aaa !important; }
+
+/* Info card header */
+.info-card-hdr { font-size: 11px !important; }
+
+/* Node column header */
+.node-col-hdr { font-size: 11px !important; color: #ccc !important; }
+
+/* Container rows */
+.ctr-row { font-size: 11px !important; }
+.ctr-image  { color: #999 !important; }
+.ctr-uptime { color: #999 !important; }
+.ctr-btn    { font-size: 10px !important; }
+
+/* Model rows */
+.mdl-row     { font-size: 11px !important; }
+.mdl-backend { font-size: 10px !important; color: #999 !important; }
+.mdl-size    { color: #999 !important; }
+.mdl-test    { font-size: 10px !important; }
+
+/* MCP rows */
+.mcp-row    { font-size: 11px !important; }
+.mcp-status { font-size: 10px !important; color: #999 !important; }
+
+/* Eval table */
+.eval-table           { font-size: 11px !important; }
+.eval-table td        { color: #ccc !important; }
+
+/* Form elements */
+.form-label           { font-size: 10px !important; color: #aaa !important; }
+.form-input,
+.form-select          { font-size: 11px !important; color: #fff !important; }
+.form-check-row       { font-size: 11px !important; color: #ccc !important; }
+.form-submit          { font-size: 11px !important; }
+.form-output          { font-size: 10px !important; color: #ccc !important; }
+
+/* Advisor output */
+.advisor-output       { font-size: 11px !important; color: #ccc !important; }
+
+/* Await / placeholder row — keep dim, just bump size */
+.await-row            { font-size: 10px !important; }
