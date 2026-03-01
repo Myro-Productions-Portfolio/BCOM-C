@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eval Center — BCOM-C</title>
+<link rel="stylesheet" href="../bcom.css?v=3">
+<style>
+.ev-hero{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.ev-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 20px;min-width:140px}
+.ev-chip-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.ev-chip-val{font-size:26px;font-weight:700;color:var(--fg)}
+.ev-chip-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+.ev-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+.ev-section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+
+.ev-run-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.ev-run-row select,.ev-run-row input{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:8px 12px;font-size:13px;height:36px}
+.ev-run-row select{min-width:180px}
+.ev-run-row input{flex:1;min-width:200px}
+
+.ev-filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.ev-filter-row input,.ev-filter-row select{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:7px 11px;font-size:12px}
+.ev-filter-row input{flex:1;min-width:180px}
+
+.ev-table{width:100%;border-collapse:collapse;font-size:13px}
+.ev-table th{text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:1px solid var(--border)}
+.ev-table td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--fg);vertical-align:middle}
+.ev-table tr:hover td{background:rgba(255,255,255,.025);cursor:pointer}
+.ev-table tr.selected td{background:rgba(180,90,20,.1)}
+
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.pill-pass{background:rgba(40,180,40,.18);color:#6f6}
+.pill-fail{background:rgba(220,60,60,.18);color:#f88}
+.pill-running{background:rgba(180,90,20,.18);color:var(--orange-dark)}
+.pill-pending{background:rgba(120,120,120,.18);color:#999}
+
+.score-bar{display:inline-flex;align-items:center;gap:6px}
+.score-bar-bg{width:80px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:3px;background:var(--orange-dark)}
+.score-bar-fill.high{background:#4c4}
+.score-bar-fill.med{background:#ca4}
+
+.compare-selects{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.compare-selects select{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:8px 12px;font-size:13px;flex:1;min-width:180px}
+.compare-vs{color:var(--muted);font-size:12px;font-weight:600}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.compare-col{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px}
+.compare-col-header{font-size:12px;font-weight:700;color:var(--orange-dark);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.compare-metric{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.compare-metric:last-child{border-bottom:none}
+.compare-metric-key{color:var(--muted)}
+.compare-metric-val{font-weight:600;color:var(--fg)}
+.compare-winner{color:#6f6}
+
+/* Slide-out panel */
+.ev-panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}
+.ev-panel-overlay.open{display:block}
+.ev-panel{position:fixed;top:0;right:-440px;width:440px;height:100vh;background:var(--card);border-left:1px solid var(--border);z-index:200;overflow-y:auto;transition:right .22s ease;padding:24px}
+.ev-panel.open{right:0}
+.ev-panel-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+.ev-panel-close:hover{color:var(--fg)}
+.ev-panel-title{font-size:15px;font-weight:700;margin-bottom:4px;padding-right:30px;word-break:break-all}
+.ev-panel-sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+.ev-panel-section{margin-bottom:18px}
+.ev-panel-section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+.ev-panel-kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.ev-panel-kv:last-child{border-bottom:none}
+.ev-panel-kv-k{color:var(--muted)}
+.ev-panel-kv-v{font-weight:600;color:var(--fg);text-align:right;max-width:220px;word-break:break-word}
+.ev-results-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+.ev-results-table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid var(--border)}
+.ev-results-table td{padding:6px 6px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--fg)}
+
+.import-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.import-row input{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:8px 12px;font-size:13px;flex:1;min-width:200px}
+</style>
+</head>
+<body>
+<nav class="bcom-nav">
+  <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
+  <div class="bcom-nav-links">
+    <a href="pipeline.html">PIPELINE</a>
+    <a href="data-gen.html">DATAGEN</a>
+    <a href="analytics.html">ANALYTICS</a>
+    <a href="coordinator.html">COORDINATOR</a>
+    <a href="datasets.html">DATASETS</a>
+    <a href="evals.html" class="active">EVALS</a>
+    <a href="models.html">MODELS</a>
+    <a href="monitor.html">MONITOR</a>
+    <a href="deploy.html">DEPLOY</a>
+    <a href="reports.html">REPORTS</a>
+    <a href="resources.html">⚙</a>
+  </div>
+</nav>
+
+<div class="bcom-page">
+  <div class="bcom-page-header">
+    <h1 class="bcom-page-title">Eval Center</h1>
+    <div class="bcom-page-actions">
+      <span id="ev-last-refresh" style="font-size:11px;color:var(--muted)">—</span>
+    </div>
+  </div>
+
+  <!-- Hero chips -->
+  <div class="ev-hero" id="ev-hero">
+    <div class="ev-chip"><div class="ev-chip-label">Total Evals</div><div class="ev-chip-val" id="chip-total">—</div></div>
+    <div class="ev-chip"><div class="ev-chip-label">Pass Rate</div><div class="ev-chip-val" id="chip-passrate">—</div><div class="ev-chip-sub">last 30 days</div></div>
+    <div class="ev-chip"><div class="ev-chip-label">Avg Score</div><div class="ev-chip-val" id="chip-avgscore">—</div></div>
+    <div class="ev-chip"><div class="ev-chip-label">Suites</div><div class="ev-chip-val" id="chip-suites">—</div></div>
+    <div class="ev-chip"><div class="ev-chip-label">Running Now</div><div class="ev-chip-val" id="chip-running">—</div></div>
+  </div>
+
+  <!-- Run Eval -->
+  <div class="ev-section">
+    <div class="ev-section-title">Run Eval</div>
+    <div class="ev-run-row">
+      <input id="run-model" type="text" placeholder="model_id (e.g. llama3-8b)" style="flex:1;min-width:200px">
+      <select id="run-suite">
+        <option value="">— select suite —</option>
+      </select>
+      <button class="bcom-btn" onclick="runEval()">▶ RUN</button>
+    </div>
+  </div>
+
+  <!-- Evals table -->
+  <div class="ev-section">
+    <div class="ev-section-title">Eval History</div>
+    <div class="ev-filter-row">
+      <input id="ev-search" type="text" placeholder="Search model / suite…" oninput="renderEvalsTable()">
+      <select id="ev-filter-status" onchange="renderEvalsTable()">
+        <option value="">All Statuses</option>
+        <option value="passed">Passed</option>
+        <option value="failed">Failed</option>
+        <option value="running">Running</option>
+        <option value="pending">Pending</option>
+      </select>
+      <select id="ev-filter-suite" onchange="renderEvalsTable()">
+        <option value="">All Suites</option>
+      </select>
+      <button class="bcom-btn bcom-btn-sm" onclick="clearCompare()">Clear Compare</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="ev-table">
+        <thead>
+          <tr>
+            <th>CMP</th><th>ID</th><th>Model</th><th>Suite</th>
+            <th>Score</th><th>Status</th><th>Duration</th><th>Date</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="ev-tbody"><tr><td colspan="9" style="color:var(--muted);padding:20px">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Compare -->
+  <div class="ev-section" id="compare-section" style="display:none">
+    <div class="ev-section-title">Compare Selected Evals</div>
+    <div class="compare-selects">
+      <span id="compare-a-label" style="font-size:12px;color:var(--fg)">—</span>
+      <span class="compare-vs">VS</span>
+      <span id="compare-b-label" style="font-size:12px;color:var(--fg)">—</span>
+      <button class="bcom-btn bcom-btn-sm" onclick="fetchCompare()">COMPARE</button>
+    </div>
+    <div class="compare-grid" id="compare-grid" style="display:none"></div>
+  </div>
+
+  <!-- Suites -->
+  <div class="ev-section">
+    <div class="ev-section-title">Eval Suites</div>
+    <div id="suites-body" style="color:var(--muted);font-size:13px">Loading…</div>
+  </div>
+
+  <!-- Import -->
+  <div class="ev-section">
+    <div class="ev-section-title">Import Eval</div>
+    <div class="import-row">
+      <input id="import-path" type="text" placeholder="Path or URL to eval file…">
+      <input id="import-suite" type="text" placeholder="Suite name (optional)" style="flex:0.5;min-width:140px">
+      <button class="bcom-btn" onclick="importEval()">IMPORT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Slide-out panel -->
+<div class="ev-panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
+<div class="ev-panel" id="ev-panel">
+  <button class="ev-panel-close" onclick="closePanel()">✕</button>
+  <div id="ev-panel-content"></div>
+</div>
+
+<script src="../bcom.js?v=5"></script>
+<script>
+window.BCOM = window.BCOM || {};
+BCOM.apiBase = '';
+
+var _evals = [];
+var _suites = [];
+var _compareIds = [];
+
+/* ── Toast ─────────────────────────────────────────────── */
+function toast(msg, type) {
+  var t = document.createElement('div');
+  t.className = 'bcom-toast' + (type === 'err' ? ' bcom-toast-err' : type === 'ok' ? ' bcom-toast-ok' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3500);
+}
+
+/* ── Fetch helpers ──────────────────────────────────────── */
+function apiFetch(url) {
+  return fetch(BCOM.apiBase + url, { cache: 'no-store' }).then(function(r) {
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  });
+}
+
+/* ── Hero chips ─────────────────────────────────────────── */
+function updateChips(evals, suites) {
+  var total = evals.length;
+  var passed = evals.filter(function(e){ return (e.status||'').toLowerCase() === 'passed'; }).length;
+  var failed = evals.filter(function(e){ return (e.status||'').toLowerCase() === 'failed'; }).length;
+  var running = evals.filter(function(e){ return (e.status||'').toLowerCase() === 'running'; }).length;
+  var scored = evals.filter(function(e){ return typeof e.score === 'number'; });
+  var avgScore = scored.length ? (scored.reduce(function(a,e){ return a + e.score; }, 0) / scored.length) : null;
+  var passRate = (passed + failed) > 0 ? Math.round(passed / (passed + failed) * 100) : null;
+
+  document.getElementById('chip-total').textContent = total;
+  document.getElementById('chip-passrate').textContent = passRate !== null ? passRate + '%' : '—';
+  document.getElementById('chip-avgscore').textContent = avgScore !== null ? avgScore.toFixed(2) : '—';
+  document.getElementById('chip-suites').textContent = suites.length || '—';
+  document.getElementById('chip-running').textContent = running;
+}
+
+/* ── Suites ─────────────────────────────────────────────── */
+function pollSuites() {
+  apiFetch('/api/evals/suites').then(function(data) {
+    _suites = Array.isArray(data) ? data : (data.suites || data.items || []);
+    renderSuites();
+    populateSuiteFilters();
+  }).catch(function() { _suites = []; });
+}
+
+function renderSuites() {
+  var el = document.getElementById('suites-body');
+  if (!_suites.length) { el.innerHTML = '<span style="color:var(--muted);font-size:13px">No suites found</span>'; return; }
+  var rows = _suites.map(function(s) {
+    var name = s.name || s.suite_id || s.id || '—';
+    var desc = s.description || '';
+    var count = s.eval_count !== undefined ? s.eval_count : (s.count || '');
+    return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px">' +
+      '<div><span style="font-weight:600;color:var(--fg)">' + esc(name) + '</span>' +
+      (desc ? '<span style="color:var(--muted);font-size:12px;margin-left:10px">' + esc(desc) + '</span>' : '') + '</div>' +
+      (count !== '' ? '<span style="color:var(--muted);font-size:12px">' + count + ' evals</span>' : '') +
+      '</div>';
+  }).join('');
+  el.innerHTML = rows;
+}
+
+function populateSuiteFilters() {
+  var suiteNames = _suites.map(function(s){ return s.name || s.suite_id || s.id || ''; }).filter(Boolean);
+  var sel1 = document.getElementById('run-suite');
+  var sel2 = document.getElementById('ev-filter-suite');
+  [sel1, sel2].forEach(function(sel, idx) {
+    var first = idx === 0 ? '<option value="">— select suite —</option>' : '<option value="">All Suites</option>';
+    sel.innerHTML = first + suiteNames.map(function(n){ return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+  });
+}
+
+/* ── Evals list ─────────────────────────────────────────── */
+function pollEvals() {
+  apiFetch('/api/evals/').then(function(data) {
+    _evals = Array.isArray(data) ? data : (data.evals || data.items || []);
+    renderEvalsTable();
+    updateChips(_evals, _suites);
+    document.getElementById('ev-last-refresh').textContent = 'updated ' + new Date().toLocaleTimeString();
+  }).catch(function() {
+    document.getElementById('ev-tbody').innerHTML = '<tr><td colspan="9" style="color:var(--muted);padding:20px">Failed to load evals</td></tr>';
+  });
+}
+
+function renderEvalsTable() {
+  var search = (document.getElementById('ev-search').value || '').toLowerCase();
+  var fStatus = document.getElementById('ev-filter-status').value.toLowerCase();
+  var fSuite  = document.getElementById('ev-filter-suite').value.toLowerCase();
+
+  var filtered = _evals.filter(function(e) {
+    var model = (e.model_id || e.model || '').toLowerCase();
+    var suite = (e.suite || e.suite_id || '').toLowerCase();
+    var status = (e.status || '').toLowerCase();
+    if (search && model.indexOf(search) < 0 && suite.indexOf(search) < 0) return false;
+    if (fStatus && status !== fStatus) return false;
+    if (fSuite && suite !== fSuite) return false;
+    return true;
+  });
+
+  var tbody = document.getElementById('ev-tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="color:var(--muted);padding:20px">No evals match</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(function(e) {
+    var id = e.eval_id || e.id || '?';
+    var model = e.model_id || e.model || '—';
+    var suite = e.suite || e.suite_id || '—';
+    var status = (e.status || 'unknown').toLowerCase();
+    var score = typeof e.score === 'number' ? e.score : null;
+    var dur = e.duration_s ? e.duration_s.toFixed(1) + 's' : (e.duration ? e.duration : '—');
+    var date = e.created_at || e.started_at || e.timestamp || '';
+    var dateStr = date ? new Date(date).toLocaleDateString() : '—';
+    var isSelected = _compareIds.indexOf(id) >= 0;
+
+    var pillClass = status === 'passed' ? 'pill-pass' : status === 'failed' ? 'pill-fail' : status === 'running' ? 'pill-running' : 'pill-pending';
+    var scoreHtml = score !== null ? scoreBar(score) : '—';
+
+    return '<tr class="' + (isSelected ? 'selected' : '') + '" onclick="openPanel(\'' + esc(id) + '\')">' +
+      '<td onclick="event.stopPropagation();toggleCompare(\'' + esc(id) + '\',\'' + esc(model) + '\')">' +
+        '<input type="checkbox" ' + (isSelected ? 'checked' : '') + ' style="cursor:pointer" readonly></td>' +
+      '<td style="font-family:monospace;font-size:11px;color:var(--muted)">' + esc(id.slice(0,12)) + '</td>' +
+      '<td style="font-weight:600">' + esc(model) + '</td>' +
+      '<td style="color:var(--muted)">' + esc(suite) + '</td>' +
+      '<td>' + scoreHtml + '</td>' +
+      '<td><span class="pill ' + pillClass + '">' + status + '</span></td>' +
+      '<td style="color:var(--muted)">' + dur + '</td>' +
+      '<td style="color:var(--muted);font-size:11px">' + dateStr + '</td>' +
+      '<td><button class="bcom-btn bcom-btn-sm" onclick="event.stopPropagation();openPanel(\'' + esc(id) + '\')">VIEW</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function scoreBar(score) {
+  var pct = Math.max(0, Math.min(100, score * 100));
+  var cls = pct >= 80 ? 'high' : pct >= 50 ? 'med' : '';
+  return '<div class="score-bar">' +
+    '<div class="score-bar-bg"><div class="score-bar-fill ' + cls + '" style="width:' + pct.toFixed(0) + '%"></div></div>' +
+    '<span style="font-size:12px;font-weight:600;color:var(--fg)">' + score.toFixed(3) + '</span>' +
+    '</div>';
+}
+
+/* ── Compare ────────────────────────────────────────────── */
+window.toggleCompare = function(id, label) {
+  var idx = _compareIds.indexOf(id);
+  if (idx >= 0) {
+    _compareIds.splice(idx, 1);
+  } else {
+    if (_compareIds.length >= 2) { _compareIds.shift(); }
+    _compareIds.push(id);
+  }
+  renderEvalsTable();
+  updateCompareSection();
+};
+
+function clearCompare() {
+  _compareIds = [];
+  renderEvalsTable();
+  updateCompareSection();
+}
+
+function updateCompareSection() {
+  var sec = document.getElementById('compare-section');
+  var grid = document.getElementById('compare-grid');
+  if (_compareIds.length < 2) {
+    sec.style.display = _compareIds.length === 1 ? 'block' : 'none';
+    document.getElementById('compare-a-label').textContent = _compareIds[0] || '—';
+    document.getElementById('compare-b-label').textContent = '(select one more)';
+    grid.style.display = 'none';
+    return;
+  }
+  sec.style.display = 'block';
+  document.getElementById('compare-a-label').textContent = _compareIds[0];
+  document.getElementById('compare-b-label').textContent = _compareIds[1];
+  grid.style.display = 'none';
+}
+
+function fetchCompare() {
+  if (_compareIds.length < 2) { toast('Select 2 evals to compare', 'err'); return; }
+  var url = '/api/evals/compare?eval_id_a=' + encodeURIComponent(_compareIds[0]) + '&eval_id_b=' + encodeURIComponent(_compareIds[1]);
+  apiFetch(url).then(function(data) {
+    renderCompareGrid(data);
+  }).catch(function() {
+    // Fallback: compare locally from cached evals
+    var a = _evals.find(function(e){ return (e.eval_id || e.id) === _compareIds[0]; });
+    var b = _evals.find(function(e){ return (e.eval_id || e.id) === _compareIds[1]; });
+    if (a && b) renderCompareGrid({eval_a: a, eval_b: b});
+    else toast('Compare failed', 'err');
+  });
+}
+
+function renderCompareGrid(data) {
+  var a = data.eval_a || data.a || {};
+  var b = data.eval_b || data.b || {};
+  var grid = document.getElementById('compare-grid');
+  var metrics = ['model_id','suite','score','status','duration_s','pass_count','fail_count','total_cases'];
+  function colHtml(ev, other) {
+    var rows = metrics.map(function(k) {
+      var va = ev[k] !== undefined ? ev[k] : '—';
+      var vb = other[k] !== undefined ? other[k] : null;
+      var winner = '';
+      if (k === 'score' && typeof va === 'number' && typeof vb === 'number' && va > vb) winner = ' compare-winner';
+      return '<div class="compare-metric"><span class="compare-metric-key">' + k + '</span>' +
+        '<span class="compare-metric-val' + winner + '">' + (typeof va === 'number' ? va.toFixed ? va.toFixed(3) : va : esc(String(va))) + '</span></div>';
+    }).join('');
+    return rows;
+  }
+  grid.innerHTML =
+    '<div class="compare-col"><div class="compare-col-header">' + esc(_compareIds[0]) + '</div>' + colHtml(a, b) + '</div>' +
+    '<div class="compare-col"><div class="compare-col-header">' + esc(_compareIds[1]) + '</div>' + colHtml(b, a) + '</div>';
+  grid.style.display = 'grid';
+}
+
+/* ── Panel ──────────────────────────────────────────────── */
+window.openPanel = function(id) {
+  var panel = document.getElementById('ev-panel');
+  var overlay = document.getElementById('panel-overlay');
+  document.getElementById('ev-panel-content').innerHTML = '<div style="color:var(--muted);font-size:13px">Loading…</div>';
+  panel.classList.add('open');
+  overlay.classList.add('open');
+
+  apiFetch('/api/evals/' + encodeURIComponent(id)).then(function(ev) {
+    renderPanel(ev);
+  }).catch(function() {
+    var cached = _evals.find(function(e){ return (e.eval_id || e.id) === id; });
+    if (cached) renderPanel(cached);
+    else document.getElementById('ev-panel-content').innerHTML = '<div style="color:var(--muted)">Failed to load eval</div>';
+  });
+};
+
+function renderPanel(ev) {
+  var id = ev.eval_id || ev.id || '?';
+  var model = ev.model_id || ev.model || '—';
+  var suite = ev.suite || ev.suite_id || '—';
+  var status = ev.status || '—';
+  var score = typeof ev.score === 'number' ? ev.score.toFixed(4) : '—';
+  var created = ev.created_at || ev.started_at || ev.timestamp || '';
+  var createdStr = created ? new Date(created).toLocaleString() : '—';
+
+  var resultsHtml = '';
+  var results = ev.results || ev.test_results || [];
+  if (results.length) {
+    var rows = results.slice(0, 50).map(function(r) {
+      var pass = r.passed || r.pass || r.result === 'pass';
+      return '<tr><td>' + esc(r.test_id || r.name || r.case || '?') + '</td>' +
+        '<td><span class="pill ' + (pass ? 'pill-pass' : 'pill-fail') + '">' + (pass ? 'pass' : 'fail') + '</span></td>' +
+        '<td>' + (typeof r.score === 'number' ? r.score.toFixed(3) : '—') + '</td></tr>';
+    }).join('');
+    resultsHtml = '<div class="ev-panel-section"><div class="ev-panel-section-label">Test Results (' + results.length + ')</div>' +
+      '<table class="ev-results-table"><thead><tr><th>Test</th><th>Result</th><th>Score</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+
+  var metrics = ev.metrics || {};
+  var metHtml = '';
+  if (Object.keys(metrics).length) {
+    metHtml = '<div class="ev-panel-section"><div class="ev-panel-section-label">Metrics</div>' +
+      Object.keys(metrics).map(function(k) {
+        return '<div class="ev-panel-kv"><span class="ev-panel-kv-k">' + esc(k) + '</span>' +
+          '<span class="ev-panel-kv-v">' + esc(String(metrics[k])) + '</span></div>';
+      }).join('') + '</div>';
+  }
+
+  document.getElementById('ev-panel-content').innerHTML =
+    '<div class="ev-panel-title">' + esc(model) + '</div>' +
+    '<div class="ev-panel-sub">' + esc(id) + ' · ' + esc(suite) + '</div>' +
+    '<div class="ev-panel-section">' +
+      kv('Status', '<span class="pill ' + pillClass(status) + '">' + status + '</span>') +
+      kv('Score', score) +
+      kv('Suite', esc(suite)) +
+      kv('Duration', ev.duration_s ? ev.duration_s.toFixed(1) + 's' : (ev.duration || '—')) +
+      kv('Pass / Fail', (ev.pass_count || 0) + ' / ' + (ev.fail_count || 0)) +
+      kv('Total Cases', ev.total_cases || '—') +
+      kv('Created', createdStr) +
+    '</div>' +
+    metHtml +
+    resultsHtml;
+}
+
+function kv(k, v) {
+  return '<div class="ev-panel-kv"><span class="ev-panel-kv-k">' + k + '</span><span class="ev-panel-kv-v">' + v + '</span></div>';
+}
+
+function pillClass(s) {
+  s = (s||'').toLowerCase();
+  return s === 'passed' ? 'pill-pass' : s === 'failed' ? 'pill-fail' : s === 'running' ? 'pill-running' : 'pill-pending';
+}
+
+window.closePanel = function() {
+  document.getElementById('ev-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+};
+
+/* ── Run Eval ───────────────────────────────────────────── */
+window.runEval = function() {
+  var model = document.getElementById('run-model').value.trim();
+  var suite = document.getElementById('run-suite').value;
+  if (!model) { toast('Enter a model_id', 'err'); return; }
+  var body = { model_id: model };
+  if (suite) body.suite = suite;
+  fetch(BCOM.apiBase + '/api/evals/run', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); })
+    .then(function(d){ toast('Eval started: ' + (d.eval_id || d.id || model), 'ok'); setTimeout(pollEvals, 2000); })
+    .catch(function(e){ toast('Run failed: ' + e.message, 'err'); });
+};
+
+/* ── Import ─────────────────────────────────────────────── */
+window.importEval = function() {
+  var path = document.getElementById('import-path').value.trim();
+  var suite = document.getElementById('import-suite').value.trim();
+  if (!path) { toast('Enter path or URL', 'err'); return; }
+  var body = { path: path };
+  if (suite) body.suite = suite;
+  fetch(BCOM.apiBase + '/api/evals/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); })
+    .then(function(){ toast('Import started', 'ok'); setTimeout(pollEvals, 2000); })
+    .catch(function(e){ toast('Import failed: ' + e.message, 'err'); });
+};
+
+/* ── Utils ──────────────────────────────────────────────── */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Init ───────────────────────────────────────────────── */
+function startPolling() {
+  pollSuites();
+  pollEvals();
+  setInterval(pollEvals, 12000);
+  setInterval(pollSuites, 60000);
+}
+
+document.addEventListener('DOMContentLoaded', startPolling);
+</script>
+</body>
+</html>
