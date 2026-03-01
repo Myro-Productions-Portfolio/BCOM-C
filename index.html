@@ -11,44 +11,201 @@
     try { var raw=localStorage.getItem("bcom-theme-vars"); if(raw){ var vars=JSON.parse(raw); Object.keys(vars).forEach(function(k){ document.documentElement.style.setProperty(k,vars[k]); }); } } catch(_) {}
   })();
 </script>
-<link rel="stylesheet" href="assets/css/bcom.css?v=3" />
+<link rel="stylesheet" href="bcom.css?v=3" />
+<style>
+  /* ── Hero summary row ─────────────────────────────────────────────── */
+  .hero-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+  .hero-chip { flex:1; min-width:110px; padding:10px 14px; border:1px solid #1a0e05; background:#090603; }
+  .hero-chip-label { font-size:9px; letter-spacing:2px; color:#666; margin-bottom:4px; }
+  .hero-chip-val { font-size:20px; font-weight:700; color:var(--orange); letter-spacing:1px; }
+  .hero-chip-sub { font-size:9px; color:#555; margin-top:2px; letter-spacing:1px; }
+
+  /* ── Quick-nav page grid ──────────────────────────────────────────── */
+  .page-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; margin-bottom:18px; }
+  .page-card { padding:12px 14px; border:1px solid #1a0e05; background:#090603; text-decoration:none; display:block; transition:border-color .15s; }
+  .page-card:hover { border-color:var(--orange-dark); background:#0b0704; }
+  .page-card-icon { font-size:18px; margin-bottom:6px; }
+  .page-card-name { font-size:10px; letter-spacing:2px; color:var(--orange-dark); font-weight:700; margin-bottom:4px; }
+  .page-card-desc { font-size:9px; color:#555; letter-spacing:.5px; line-height:1.4; }
+
+  /* ── Tables ───────────────────────────────────────────────────────── */
+  .idx-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
+  .idx-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px; padding:6px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .idx-table td { padding:6px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
+  .idx-table tr:hover td { background:#0e0905; }
+  .idx-table .empty { text-align:center; color:#2a2a2a; padding:20px; letter-spacing:2px; }
+
+  /* ── Status pills ─────────────────────────────────────────────────── */
+  .spill { display:inline-block; font-size:9px; letter-spacing:1.5px; padding:2px 6px; border:1px solid; }
+  .spill.running   { color:#27ae60; border-color:#27ae60; }
+  .spill.completed { color:#27ae60; border-color:#1a6b35; background:rgba(39,174,96,.08); }
+  .spill.success   { color:#27ae60; border-color:#1a6b35; background:rgba(39,174,96,.08); }
+  .spill.queued    { color:#f39c12; border-color:#7a4f0a; }
+  .spill.failed    { color:#e74c3c; border-color:#7b1e1e; background:rgba(231,76,60,.08); }
+  .spill.cancelled { color:#666; border-color:#333; }
+  .spill.active    { color:var(--orange); border-color:var(--orange-dark); animation:pulse-txt 1.4s infinite; }
+  @keyframes pulse-txt { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  /* ── Quick forms ──────────────────────────────────────────────────── */
+  .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  .form-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:10px; }
+  .form-grp label { display:block; font-size:9px; letter-spacing:1.5px; color:#777; margin-bottom:4px; }
+  .form-grp input, .form-grp select { width:100%; box-sizing:border-box; }
+
+  /* ── Card header row ──────────────────────────────────────────────── */
+  .card-hdr-row { display:flex; align-items:center; justify-content:space-between; }
+  .card-hdr-row a { font-size:9px; letter-spacing:1.5px; color:var(--orange-dark); text-decoration:none; }
+  .card-hdr-row a:hover { color:var(--orange); }
+  .ibtn { font-size:9px; letter-spacing:1.5px; padding:2px 8px; background:#0e0905; border:1px solid #2a1508; color:#aaa; cursor:pointer; }
+  .ibtn:hover { border-color:var(--orange-dark); color:var(--orange); }
+
+  /* ── Activity feed ────────────────────────────────────────────────── */
+  .feed-item { padding:8px 0; border-bottom:1px solid #0e0905; display:flex; align-items:flex-start; gap:10px; }
+  .feed-item:last-child { border-bottom:none; }
+  .feed-dot { width:6px; height:6px; border-radius:50%; background:var(--orange-dark); margin-top:4px; flex-shrink:0; }
+  .feed-dot.ok { background:#27ae60; }
+  .feed-dot.err { background:#e74c3c; }
+  .feed-body { flex:1; }
+  .feed-title { font-size:11px; color:#ccc; letter-spacing:.5px; }
+  .feed-meta { font-size:9px; color:#555; letter-spacing:1px; margin-top:2px; }
+
+  /* ── Log ──────────────────────────────────────────────────────────── */
+  .log-panel { margin-top:16px; }
+</style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="topbar-title">BCOM-C</div>
-  <div class="topbar-right">
-    <a class="nav-btn active" href="index.html"><span class="nav-arrow">&#8592;</span> DASHBOARD</a>
-    <a class="nav-btn" href="pages/data-gen.html">DATA GEN</a>
-    <a class="nav-btn" href="pages/pipeline.html">PIPELINE</a>
-    <a class="nav-btn" href="pages/resources.html">RESOURCES</a>
-    <a class="nav-btn" href="pages/reports.html">REPORTS</a>
-    <a class="nav-btn" href="pages/orchestrator.html">ORCHESTRATOR</a>
-    <a class="cog-btn" href="pages/settings.html" title="Settings">⚙</a>
-    <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
+<nav class="bcom-nav">
+  <span class="bcom-nav-brand">BCOM-C</span>
+  <div class="bcom-nav-links">
+    <a href="pages/pipeline.html">PIPELINE</a>
+    <a href="pages/data-gen.html">DATAGEN</a>
+    <a href="pages/analytics.html">ANALYTICS</a>
+    <a href="pages/coordinator.html">COORDINATOR</a>
+    <a href="pages/datasets.html">DATASETS</a>
+    <a href="pages/evals.html">EVALS</a>
+    <a href="pages/models.html">MODELS</a>
+    <a href="pages/monitor.html">MONITOR</a>
+    <a href="pages/deploy.html">DEPLOY</a>
+    <a href="pages/resources.html">RESOURCES</a>
+    <a href="pages/reports.html">REPORTS</a>
+    <a href="pages/settings.html">⚙</a>
   </div>
-</div>
+</nav>
 
-<!-- ACTION BAR -->
-<div class="actionbar">
-  <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>
-  <button class="action-btn danger" onclick="triggerAction('RESTART LLM')">RESTART LLM</button>
-  <button class="action-btn" onclick="triggerAction('DOWNLOAD MODEL')">DOWNLOAD MODEL</button>
-  <button class="action-btn" onclick="triggerAction('ASK ADVISOR')">ASK ADVISOR</button>
-</div>
-
-<!-- MAIN -->
 <div class="main">
 
-  <!-- ── GAUGE PANELS ─────────────────────────────────── -->
+  <!-- ── Hero summary ─────────────────────────────────────────────────── -->
+  <div class="hero-row">
+    <div class="hero-chip">
+      <div class="hero-chip-label">API</div>
+      <div class="hero-chip-val" id="h-api" style="font-size:13px;letter-spacing:1px">--</div>
+      <div class="hero-chip-sub">BOBSPARK-APIS</div>
+    </div>
+    <div class="hero-chip">
+      <div class="hero-chip-label">ACTIVE RUNS</div>
+      <div class="hero-chip-val" id="h-active-runs">--</div>
+      <div class="hero-chip-sub">RUNNING</div>
+    </div>
+    <div class="hero-chip">
+      <div class="hero-chip-label">RUNS TODAY</div>
+      <div class="hero-chip-val" id="h-runs-today">--</div>
+      <div class="hero-chip-sub">COMPLETED</div>
+    </div>
+    <div class="hero-chip">
+      <div class="hero-chip-label">MODELS LOADED</div>
+      <div class="hero-chip-val" id="h-models">--</div>
+      <div class="hero-chip-sub">IN MEMORY</div>
+    </div>
+    <div class="hero-chip">
+      <div class="hero-chip-label">PIPELINE</div>
+      <div class="hero-chip-val" id="h-pipeline" style="font-size:13px;letter-spacing:1px">--</div>
+      <div class="hero-chip-sub">STATUS</div>
+    </div>
+    <div class="hero-chip">
+      <div class="hero-chip-label">LAST EVAL</div>
+      <div class="hero-chip-val" id="h-last-eval">--</div>
+      <div class="hero-chip-sub">PASS RATE</div>
+    </div>
+    <div class="hero-chip">
+      <div class="hero-chip-label">DATASETS</div>
+      <div class="hero-chip-val" id="h-datasets">--</div>
+      <div class="hero-chip-sub">TOTAL</div>
+    </div>
+  </div>
+
+  <!-- ── Page navigation grid ─────────────────────────────────────────── -->
+  <div class="page-grid">
+    <a class="page-card" href="pages/pipeline.html">
+      <div class="page-card-icon">⚙</div>
+      <div class="page-card-name">PIPELINE</div>
+      <div class="page-card-desc">Closed-loop training with real SSE + Chart.js loss curve</div>
+    </a>
+    <a class="page-card" href="pages/data-gen.html">
+      <div class="page-card-icon">⚡</div>
+      <div class="page-card-name">DATAGEN</div>
+      <div class="page-card-desc">Live SSE worker stream, batch dispatch, run history feed</div>
+    </a>
+    <a class="page-card" href="pages/analytics.html">
+      <div class="page-card-icon">📊</div>
+      <div class="page-card-name">ANALYTICS</div>
+      <div class="page-card-desc">5× Chart.js charts — tok/s, run volume, agent distribution</div>
+    </a>
+    <a class="page-card" href="pages/coordinator.html">
+      <div class="page-card-icon">🔀</div>
+      <div class="page-card-name">COORDINATOR</div>
+      <div class="page-card-desc">Multi-node job dispatch, node health, active/queued runs</div>
+    </a>
+    <a class="page-card" href="pages/datasets.html">
+      <div class="page-card-icon">🗄</div>
+      <div class="page-card-name">DATASETS</div>
+      <div class="page-card-desc">Searchable registry, provenance chain, slide-out detail</div>
+    </a>
+    <a class="page-card" href="pages/evals.html">
+      <div class="page-card-icon">✔</div>
+      <div class="page-card-name">EVALS</div>
+      <div class="page-card-desc">Run evals, compare results, suite history, test breakdown</div>
+    </a>
+    <a class="page-card" href="pages/models.html">
+      <div class="page-card-icon">🤖</div>
+      <div class="page-card-name">MODELS</div>
+      <div class="page-card-desc">Leaderboard, registry, pull models, lineage chain</div>
+    </a>
+    <a class="page-card" href="pages/monitor.html">
+      <div class="page-card-icon">📡</div>
+      <div class="page-card-name">MONITOR</div>
+      <div class="page-card-desc">CPU/RAM/GPU/VRAM bars, storage mounts, services table</div>
+    </a>
+    <a class="page-card" href="pages/deploy.html">
+      <div class="page-card-icon">🚀</div>
+      <div class="page-card-name">DEPLOY</div>
+      <div class="page-card-desc">Active deploys, history, rolling/blue-green/canary</div>
+    </a>
+    <a class="page-card" href="pages/resources.html">
+      <div class="page-card-icon">📦</div>
+      <div class="page-card-name">RESOURCES</div>
+      <div class="page-card-desc">Containers, services, model registry, storage bars</div>
+    </a>
+    <a class="page-card" href="pages/reports.html">
+      <div class="page-card-icon">📋</div>
+      <div class="page-card-name">REPORTS</div>
+      <div class="page-card-desc">8 report endpoints — heatmaps, timelines, leaderboard</div>
+    </a>
+    <a class="page-card" href="pages/datagen-run.html" style="opacity:.6">
+      <div class="page-card-icon">🔍</div>
+      <div class="page-card-name">RUN DETAIL</div>
+      <div class="page-card-desc">Full run monitoring with live SSE event chain</div>
+    </a>
+  </div>
+
+  <!-- ── GAUGE PANELS ─────────────────────────────────────────────────── -->
   <div class="panel-row">
 
     <!-- SPARK-BOB -->
     <div class="panel">
       <div class="panel-header">
         <div class="panel-label"><div class="status-dot" id="dot-spark"></div>SPARK-BOB</div>
-        <div class="panel-status" id="status-spark">ONLINE</div>
+        <div class="panel-status" id="status-spark">--</div>
       </div>
       <div class="panel-body">
         <div class="gauges-and-metrics">
@@ -98,7 +255,7 @@
     <div class="panel">
       <div class="panel-header">
         <div class="panel-label"><div class="status-dot" id="dot-linux"></div>LINUX-DSKTP</div>
-        <div class="panel-status" id="status-linux">ONLINE</div>
+        <div class="panel-status" id="status-linux">--</div>
       </div>
       <div class="panel-body">
         <div class="gauges-and-metrics">
@@ -113,16 +270,17 @@
             </div>
             <div class="gauge-wrap">
               <div class="gauge">
-                <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-linux-gpu" cx="70" cy="70" r="50"/></svg>
-                <div class="gauge-needle" id="gn-linux-gpu"></div><div class="gauge-center"></div>
+                <svg viewBox="0 0 140 140"><circle class="gauge-track" cx="70" cy="70" r="50"/><circle class="gauge-fill" id="gf-linux-ram" cx="70" cy="70" r="50"/></svg>
+                <div class="gauge-needle" id="gn-linux-ram"></div><div class="gauge-center"></div>
               </div>
-              <div class="gauge-value" id="gv-linux-gpu">--%</div>
-              <div class="gauge-label">GPU LOAD</div>
+              <div class="gauge-value" id="gv-linux-ram">--%</div>
+              <div class="gauge-label">RAM USED</div>
             </div>
           </div>
           <div class="metrics">
             <div class="metric">RAM<span id="ram-linux-gb">--</span></div>
             <div class="metric">UPTIME<span id="uptime-linux">--</span></div>
+            <div class="metric">CPU<span id="linux-cpu-count">--</span></div>
           </div>
         </div>
         <div class="temp-section">
@@ -133,314 +291,425 @@
       </div>
     </div>
 
-  </div><!-- end panel-row -->
+  </div><!-- /panel-row -->
 
-  <!-- ── INFO CARDS ────────────────────────────────────── -->
+  <!-- ── INFO GRID ─────────────────────────────────────────────────────── -->
   <div class="info-grid">
 
-    <!-- CONTAINERS -->
+    <!-- Recent Runs -->
     <div class="info-card">
-      <div class="info-card-hdr">Containers</div>
-      <div class="node-cols">
-        <div class="node-col">
-          <div class="node-col-hdr"><div class="status-dot" id="dot-ctr-spark"></div>SPARK-BOB</div>
-          <div id="ctr-spark"><div class="await-row">AWAITING CONNECTION</div></div>
-        </div>
-        <div class="node-col">
-          <div class="node-col-hdr"><div class="status-dot" id="dot-ctr-linux"></div>LINUX-DSKTP</div>
-          <div id="ctr-linux"><div class="await-row">AWAITING CONNECTION</div></div>
-        </div>
+      <div class="info-card-hdr card-hdr-row">
+        <span>Recent Runs</span>
+        <a href="pages/data-gen.html">VIEW ALL ↗</a>
       </div>
-    </div>
-
-    <!-- MODELS -->
-    <div class="info-card">
-      <div class="info-card-hdr">Models</div>
-      <div class="node-cols">
-        <div class="node-col">
-          <div class="node-col-hdr"><div class="status-dot" id="dot-mdl-spark"></div>SPARK-BOB</div>
-          <div id="mdl-spark"><div class="await-row">AWAITING CONNECTION</div></div>
-        </div>
-        <div class="node-col">
-          <div class="node-col-hdr"><div class="status-dot" id="dot-mdl-linux"></div>LINUX-DSKTP</div>
-          <div id="mdl-linux"><div class="await-row">AWAITING CONNECTION</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EVAL HISTORY -->
-    <div class="info-card">
-      <div class="info-card-hdr">Eval History</div>
-      <div class="eval-wrap">
-        <table class="eval-table">
-          <thead>
-            <tr>
-              <th>RUN ID</th><th>DATE</th><th>MODEL</th><th>BACKEND</th>
-              <th>JUDGE</th><th>SUITE</th><th>SCORE</th><th>PASS RATE</th>
-              <th>TIME</th><th>STATUS</th>
-            </tr>
-          </thead>
-          <tbody id="eval-tbody">
-            <tr><td colspan="10" class="eval-empty">NO EVAL RUNS YET</td></tr>
-          </tbody>
+      <div style="overflow-x:auto">
+        <table class="idx-table">
+          <thead><tr><th>ID</th><th>TASK</th><th>MODEL</th><th>TOKENS</th><th>STATUS</th></tr></thead>
+          <tbody id="runs-body"><tr><td colspan="5" class="empty">LOADING…</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- DATASET GEN + FINE-TUNING side by side -->
-    <div class="forms-row">
-
-      <!-- DATASET GENERATION -->
-      <div class="info-card">
-        <div class="info-card-hdr">Dataset Generation</div>
-        <div class="form-body">
-          <div class="form-group">
-            <label class="form-label">Services (e.g. IAM, S3, Lambda)</label>
-            <input class="form-input" id="dg-services" type="text" placeholder="CloudFormation, IAM..." />
-          </div>
-          <div class="form-row-2">
-            <div class="form-group">
-              <label class="form-label">Count</label>
-              <input class="form-input" id="dg-count" type="number" value="10" min="1" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Node</label>
-              <select class="form-select" id="dg-node">
-                <option value="spark">SPARK-BOB</option>
-                <option value="linux">LINUX-DSKTP</option>
-              </select>
-            </div>
-          </div>
-          <button class="form-submit" onclick="submitForm('GENERATE DATA', 'dg-services', 'dg-output')">Start Generation</button>
-          <div class="form-output" id="dg-output">--</div>
-        </div>
-      </div>
-
-      <!-- FINE-TUNING (LoRA) -->
-      <div class="info-card">
-        <div class="info-card-hdr">Fine-Tuning (LoRA)</div>
-        <div class="form-body">
-          <div class="form-group">
-            <label class="form-label">Base Model</label>
-            <input class="form-input" id="ft-model" type="text" placeholder="e.g. gpt-oss-20b" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Dataset Path</label>
-            <input class="form-input" id="ft-dataset" type="text" placeholder="path/to/dataset.jsonl" />
-          </div>
-          <div class="form-row-3">
-            <div class="form-group">
-              <label class="form-label">Node</label>
-              <select class="form-select" id="ft-node"><option>SPARK-BOB</option><option>LINUX-DSKTP</option></select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Rank</label>
-              <input class="form-input" id="ft-rank" type="number" value="16" min="1" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Epochs</label>
-              <input class="form-input" id="ft-epochs" type="number" value="3" min="1" />
-            </div>
-          </div>
-          <div class="form-row-2">
-            <div class="form-group">
-              <label class="form-label">Learning Rate</label>
-              <input class="form-input" id="ft-lr" type="text" value="0.0002" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">&nbsp;</label>
-              <button class="form-submit" style="margin-top:0" onclick="submitForm('START FINE-TUNE', 'ft-model', 'ft-output')">Start Training</button>
-            </div>
-          </div>
-          <div class="form-output" id="ft-output">NO FINE-TUNING JOBS YET</div>
-        </div>
-      </div>
-
-    </div><!-- end forms-row -->
-
-    <!-- TRAINING PIPELINE — CLOSED LOOP -->
+    <!-- Eval History -->
     <div class="info-card">
-      <div class="info-card-hdr">Training Pipeline — Closed Loop</div>
+      <div class="info-card-hdr card-hdr-row">
+        <span>Recent Evals</span>
+        <a href="pages/evals.html">VIEW ALL ↗</a>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="idx-table">
+          <thead><tr><th>ID</th><th>MODEL</th><th>SUITE</th><th>SCORE</th><th>STATUS</th></tr></thead>
+          <tbody id="eval-body"><tr><td colspan="5" class="empty">LOADING…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Models + Containers -->
+    <div class="info-card">
+      <div class="info-card-hdr card-hdr-row">
+        <span>Loaded Models</span>
+        <a href="pages/models.html">VIEW ALL ↗</a>
+      </div>
+      <div id="models-feed">
+        <div style="color:#2a2a2a;text-align:center;padding:20px;font-size:11px;letter-spacing:2px">LOADING…</div>
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="info-card">
+      <div class="info-card-hdr card-hdr-row">
+        <span>System Activity</span>
+        <button class="ibtn" onclick="refreshActivity()">⟳</button>
+      </div>
+      <div id="activity-feed">
+        <div style="color:#2a2a2a;text-align:center;padding:20px;font-size:11px;letter-spacing:2px">LOADING…</div>
+      </div>
+    </div>
+
+    <!-- Quick: Dataset Generation -->
+    <div class="info-card">
+      <div class="info-card-hdr card-hdr-row">
+        <span>Quick — Generate Data</span>
+        <a href="pages/coordinator.html">COORDINATOR ↗</a>
+      </div>
       <div class="form-body">
-        <div class="form-row-3">
-          <div class="form-group">
-            <label class="form-label">Model</label>
-            <input class="form-input" id="pl-model" type="text" placeholder="e.g. gpt-oss-20b" />
+        <div class="form-row-2" style="margin-bottom:10px">
+          <div class="form-grp">
+            <label>Task / Topic</label>
+            <input class="form-input" id="qg-task" type="text" placeholder="e.g. IAM, S3, Lambda" />
           </div>
-          <div class="form-group">
-            <label class="form-label">Backend</label>
-            <select class="form-select" id="pl-backend">
-              <option>vLLM</option><option>Ollama</option><option>Bedrock</option>
+          <div class="form-grp">
+            <label>Model</label>
+            <input class="form-input" id="qg-model" type="text" placeholder="default" />
+          </div>
+        </div>
+        <div class="form-row-2" style="margin-bottom:10px">
+          <div class="form-grp">
+            <label>Workers</label>
+            <input class="form-input" id="qg-workers" type="number" value="3" min="1" max="18" />
+          </div>
+          <div class="form-grp">
+            <label>Max Iter</label>
+            <input class="form-input" id="qg-maxiter" type="number" value="6" min="1" max="20" />
+          </div>
+        </div>
+        <button class="form-submit" onclick="submitQuickGen()">▶ DISPATCH WORKERS</button>
+        <div class="form-output" id="qg-output">—</div>
+      </div>
+    </div>
+
+    <!-- Quick: Pipeline Launch -->
+    <div class="info-card">
+      <div class="info-card-hdr card-hdr-row">
+        <span>Quick — Launch Pipeline</span>
+        <a href="pages/pipeline.html">PIPELINE ↗</a>
+      </div>
+      <div class="form-body">
+        <div class="form-row-3" style="margin-bottom:10px">
+          <div class="form-grp">
+            <label>Model</label>
+            <input class="form-input" id="qp-model" type="text" placeholder="e.g. gpt-oss-20b" />
+          </div>
+          <div class="form-grp">
+            <label>Suite</label>
+            <input class="form-input" id="qp-suite" type="text" value="hard_15" />
+          </div>
+          <div class="form-grp">
+            <label>Target %</label>
+            <input class="form-input" id="qp-target" type="number" value="80" min="1" max="100" />
+          </div>
+        </div>
+        <div class="form-row-2" style="margin-bottom:10px">
+          <div class="form-grp">
+            <label>Backend</label>
+            <select class="form-select" id="qp-backend">
+              <option value="vllm">vLLM</option>
+              <option value="ollama">Ollama</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Suite</label>
-            <input class="form-input" id="pl-suite" type="text" value="hard_15" />
+          <div class="form-grp">
+            <label>Max Iterations</label>
+            <input class="form-input" id="qp-maxiter" type="number" value="3" min="1" max="10" />
           </div>
         </div>
-        <div class="form-row-3">
-          <div class="form-group">
-            <label class="form-label">Node</label>
-            <select class="form-select" id="pl-node"><option>SPARK-BOB</option><option>LINUX-DSKTP</option></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Target %</label>
-            <input class="form-input" id="pl-target" type="number" value="80" min="1" max="100" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Max Iterations</label>
-            <input class="form-input" id="pl-maxiter" type="number" value="3" min="1" />
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:16px;">
-          <label class="form-check-row">
-            <input type="checkbox" id="pl-auto" /> AUTO-LOOP
-          </label>
-          <button class="form-submit" style="flex:1; margin-top:0" onclick="submitForm('LAUNCH PIPELINE', 'pl-model', null)">Launch Pipeline</button>
-        </div>
+        <button class="form-submit" onclick="submitQuickPipeline()">▶ LAUNCH PIPELINE</button>
+        <div class="form-output" id="qp-output">—</div>
       </div>
     </div>
 
-    <!-- MCP SERVERS -->
-    <div class="info-card">
-      <div class="info-card-hdr">MCP Servers</div>
-      <div class="node-cols">
-        <div class="node-col">
-          <div class="node-col-hdr"><div class="status-dot" id="dot-mcp-spark"></div>SPARK-BOB</div>
-          <div id="mcp-spark"><div class="await-row">AWAITING CONNECTION</div></div>
-        </div>
-        <div class="node-col">
-          <div class="node-col-hdr"><div class="status-dot" id="dot-mcp-linux"></div>LINUX-DSKTP</div>
-          <div id="mcp-linux"><div class="await-row">AWAITING CONNECTION</div></div>
-        </div>
-      </div>
-    </div>
+  </div><!-- /info-grid -->
 
-    <!-- TRAINING ADVISOR -->
-    <div class="info-card">
-      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Training Advisor</span>
-        <button class="action-btn" style="font-size:8px;padding:3px 10px;" onclick="runAdvisor()">Analyze Results</button>
-      </div>
-      <div class="advisor-body">
-        <div class="advisor-output" id="advisor-output">
-          Click "Analyze Results" to get AI-powered training recommendations based on recent eval runs.
-        </div>
-      </div>
-    </div>
-
-  </div><!-- end info-grid -->
-
-  <!-- LOG -->
   <div class="log-panel" id="log">
-    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">BCOM-C initialized. Awaiting data source connection...</span></div>
+    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">BCOM-C dashboard loaded. Polling system status.</span></div>
   </div>
 
-</div><!-- end .main -->
+</div><!-- /main -->
 
-<!-- FOOTER -->
-<div class="footer">
-  <span>BOB-AI // BCOM-C v0.1</span>
-  <span id="footer-date"></span>
-  <span>SESSION ACTIVE</span>
-</div>
-
-<!-- ── TERMINAL DOCK (fixed bottom) ─────────────────── -->
-<div class="terminal-dock" id="terminal-dock">
-  <div class="terminal-bar">
-    <div class="terminal-tabs">
-      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
-      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
-      <div class="terminal-tab" data-term="shell">SHELL</div>
-    </div>
-    <div class="terminal-controls">
-      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
-    </div>
-  </div>
-  <div class="terminal-body" id="terminal-body">
-    <div class="terminal-output" id="term-out-spark">
-      <div class="term-line sys">[bcom-c] terminal ready — connect API to enable remote shell</div>
-    </div>
-    <div class="terminal-output" id="term-out-linux" style="display:none">
-      <div class="term-line sys">[bcom-c] terminal ready — connect API to enable remote shell</div>
-    </div>
-    <div id="xterm-container" style="display:none;flex:1;min-height:0;width:100%;background:#080808;"></div>
-    <div class="terminal-input-row">
-      <span class="term-prompt" id="term-prompt">$</span>
-      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
-    </div>
-  </div>
-</div>
-
-<!-- SCRIPTS -->
-<script src="assets/js/bcom.js?v=5"></script>
-<script src="assets/js/bcom-terminal.js?v=3"></script>
+<script src="bcom.js?v=5"></script>
 <script>
-  // ── Polling config ─────────────────────────────────────────────────────
-  BCOM.apiBase      = '';   // '' = same-origin (Caddy proxies /api/* → Spark)
-  BCOM.pollInterval = 5000;
-  startPolling();
-  applyDashboard({});
+window.BCOM = window.BCOM || {};
+BCOM.apiBase = '';
+BCOM.pollInterval = 5000;
+startPolling();
+applyDashboard({});
 
-  // ── Form submit handler ────────────────────────────────────────────────
-  function submitForm(action, inputId, outputId) {
-    const val = inputId ? (document.getElementById(inputId)?.value || '').trim() : '';
-    if (inputId && !val) { logLine('Form error: required field empty', 'warn'); return; }
-    logLine(`CMD: ${action}${val ? ' — ' + val : ''} — submitted by operator`, 'info');
-    if (outputId) {
-      const out = document.getElementById(outputId);
-      if (out) {
-        const t = new Date().toTimeString().split(' ')[0];
-        out.textContent = `[${t}] ${action} queued. Awaiting API connection...`;
-        out.style.color = 'var(--orange-dark)';
-      }
-    }
-    if (BCOM.apiBase === null) logLine('No API configured — command logged locally only', 'warn');
+// ── Helpers ────────────────────────────────────────────────────────────
+function setText(id, v) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = v;
+}
+
+function logLine(msg, cls) {
+  var panel = document.getElementById('log');
+  if (!panel) return;
+  var ts  = new Date().toTimeString().split(' ')[0];
+  var div = document.createElement('div');
+  div.className = 'log-line';
+  div.innerHTML = '<span class="log-time">' + ts + '</span>'
+                + '<span class="log-msg ' + (cls||'info') + '">' + msg + '</span>';
+  panel.appendChild(div);
+  panel.scrollTop = panel.scrollHeight;
+  while (panel.children.length > 100) panel.removeChild(panel.firstChild);
+}
+
+function spill(s) {
+  var sl = (s||'unknown').toLowerCase();
+  return '<span class="spill ' + sl + '">' + sl.toUpperCase() + '</span>';
+}
+
+function fmtTs(ts) {
+  if (!ts) return '--';
+  try { var d = new Date(ts); return d.toLocaleTimeString() + ' ' + d.toLocaleDateString(); } catch(_){ return ts; }
+}
+
+function pct(v) {
+  if (v == null) return '--';
+  return (v > 1 ? v.toFixed(1) : (v*100).toFixed(1)) + '%';
+}
+
+// ── API health ─────────────────────────────────────────────────────────
+async function refreshApiHealth() {
+  var el = document.getElementById('h-api');
+  try {
+    var res = await fetch('/api/health', { cache: 'no-store' });
+    if (res.ok) { el.textContent = 'ONLINE'; el.style.color = '#27ae60'; }
+    else        { el.textContent = 'ERROR';  el.style.color = '#e74c3c'; }
+  } catch(_) { el.textContent = 'OFFLINE'; el.style.color = '#e74c3c'; }
+}
+
+// ── Recent runs ────────────────────────────────────────────────────────
+async function refreshRuns() {
+  try {
+    var res = await fetch('/api/runs?limit=8', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var d   = await res.json();
+    var runs = d.runs || (Array.isArray(d) ? d : []);
+    var active = runs.filter(function(r){ return r.status === 'running'; }).length;
+    var today  = runs.filter(function(r){ return r.status === 'completed'; }).length;
+    setText('h-active-runs', active);
+    setText('h-runs-today', today);
+    var tb = document.getElementById('runs-body');
+    if (!runs.length) { tb.innerHTML = '<tr><td colspan="5" class="empty">NO RUNS</td></tr>'; return; }
+    tb.innerHTML = runs.map(function(r) {
+      var task = (r.task||'--').length > 30 ? r.task.slice(0,30)+'…' : (r.task||'--');
+      return '<tr>'
+        + '<td style="color:#555;font-size:10px">' + (r.id||'--').slice(0,8) + '</td>'
+        + '<td style="color:#ccc">' + task + '</td>'
+        + '<td style="color:#888;font-size:10px">' + (r.model||'--').split('/').pop().split(':')[0] + '</td>'
+        + '<td style="color:#777;font-size:10px">' + (r.tokens_out != null ? r.tokens_out.toLocaleString() : '--') + '</td>'
+        + '<td>' + spill(r.status) + '</td>'
+        + '</tr>';
+    }).join('');
+  } catch (err) {
+    logLine('Runs error: ' + err.message, 'warn');
+    document.getElementById('runs-body').innerHTML = '<tr><td colspan="5" class="empty">API UNAVAILABLE</td></tr>';
   }
+}
 
-  // ── Training Advisor ───────────────────────────────────────────────────
-  function runAdvisor() {
-    const out = document.getElementById('advisor-output');
-    out.textContent = 'Analyzing eval results...';
-    logLine('CMD: ANALYZE RESULTS — initiated by operator', 'info');
-    if (BCOM.apiBase === null) {
-      out.textContent = 'No API connection. Advisor requires live eval data.';
-      out.style.color = '#555';
+// ── Eval history ───────────────────────────────────────────────────────
+async function refreshEvals() {
+  try {
+    var res = await fetch('/api/evals/history?limit=6', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var d    = await res.json();
+    var evls = d.evals || d.history || (Array.isArray(d) ? d : []);
+    if (evls.length) {
+      var last = evls[0];
+      var pr   = last.pass_rate ?? last.score ?? null;
+      setText('h-last-eval', pr != null ? pct(pr) : '--');
     }
+    var tb = document.getElementById('eval-body');
+    if (!evls.length) { tb.innerHTML = '<tr><td colspan="5" class="empty">NO EVALS</td></tr>'; return; }
+    tb.innerHTML = evls.map(function(e) {
+      var score = e.score ?? e.pass_rate;
+      return '<tr>'
+        + '<td style="color:#555;font-size:10px">' + (e.id||'--').toString().slice(0,8) + '</td>'
+        + '<td style="color:#ccc;font-size:10px">' + (e.model||'--').split('/').pop().split(':')[0] + '</td>'
+        + '<td style="color:#888;font-size:10px">' + (e.suite||e.suite_id||'--') + '</td>'
+        + '<td style="color:var(--orange-dark)">' + (score != null ? pct(score) : '--') + '</td>'
+        + '<td>' + spill(e.status||'completed') + '</td>'
+        + '</tr>';
+    }).join('');
+  } catch (err) {
+    logLine('Evals error: ' + err.message, 'warn');
+    document.getElementById('eval-body').innerHTML = '<tr><td colspan="5" class="empty">API UNAVAILABLE</td></tr>';
   }
+}
 
-  // ── Terminal ───────────────────────────────────────────────────────────
-  let _termNode = 'spark';
+// ── Models ─────────────────────────────────────────────────────────────
+async function refreshModels() {
+  try {
+    var res = await fetch('/api/models/', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var d   = await res.json();
+    var mdls = d.models || (Array.isArray(d) ? d : []);
+    setText('h-models', mdls.length);
+    var feed = document.getElementById('models-feed');
+    if (!mdls.length) { feed.innerHTML = '<div style="color:#2a2a2a;text-align:center;padding:20px;font-size:11px;letter-spacing:2px">NO MODELS LOADED</div>'; return; }
+    feed.innerHTML = mdls.map(function(m) {
+      var name = m.name || m.model || m.id || '--';
+      var size = m.size ? (m.size/1e9).toFixed(1)+' GB' : '--';
+      var quant = (m.details && m.details.quantization_level) || '--';
+      return '<div class="feed-item">'
+        + '<div class="feed-dot ok"></div>'
+        + '<div class="feed-body">'
+        + '<div class="feed-title">' + name + '</div>'
+        + '<div class="feed-meta">SIZE: ' + size + ' · QUANT: ' + quant + ' · SPARK-BOB</div>'
+        + '</div></div>';
+    }).join('');
+  } catch (err) {
+    logLine('Models error: ' + err.message, 'warn');
+  }
+}
 
-  function switchTerm(node) {
-    _termNode = node;
-    document.querySelectorAll('.terminal-tab').forEach(t =>
-      t.classList.toggle('active', t.dataset.term === node));
-    ['spark','linux'].forEach(n => {
-      const el = document.getElementById('term-out-' + n);
-      if (el) el.style.display = n === node ? 'block' : 'none';
+// ── Pipeline status ────────────────────────────────────────────────────
+async function refreshPipeline() {
+  try {
+    var res = await fetch('/api/pipeline/', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var d = await res.json();
+    var runs = d.runs || d.pipelines || (Array.isArray(d) ? d : []);
+    var active = runs.filter(function(r){ return r.status === 'running'; });
+    var el = document.getElementById('h-pipeline');
+    if (active.length) { el.textContent = 'RUNNING'; el.style.color = '#27ae60'; el.style.fontSize = '13px'; }
+    else               { el.textContent = 'IDLE';    el.style.color = '#555';    el.style.fontSize = '13px'; }
+  } catch (_) {
+    setText('h-pipeline', 'IDLE');
+  }
+}
+
+// ── Datasets count ─────────────────────────────────────────────────────
+async function refreshDatasets() {
+  try {
+    var res = await fetch('/api/datasets/', { cache: 'no-store' });
+    if (!res.ok) return;
+    var d = await res.json();
+    var ct = d.total || d.count || (Array.isArray(d) ? d.length : (d.datasets ? d.datasets.length : '--'));
+    setText('h-datasets', ct);
+  } catch (_) {}
+}
+
+// ── System activity feed (synthesized from recent events) ───────────────
+async function refreshActivity() {
+  var feed = document.getElementById('activity-feed');
+  try {
+    var [runsRes, evlsRes] = await Promise.allSettled([
+      fetch('/api/runs?limit=4',         { cache: 'no-store' }),
+      fetch('/api/evals/history?limit=3', { cache: 'no-store' }),
+    ]);
+    var items = [];
+    if (runsRes.status === 'fulfilled' && runsRes.value.ok) {
+      var d = await runsRes.value.json();
+      (d.runs || []).forEach(function(r) {
+        var ok = r.status === 'completed' || r.status === 'success';
+        items.push({ dot: ok ? 'ok' : r.status === 'failed' ? 'err' : '',
+          title: 'Run: ' + (r.task||'--').slice(0,40),
+          meta: (r.model||'--').split(':')[0].split('/').pop() + ' · ' + r.status.toUpperCase() + ' · ' + fmtTs(r.created_at) });
+      });
+    }
+    if (evlsRes.status === 'fulfilled' && evlsRes.value.ok) {
+      var d2 = await evlsRes.value.json();
+      (d2.evals || d2.history || []).forEach(function(e) {
+        var pr = e.pass_rate ?? e.score;
+        items.push({ dot: 'ok',
+          title: 'Eval: ' + (e.suite || e.suite_id || 'suite') + ' — ' + (pr != null ? pct(pr) : '--'),
+          meta: (e.model||'--').split(':')[0].split('/').pop() + ' · ' + fmtTs(e.created_at || e.started_at) });
+      });
+    }
+    if (!items.length) { feed.innerHTML = '<div style="color:#2a2a2a;text-align:center;padding:20px;font-size:11px;letter-spacing:2px">NO ACTIVITY</div>'; return; }
+    feed.innerHTML = items.map(function(it) {
+      return '<div class="feed-item">'
+        + '<div class="feed-dot ' + (it.dot||'') + '"></div>'
+        + '<div class="feed-body">'
+        + '<div class="feed-title">' + it.title + '</div>'
+        + '<div class="feed-meta">' + it.meta + '</div>'
+        + '</div></div>';
+    }).join('');
+  } catch (err) {
+    logLine('Activity error: ' + err.message, 'warn');
+    feed.innerHTML = '<div style="color:#2a2a2a;text-align:center;padding:20px;font-size:11px;letter-spacing:2px">API UNAVAILABLE</div>';
+  }
+}
+
+// ── Quick gen form ─────────────────────────────────────────────────────
+async function submitQuickGen() {
+  var task    = (document.getElementById('qg-task').value || '').trim();
+  var model   = (document.getElementById('qg-model').value || '').trim() || undefined;
+  var workers = parseInt(document.getElementById('qg-workers').value) || 1;
+  var maxIter = parseInt(document.getElementById('qg-maxiter').value) || 6;
+  var out     = document.getElementById('qg-output');
+  if (!task) { out.textContent = 'ERROR: Task required.'; out.style.color = '#e74c3c'; return; }
+  out.textContent = 'Dispatching ' + workers + ' worker(s)…';
+  out.style.color = 'var(--orange-dark)';
+  var ok = 0;
+  for (var i = 0; i < workers; i++) {
+    try {
+      await new Promise(function(res){ setTimeout(res, i * 300); });
+      var r = await fetch('/api/runs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task: task, model: model, max_iter: maxIter, queued: false }),
+      });
+      if (r.ok) ok++;
+    } catch (_) {}
+  }
+  out.textContent = ok + ' / ' + workers + ' workers dispatched.';
+  out.style.color = ok > 0 ? '#27ae60' : '#e74c3c';
+  logLine('Quick gen: ' + ok + '/' + workers + ' workers for "' + task + '"', 'info');
+  setTimeout(refreshRuns, 2000);
+}
+
+// ── Quick pipeline form ────────────────────────────────────────────────
+async function submitQuickPipeline() {
+  var model   = (document.getElementById('qp-model').value || '').trim();
+  var suite   = (document.getElementById('qp-suite').value || 'hard_15').trim();
+  var target  = parseFloat(document.getElementById('qp-target').value) || 80;
+  var backend = document.getElementById('qp-backend').value;
+  var maxIter = parseInt(document.getElementById('qp-maxiter').value) || 3;
+  var out     = document.getElementById('qp-output');
+  if (!model) { out.textContent = 'ERROR: Model required.'; out.style.color = '#e74c3c'; return; }
+  out.textContent = 'Starting pipeline…';
+  out.style.color = 'var(--orange-dark)';
+  try {
+    var res = await fetch('/api/pipeline/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: model, backend: backend, suite: suite, target_pass_rate: target / 100, max_iterations: maxIter }),
     });
-    document.getElementById('term-prompt').textContent =
-      (node === 'spark' ? 'spark-bob' : 'linux-dsktp') + ' $';
-    document.getElementById('terminal-input').focus();
+    var d = await res.json();
+    if (res.ok) {
+      out.textContent = 'Pipeline started: ' + (d.pipeline_id || d.id || 'OK');
+      out.style.color = '#27ae60';
+      logLine('Pipeline started: ' + model, 'info');
+      setTimeout(refreshPipeline, 2000);
+    } else {
+      out.textContent = 'ERROR: ' + (d.detail || d.error || 'Unknown');
+      out.style.color = '#e74c3c';
+    }
+  } catch (err) {
+    out.textContent = 'ERROR: ' + err.message;
+    out.style.color = '#e74c3c';
   }
+}
 
-  function termLine(text, cls) {
-    const out = document.getElementById('term-out-' + _termNode);
-    if (!out) return;
-    const div = document.createElement('div');
-    div.className = 'term-line' + (cls ? ' ' + cls : '');
-    div.textContent = text;
-    out.appendChild(div);
-    out.scrollTop = out.scrollHeight;
-  }
+// ── Initial load ───────────────────────────────────────────────────────
+function pollDashboard() {
+  refreshApiHealth();
+  refreshRuns();
+  refreshEvals();
+  refreshModels();
+  refreshPipeline();
+  refreshDatasets();
+  refreshActivity();
+}
 
-  // terminal input wired by bcom-terminal.js
-
-  // minimize wired by bcom-terminal.js
-
-  // Set initial prompt label
-  switchTerm('spark');
+pollDashboard();
+setInterval(refreshApiHealth,  8000);
+setInterval(refreshRuns,       15000);
+setInterval(refreshEvals,      30000);
+setInterval(refreshModels,     30000);
+setInterval(refreshPipeline,   12000);
+setInterval(refreshActivity,   20000);
 </script>
 </body>
 </html>
