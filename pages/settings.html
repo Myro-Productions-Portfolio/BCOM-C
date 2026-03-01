@@ -969,7 +969,7 @@ function _collectSettings() {
 }
 
 /* ── Save ────────────────────────────────────── */
-async function saveSettings(showMsg) {
+function saveSettings(showMsg) {
   const obj = _collectSettings();
   /* localStorage is the primary store — always write here first */
   try {
@@ -981,52 +981,23 @@ async function saveSettings(showMsg) {
   syncAllLabels();
   clearDirty();
 
-  if (showMsg) {
-    _flashMsg('✓ SETTINGS SAVED');
-    /* Fire-and-forget backend sync — failure is silent and non-blocking */
-    fetch(_apiBase() + '/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(obj),
-    }).catch(() => {});
-  }
+  if (showMsg) _flashMsg('✓ SETTINGS SAVED');
 }
 
 /* ── Load ────────────────────────────────────── */
-async function loadSettings() {
-  let obj = null;
-
-  /* 1. localStorage is the source of truth — always read here first */
+function loadSettings() {
   const raw = localStorage.getItem(SETT_KEY);
-  if (raw) {
-    try { obj = JSON.parse(raw); } catch(_) {}
-  }
-
-  /* 2. If localStorage is empty, try the backend once as a first-run seed
-        (only uses backend data if it has actual keys — never lets an empty
-        or malformed response wipe out a valid localStorage save) */
-  if (!obj || Object.keys(obj).length === 0) {
-    try {
-      const r = await fetch(_apiBase() + '/api/settings', {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(3000),
-      });
-      if (r.ok) {
-        const data = await r.json();
-        if (data && typeof data === 'object' && Object.keys(data).length > 0) obj = data;
-      }
-    } catch(_) {}
-  }
-
-  if (!obj) { clearDirty(); return; }
-
+  if (!raw) { clearDirty(); return; }
+  let obj;
+  try { obj = JSON.parse(raw); } catch(_) { clearDirty(); return; }
+  if (!obj || typeof obj !== 'object') { clearDirty(); return; }
   FIELDS.forEach(id => {
     const el = document.getElementById(id);
     if (el && obj[id] !== undefined) el.value = obj[id];
   });
   TOGGLE_IDS.forEach(id => {
     const el = document.getElementById(id);
-    if (el && obj[id] !== undefined) el.checked = obj[id];
+    if (el && obj[id] !== undefined) el.checked = Boolean(obj[id]);
   });
   if (obj['accent-color']) {
     const ac = document.getElementById('accent-color');
@@ -1124,17 +1095,11 @@ function triggerAction(name) {
   alert('Dispatching: ' + name + '\n\nThis will POST to /api/action with { action: "' + name + '" }');
 }
 
-/* ── Init ────────────────────────────────────── */
-/* Await loadSettings so form is fully populated before syncing labels
-   and attaching dirty listeners — prevents race where labels show
-   HTML defaults before localStorage values are applied */
-(async () => {
-  syncThemeBtns();
-  await loadSettings();
-  syncAllLabels();
-  _attachDirtyListeners();
-  setTimeout(testConnection, 800);
-})();
+/* ── Init ────────────────────────────────── */
+syncThemeBtns();
+loadSettings();
+_attachDirtyListeners();
+setTimeout(testConnection, 800);
 
 /* ═══════════════════════════════════════════════════════
    THEME EDITOR
@@ -1279,28 +1244,9 @@ async function themeSaveConfirm() {
 }
 
 /* ── Load themes list (localStorage primary, backend merge) ─────────── */
-async function themeLoadList() {
-  const container = document.getElementById('saved-themes-list');
-  container.innerHTML = '<span style="font-size:10px;color:var(--text-muted);letter-spacing:1px;">Loading…</span>';
-
-  /* Start with localStorage themes */
-  let themes = _getLocalThemes();
-
-  /* Optionally merge backend themes (dedup by name — localStorage wins) */
-  try {
-    const r = await fetch(_apiBase() + '/api/themes', { signal: AbortSignal.timeout(2000) });
-    if (r.ok) {
-      const backendThemes = await r.json();
-      if (Array.isArray(backendThemes)) {
-        const localNames = new Set(themes.map(t => t.name.toLowerCase()));
-        backendThemes.forEach(t => {
-          if (t && t.name && !localNames.has(t.name.toLowerCase()))
-            themes.push({ id: t.id || ('backend-' + Date.now()), name: t.name, vars: t.vars || {}, _fromBackend: true });
-        });
-      }
-    }
-  } catch(_) {}
-
+function themeLoadList() {
+  const container = document.getElementById(\'saved-themes-list\');
+  const themes = _getLocalThemes();
   if (!themes.length) {
     container.innerHTML = '<span style="font-size:10px;color:var(--text-muted);letter-spacing:1px;">No saved themes yet.</span>';
     return;
