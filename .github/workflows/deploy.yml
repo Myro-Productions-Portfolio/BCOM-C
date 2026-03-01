@@ -1,20 +1,33 @@
-name: Deploy to DGX Spark
+name: Deploy to All Machines
 
 on:
   push:
     branches: [main]
 
 jobs:
-  sync-dgx:
-    name: Sync DGX mirror
-    runs-on: [self-hosted, dgx, arm64]
-    steps:
-      - name: Pull latest on DGX mirror
-        run: |
-          git -C /home/nmyers/Projects/BCOM-C pull origin main
+  sync:
+    name: Sync ${{ matrix.name }}
+    strategy:
+      matrix:
+        include:
+          - name: DGX Spark
+            runner: "[self-hosted, dgx, arm64]"
+            path: /home/nmyers/Projects/BCOM-C
 
-      - name: Verify deployment
+          - name: M4 Pro
+            runner: "[self-hosted, m4pro, arm64]"
+            path: /Users/myro-pro/Projects/BCOM-C
+
+          - name: Linux Desktop
+            runner: "[self-hosted, linux-desktop, x64]"
+            path: /home/myroproductions/Projects/BCOM-C
+
+    runs-on: ${{ fromJSON(matrix.runner) }}
+    steps:
+      - name: Pull latest
+        run: git -C ${{ matrix.path }} pull origin main
+
+      - name: Confirm
         run: |
-          echo "DGX mirror updated at $(date)"
-          git -C /home/nmyers/Projects/BCOM-C log --oneline -3
-# pipeline-ok
+          echo "${{ matrix.name }} updated at $(date)"
+          git -C ${{ matrix.path }} log --oneline -2
