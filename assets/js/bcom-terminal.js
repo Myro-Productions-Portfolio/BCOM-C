@@ -6,12 +6,13 @@
  *   - Persistent collapsed/expanded state via localStorage ('bcom-term-min')
  *   - Real xterm.js terminal connected to DGX WebSocket PTY (/api/terminal/ws)
  *   - SHELL tab triggers WebSocket connection lazily on first open
+ *   - Wraps page's switchTerm() to hide/show xterm-container + input-row correctly
  */
 
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'bcom-term-min';   // '1' = minimized, '0' = expanded
+  const STORAGE_KEY  = 'bcom-term-min';   // '1' = minimized, '0' = expanded
   const XTERM_VERSION = '5.3.0';
   const FIT_VERSION   = '0.9.0';
 
@@ -60,8 +61,8 @@
   }
 
   // ── xterm.js lazy loader ─────────────────────────────────────────────────
-  let _xtermLoaded   = false;
-  let _xtermLoading  = false;
+  let _xtermLoaded    = false;
+  let _xtermLoading   = false;
   let _xtermCallbacks = [];
 
   function _loadXterm(cb) {
@@ -84,14 +85,15 @@
       const s2 = document.createElement('script');
       s2.src = `https://cdn.jsdelivr.net/npm/@xterm/addon-fit@${FIT_VERSION}/lib/addon-fit.min.js`;
       s2.onload = () => {
-        _xtermLoaded = true;
+        _xtermLoaded  = true;
         _xtermLoading = false;
         _xtermCallbacks.forEach(fn => fn());
         _xtermCallbacks = [];
       };
       s2.onerror = () => {
         // Fit addon optional — still proceed without it
-        _xtermLoaded = true;
+        _xtermLoaded  = true;
+        _xtermLoading = false;
         _xtermCallbacks.forEach(fn => fn());
         _xtermCallbacks = [];
       };
@@ -101,10 +103,13 @@
   }
 
   // ── Terminal instance ────────────────────────────────────────────────────
-  let _term    = null;
-  let _fitAddon = null;
-  let _ws      = null;
-  let _termReady = false;
+  let _term      = null;
+  let _fitAddon  = null;
+  let _ws        = null;
+
+  function _inputRow() {
+    return document.querySelector('.terminal-input-row');
+  }
 
   function _initXterm() {
     const container = document.getElementById('xterm-container');
@@ -132,7 +137,6 @@
       scrollback: 5000,
     });
 
-    // Fit addon (resize xterm to fill container)
     if (window.FitAddon) {
       _fitAddon = new window.FitAddon.FitAddon();
       _term.loadAddon(_fitAddon);
@@ -140,12 +144,11 @@
 
     _term.open(container);
     if (_fitAddon) _fitAddon.fit();
-    _termReady = true;
 
     // Connect WebSocket
     _connectWS();
 
-    // Forward keyboard input → WS
+    // Forward keyboard input → WS (binary frame)
     _term.onData(data => {
       if (_ws && _ws.readyState === WebSocket.OPEN) {
         _ws.send(new TextEncoder().encode(data));
@@ -201,28 +204,66 @@
     }));
   }
 
-  // ── Tab switching: hook the SHELL tab ────────────────────────────────────
+  // ── Show SHELL view ─────────────────────────────────────────────────────
+  function _activateShell() {
+    // Hide all term-out-* panels
+    document.querySelectorAll('[id^="term-out-"]').forEach(el => el.style.display = 'none');
+
+    // Show xterm container
+    const container = document.getElementById('xterm-container');
+    if (container) container.style.display = 'flex';
+
+    // Hide the fake input row
+    const row = _inputRow();
+    if (row) row.style.display = 'none';
+
+    // Set active class on shell tab only
+    document.querySelectorAll('.terminal-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.term === 'shell'));
+
+    // Expand if minimized
+    const dock = document.getElementById('terminal-dock');
+    if (dock && dock.classList.contains('minimized')) _setMinimized(false);
+
+    // Init + fit after DOM settles
+    _loadXterm(() => {
+      _initXterm();
+      setTimeout(() => { if (_fitAddon) { _fitAddon.fit(); _sendResize(); } }, 100);
+    });
+  }
+
+  // ── Wrap page's switchTerm to handle shell ───────────────────────────────
+  // Called after DOM is ready so window.switchTerm exists.
+  function patchSwitchTerm() {
+    const orig = window.switchTerm;
+    if (typeof orig !== 'function') return;
+
+    window.switchTerm = function (node) {
+      if (node === 'shell') {
+        _activateShell();
+        return;
+      }
+      // Switching away from shell: hide xterm, restore input row
+      const container = document.getElementById('xterm-container');
+      if (container) container.style.display = 'none';
+      const row = _inputRow();
+      if (row) row.style.display = '';
+
+      orig(node);
+    };
+  }
+
+  // ── Wire the SHELL tab click ─────────────────────────────────────────────
   function wireShellTab() {
     const shellTab = document.querySelector('.terminal-tab[data-term="shell"]');
     if (!shellTab) return;
     shellTab.addEventListener('click', () => {
-      // Make xterm container visible
-      const container = document.getElementById('xterm-container');
-      if (container) container.style.display = 'flex';
-      // Hide log outputs
-      ['orch', 'agent', 'history'].forEach(n => {
-        const el = document.getElementById('term-out-' + n);
-        if (el) el.style.display = 'none';
-      });
-      // Lazy-init xterm
-      _loadXterm(() => {
-        _initXterm();
-        // Ensure minimized state is open when shell tab clicked
-        const isMin = document.getElementById('terminal-dock')?.classList.contains('minimized');
-        if (isMin) _setMinimized(false);
-        // Fit after DOM is visible
-        setTimeout(() => { if (_fitAddon) _fitAddon.fit(); _sendResize(); }, 100);
-      });
+      // Delegate to patched switchTerm if available, else activate directly
+      if (typeof window.switchTerm === 'function') {
+        window.switchTerm('shell');
+      } else {
+        _activateShell();
+      }
     });
   }
 
@@ -230,6 +271,7 @@
   function init() {
     restoreState();
     wireMinimizeBtn();
+    patchSwitchTerm();
     wireShellTab();
   }
 
