@@ -17,3 +17,4 @@ jobs:
         run: |
           echo "DGX mirror updated at $(date)"
           git -C /home/nmyers/Projects/BCOM-C log --oneline -3
+<\!-- ci-test -->
