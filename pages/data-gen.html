@@ -13,6 +13,7 @@
 </script>
 <link rel="stylesheet" href="../assets/css/bcom.css?v=3" />
 <style>
+  /* ── Job table ───────────────────────────────────────────── */
   .job-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
   .job-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px;
                    padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
@@ -30,6 +31,319 @@
   .opt-toggle input { accent-color:var(--orange-dark); }
   .prog-track { background:#0e0905; height:4px; margin-top:4px; }
   .prog-fill   { height:4px; background:var(--orange-dark); transition:width .4s; }
+
+  /* ── Live Monitor / Worker Cards ────────────────────────── */
+  #live-monitor { display:none; }
+
+  .worker-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 4px 0 8px;
+  }
+
+  .worker-card {
+    background: #0c0804;
+    border: 1px solid #1e1008;
+    min-width: 220px;
+    flex: 1 1 220px;
+    max-width: 320px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color .2s;
+    position: relative;
+  }
+  .worker-card.running { border-color: var(--orange-dark); }
+  .worker-card.done    { border-color: #27ae60; }
+  .worker-card.error   { border-color: #e74c3c; }
+  .worker-card.queued  { border-color: #f39c12; }
+
+  .wc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .wc-id {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--orange-dark);
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+  .wc-status-badge {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    padding: 2px 6px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .wc-status-badge.running { color:#27ae60; border-color:#27ae60; }
+  .wc-status-badge.done    { color:#444;    border-color:#333; }
+  .wc-status-badge.error   { color:#e74c3c; border-color:#e74c3c; }
+  .wc-status-badge.queued  { color:#f39c12; border-color:#f39c12; }
+  .wc-status-badge.cancelled { color:#e74c3c; border-color:#e74c3c; }
+
+  .wc-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .wc-agent {
+    color: #aaa;
+    font-size: 10px;
+    letter-spacing: .5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+  .wc-iter {
+    color: #555;
+    font-size: 9px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .wc-tokens {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tok-rate {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--orange-dark);
+    letter-spacing: .5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tok-total {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: .5px;
+  }
+
+  .wc-snippet {
+    font-size: 10px;
+    color: #888;
+    line-height: 1.5;
+    min-height: 32px;
+    max-height: 48px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    font-style: italic;
+    letter-spacing: .3px;
+    word-break: break-word;
+  }
+
+  .wc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 2px;
+  }
+
+  .monitor-hdr-meta {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: 1px;
+    display: flex;
+    gap: 16px;
+  }
+  .monitor-hdr-meta span { color: #999; }
+
+  /* Empty grid state */
+  .worker-empty {
+    width: 100%;
+    text-align: center;
+    color: #2a2a2a;
+    padding: 32px;
+    letter-spacing: 2px;
+    font-size: 11px;
+  }
+
+  /* ── Generation Feed ─────────────────────────────────────── */
+  .gen-feed {
+    max-height: 500px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .gen-feed::-webkit-scrollbar { width: 4px; }
+  .gen-feed::-webkit-scrollbar-track { background: #080604; }
+  .gen-feed::-webkit-scrollbar-thumb { background: #2a1a0a; }
+
+  .feed-item {
+    border-bottom: 1px solid #0e0905;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    border-left: 2px solid transparent;
+    transition: background .15s;
+  }
+  .feed-item:hover { background: #090604; }
+  .feed-item.completed { border-left-color: #27ae60; }
+  .feed-item.failed    { border-left-color: #e74c3c; }
+  .feed-item.cancelled { border-left-color: #555; }
+
+  .feed-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .feed-run-id {
+    font-size: 10px;
+    font-family: monospace;
+    color: var(--orange-dark);
+    letter-spacing: .5px;
+  }
+  .feed-ts {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: .5px;
+  }
+  .feed-dur {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: .5px;
+  }
+  .feed-tok {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: .5px;
+    margin-left: auto;
+  }
+
+  .feed-task {
+    font-size: 11px;
+    color: #999;
+    letter-spacing: .3px;
+    line-height: 1.4;
+  }
+
+  .feed-snippet {
+    font-size: 10px;
+    color: #88a0a0;
+    font-family: monospace;
+    background: #060402;
+    border: 1px solid #0e0a06;
+    border-left: 2px solid #1e2a2a;
+    padding: 8px 10px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 100px;
+    overflow: hidden;
+    line-height: 1.6;
+    position: relative;
+  }
+  .feed-snippet.expanded { max-height: none; }
+  .feed-snippet-toggle {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--orange-dark);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-top: 2px;
+    align-self: flex-start;
+    text-transform: uppercase;
+  }
+  .feed-snippet-toggle:hover { text-decoration: underline; }
+
+  .feed-event-chain {
+    font-size: 10px;
+    font-family: monospace;
+    background: #060402;
+    border: 1px solid #0e0a06;
+    border-left: 2px solid #2a3a1e;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-height: 380px;
+    overflow-y: auto;
+  }
+  .feed-event-chain::-webkit-scrollbar { width: 3px; }
+  .feed-event-chain::-webkit-scrollbar-track { background: #060402; }
+  .feed-event-chain::-webkit-scrollbar-thumb { background: #1a2a0a; }
+  .chain-entry {
+    display: flex;
+    gap: 8px;
+    line-height: 1.5;
+    border-bottom: 1px solid #0c0a06;
+    padding-bottom: 6px;
+  }
+  .chain-entry:last-child { border-bottom: none; padding-bottom: 0; }
+  .chain-agent {
+    color: var(--orange-dark);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 9px;
+    letter-spacing: .5px;
+    padding-top: 1px;
+    min-width: 60px;
+  }
+  .chain-text {
+    color: #88a0a0;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+  .chain-empty {
+    color: #444;
+    letter-spacing: 1.5px;
+    font-size: 10px;
+    text-align: center;
+    padding: 8px;
+  }
+
+  .feed-footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 10px;
+    color: #444;
+    letter-spacing: .5px;
+  }
+  .feed-model { color: #555; }
+
+  .feed-empty {
+    text-align: center;
+    color: #2a2a2a;
+    padding: 32px;
+    letter-spacing: 2px;
+    font-size: 11px;
+  }
+  .feed-hdr-meta {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .feed-hdr-meta span { color: #999; }
+
+  /* Pulse animation on running cards */
+  @keyframes pulse-glow {
+    0%   { border-color: #c84000; box-shadow: 0 0 4px rgba(200,64,0,0.2); }
+    50%  { border-color: #ff7700; box-shadow: 0 0 18px rgba(255,100,0,0.65), 0 0 32px rgba(255,80,0,0.25); }
+    100% { border-color: #c84000; box-shadow: 0 0 4px rgba(200,64,0,0.2); }
+  }
+  .worker-card.running { animation: pulse-glow 1.6s ease-in-out infinite; }
+  .worker-card.done, .worker-card.error { animation: none; box-shadow: none; }
 </style>
 </head>
 <body>
@@ -81,10 +395,10 @@
           <div class="form-group">
             <label class="form-label">Source Model</label>
             <select class="form-select" id="dg-model">
-              <option>claude-3-5-sonnet</option>
-              <option>gpt-4o</option>
-              <option>local/spark-model</option>
-              <option>local/linux-model</option>
+              <option value="claude-3-5-sonnet">claude-3-5-sonnet</option>
+              <option value="gpt-4o">gpt-4o</option>
+              <option value="local/spark-model">local/spark-model</option>
+              <option value="local/linux-model">local/linux-model</option>
             </select>
           </div>
         </div>
@@ -107,6 +421,20 @@
             </select>
           </div>
         </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Workers <span style="color:#555;font-size:9px;letter-spacing:1px">(1–18)</span></label>
+            <input class="form-input" id="dg-workers" type="number" value="1" min="1" max="18" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Iterations</label>
+            <input class="form-input" id="dg-maxiter" type="number" value="20" min="1" max="200" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Temperature</label>
+            <input class="form-input" id="dg-temp" type="number" value="0.8" min="0" max="2" step="0.05" />
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label">Output Path</label>
           <input class="form-input" id="dg-path" type="text" placeholder="/data/gen/output.jsonl" />
@@ -123,16 +451,13 @@
             <label class="opt-toggle"><input type="checkbox" id="dg-dedup" checked /> DEDUP PAIRS</label>
             <label class="opt-toggle"><input type="checkbox" id="dg-shuffle" checked /> SHUFFLE OUTPUT</label>
             <label class="opt-toggle"><input type="checkbox" id="dg-validate" checked /> VALIDATE SCHEMA</label>
-            <label class="opt-toggle"><input type="checkbox" id="dg-stream" /> STREAM RESULTS</label>
+            <label class="opt-toggle"><input type="checkbox" id="dg-stream" checked /> STREAM RESULTS</label>
             <label class="opt-toggle"><input type="checkbox" id="dg-overwrite" /> OVERWRITE FILE</label>
             <label class="opt-toggle"><input type="checkbox" id="dg-autoeval" /> AUTO-EVAL AFTER</label>
           </div>
         </div>
-        <div class="form-row-2">
-          <div class="form-group">
-            <label class="form-label">Temperature</label>
-            <input class="form-input" id="dg-temp" type="number" value="0.8" min="0" max="2" step="0.05" />
-          </div>
+        <div class="form-row-2" style="display:none">
+          <!-- seed kept hidden, available via JS -->
           <div class="form-group">
             <label class="form-label">Seed (blank = random)</label>
             <input class="form-input" id="dg-seed" type="number" placeholder="--" />
@@ -140,6 +465,36 @@
         </div>
         <button class="form-submit" onclick="submitJob()">&#9654; Enqueue Job</button>
         <div class="form-output" id="dg-output">--</div>
+      </div>
+    </div>
+
+    <!-- LIVE GENERATION MONITOR -->
+    <div class="info-card" id="live-monitor">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Live Generation Stream</span>
+        <div class="monitor-hdr-meta">
+          <span>WORKERS&nbsp;<span id="mon-workers">0</span></span>
+          <span>RUNNING&nbsp;<span id="mon-running">0</span></span>
+          <span>DONE&nbsp;<span id="mon-done">0</span></span>
+          <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="clearDoneCards()">&#10005; CLEAR DONE</button>
+        </div>
+      </div>
+      <div class="worker-grid" id="worker-grid">
+        <div class="worker-empty" id="worker-empty">NO ACTIVE WORKERS</div>
+      </div>
+    </div>
+
+    <!-- GENERATION FEED -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Generation Feed</span>
+        <div class="feed-hdr-meta">
+          <span>COMPLETED&nbsp;<span id="feed-count">0</span></span>
+          <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="clearFeed()">&#10005; CLEAR</button>
+        </div>
+      </div>
+      <div class="gen-feed" id="gen-feed">
+        <div class="feed-empty" id="feed-empty">NO COMPLETED RUNS YET</div>
       </div>
     </div>
 
@@ -155,7 +510,7 @@
             <tr><th>JOB ID</th><th>TYPE</th><th>DOMAIN</th><th>NODE</th><th>COUNT</th><th>CHUNK</th><th>ELAPSED</th><th>PROGRESS</th><th>STATUS</th><th></th></tr>
           </thead>
           <tbody id="active-jobs-body">
-            <tr><td colspan="8" class="empty">NO ACTIVE JOBS</td></tr>
+            <tr><td colspan="10" class="empty">NO ACTIVE JOBS</td></tr>
           </tbody>
         </table>
       </div>
@@ -170,10 +525,10 @@
       <div class="job-wrap">
         <table class="job-table">
           <thead>
-            <tr><th>JOB ID</th><th>TYPE</th><th>DOMAIN</th><th>NODE</th><th>COUNT</th><th>FORMAT</th><th>DURATION</th><th>STATUS</th><th>OUTPUT</th></tr>
+            <tr><th>RUN ID</th><th>TYPE</th><th>DOMAIN</th><th>NODE</th><th>TOKENS</th><th>ITERS</th><th>DURATION</th><th>STATUS</th></tr>
           </thead>
           <tbody id="history-body">
-            <tr><td colspan="9" class="empty">NO JOB HISTORY</td></tr>
+            <tr><td colspan="8" class="empty">NO JOB HISTORY</td></tr>
           </tbody>
         </table>
       </div>
@@ -225,116 +580,554 @@
   BCOM.pollInterval = 5000;
   startPolling();
 
-  let _jobSeq = 1, _jobs = [], _apiJobs = [], _history = [];
+  // ── State ──────────────────────────────────────────────────
+  let _apiJobs  = [];               // from /api/jobs/ poll
+  let _history  = [];               // completed run records
+  let _streams  = {};               // runId -> EventSource
+  let _workers  = {};               // runId -> worker meta object
 
-  // ── Live job poller — hits /api/jobs/ every 5s ─────────────────────────
+  // ── Live job poller — hits /api/jobs/ every 5s ─────────────
   async function pollJobs() {
     try {
       const res = await fetch('/api/jobs/', { cache: 'no-store' });
       if (!res.ok) return;
-      const data = await res.json();
-      // Merge: API jobs keyed by id; don't overwrite local-only entries
-      const apiIds = new Set(data.map(j => j.id));
-      _apiJobs = data;
-      // Drop local entries that the API now owns
-      _jobs = _jobs.filter(j => !apiIds.has(j.id));
+      _apiJobs = await res.json();
       renderActiveJobs();
-    } catch (_) { /* soft fail — table stays as-is */ }
+    } catch (_) {}
   }
   pollJobs();
   setInterval(pollJobs, 5000);
 
-  function submitJob() {
-    const typeEl  = document.getElementById('dg-type');
-    const domain  = document.getElementById('dg-domain').value.trim();
-    const count   = document.getElementById('dg-count').value || '100';
-    const node    = document.getElementById('dg-node').value;
-    const fmt     = document.getElementById('dg-format').value;
-    const path    = document.getElementById('dg-path').value.trim() || '/data/gen/output.jsonl';
-    const typeLabel = typeEl.options[typeEl.selectedIndex].text;
+  // ── Submit — real POST /api/runs, N workers ─────────────────
+  async function submitJob() {
+    const domain = document.getElementById('dg-domain').value.trim();
     if (!domain) { logLine('Form error: Domain is required', 'warn'); return; }
-    const id = 'DGJ-' + String(_jobSeq++).padStart(4,'0');
-    const t  = new Date().toTimeString().split(' ')[0];
-    const job = { id, type:typeLabel, domain, node: node==='spark'?'SPARK-BOB':'LINUX-DSKTP',
-                  count, fmt, path, status:'queued', progress:0, start:t };
-    _jobs.unshift(job);
-    logLine(`CMD: DATA GEN — ${id} queued [${count} ${typeLabel} / ${domain}]`, 'info');
+
+    const typeEl    = document.getElementById('dg-type');
+    const typeLabel = typeEl.options[typeEl.selectedIndex].text;
+    const model     = document.getElementById('dg-model').value;
+    const count     = parseInt(document.getElementById('dg-count').value) || 100;
+    const maxIter   = parseInt(document.getElementById('dg-maxiter').value) || 20;
+    const workers   = Math.min(18, Math.max(1, parseInt(document.getElementById('dg-workers').value) || 1));
+    const sysprompt = document.getElementById('dg-sysprompt').value.trim();
+    const temp      = parseFloat(document.getElementById('dg-temp').value) || 0.8;
+
+    const task = `Generate ${count} ${typeLabel} examples for domain: ${domain}`;
+
     const out = document.getElementById('dg-output');
-    out.textContent = `[${t}] ${id} queued — ${count} ${typeLabel} on ${job.node}`;
+    const t = new Date().toTimeString().split(' ')[0];
+    out.textContent = `[${t}] Launching ${workers} worker${workers > 1 ? 's' : ''} — ${typeLabel} / ${domain}`;
     out.style.color = 'var(--orange-dark)';
-    if (BCOM.apiBase === null) { logLine('No API — simulating locally', 'warn'); simulateJob(job); }
-    renderActiveJobs();
+
+    logLine(`CMD: DATA GEN — ${workers} worker${workers>1?'s':''} × ${maxIter} iter [${typeLabel} / ${domain}]`, 'info');
+
+    for (let i = 0; i < workers; i++) {
+      await launchWorker(task, model, maxIter, temp, sysprompt, domain, typeLabel, i);
+      if (workers > 1) await sleep(300); // stagger to avoid hammering the API
+    }
   }
 
-  function simulateJob(job) {
-    let prog = 0;
-    job.status = 'running';
-    renderActiveJobs();
-    const iv = setInterval(() => {
-      prog += Math.floor(Math.random() * 15) + 5;
-      if (prog >= 100) {
-        prog = 100; job.status = 'done'; job.duration = (Math.floor(Math.random()*55)+5)+'s';
-        clearInterval(iv);
-        _history.unshift(job); if (_history.length > 50) _history.pop();
-        _jobs = _jobs.filter(j => j !== job);
-        logLine(`JOB ${job.id} — complete (${job.count} records → ${job.path})`, 'info');
-        renderActiveJobs(); renderHistory();
+  async function launchWorker(task, model, maxIter, temp, sysprompt, domain, typeLabel, index) {
+    const payload = {
+      task,
+      model,
+      max_iter: maxIter,
+      queued: false,
+      config: {
+        temperature: temp,
+        domain,
+        type: typeLabel,
+        ...(sysprompt ? { system_prompt: sysprompt } : {})
       }
-      job.progress = Math.min(prog, 100);
-      renderActiveJobs();
-    }, 700);
+    };
+    try {
+      const res = await fetch('/api/runs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        logLine(`WORKER ${index+1}: submit failed (${res.status}) — ${errText.slice(0,120)}`, 'error');
+        return;
+      }
+      const data  = await res.json();
+      const runId = data.run_id || data.id || data.run?.id;
+      if (!runId) {
+        logLine(`WORKER ${index+1}: no run_id in response — ${JSON.stringify(data).slice(0,120)}`, 'error');
+        return;
+      }
+      createWorkerCard(runId, domain, typeLabel, index);
+      openStream(runId);
+      logLine(`WORKER ${index+1}: run_id=${runId} — stream open`, 'info');
+    } catch (e) {
+      logLine(`WORKER ${index+1}: error — ${e.message}`, 'error');
+    }
+  }
+
+  // ── Worker Card ─────────────────────────────────────────────
+  function createWorkerCard(runId, domain, typeLabel, index) {
+    const grid  = document.getElementById('worker-grid');
+    const empty = document.getElementById('worker-empty');
+    if (empty) empty.style.display = 'none';
+
+    const card = document.createElement('div');
+    card.className = 'worker-card running';
+    card.id = 'wc-' + runId;
+    card.innerHTML =
+      '<div class="wc-header">' +
+        '<span class="wc-id">' + runId.slice(0, 14) + '</span>' +
+        '<span class="wc-status-badge running">RUNNING</span>' +
+      '</div>' +
+      '<div class="wc-meta">' +
+        '<span class="wc-agent">' + (typeLabel || '—') + '</span>' +
+        '<span class="wc-iter">iter 0</span>' +
+      '</div>' +
+      '<div class="wc-tokens">' +
+        '<span class="tok-rate">— tok/s</span>' +
+        '<span class="tok-total">0 tok</span>' +
+      '</div>' +
+      '<div class="wc-snippet">Connecting to stream…</div>' +
+      '<div class="wc-footer">' +
+        '<button class="ctr-btn" onclick="cancelRun(\'' + runId + '\')">CANCEL</button>' +
+      '</div>';
+
+    grid.appendChild(card);
+
+    _workers[runId] = {
+      card,
+      domain,
+      typeLabel,
+      lastTokensOut: 0,
+      lastTokenTime: Date.now(),
+      tokPerSec: 0,
+      startTime: Date.now(),
+      iteration: 0
+    };
+
+    document.getElementById('live-monitor').style.display = 'block';
+    updateMonitorCounts();
+  }
+
+  // ── SSE Stream ──────────────────────────────────────────────
+  function openStream(runId) {
+    const es = new EventSource('/api/runs/' + runId + '/stream');
+    _streams[runId] = es;
+
+    es.addEventListener('node_update', function(e) {
+      try { handleNodeUpdate(runId, JSON.parse(e.data)); } catch(_) {}
+    });
+    es.addEventListener('status', function(e) {
+      try { handleStatusEvent(runId, JSON.parse(e.data)); } catch(_) {}
+    });
+    es.addEventListener('stream_end', function(e) {
+      try {
+        handleStreamEnd(runId, JSON.parse(e.data));
+      } catch(_) {
+        handleStreamEnd(runId, {});
+      }
+      es.close();
+      delete _streams[runId];
+    });
+    es.addEventListener('error', function(e) {
+      if (e.data) {
+        try { handleStreamError(runId, JSON.parse(e.data)); } catch(_) {}
+      }
+    });
+    es.onerror = function() {
+      const w = _workers[runId];
+      if (w && w.card.classList.contains('running')) {
+        logLine('RUN ' + runId.slice(0,8) + ': SSE connection lost', 'warn');
+        updateCardStatus(runId, 'error', 'CONN LOST');
+      }
+      es.close();
+      delete _streams[runId];
+      updateMonitorCounts();
+    };
+  }
+
+  function handleNodeUpdate(runId, data) {
+    const w = _workers[runId];
+    if (!w) return;
+    const card = w.card;
+
+    // tok/s calculation using delta
+    const now      = Date.now();
+    const dt       = (now - w.lastTokenTime) / 1000;
+    const dTokens  = (data.tokens_out || 0) - w.lastTokensOut;
+    if (dt > 0.1 && dTokens > 0) {
+      // Smooth with a simple EMA (alpha=0.3)
+      const instant = dTokens / dt;
+      w.tokPerSec = w.tokPerSec === 0 ? instant : (0.3 * instant + 0.7 * w.tokPerSec);
+    }
+    w.lastTokensOut = data.tokens_out || 0;
+    w.lastTokenTime = now;
+    w.iteration     = data.iteration  || w.iteration;
+
+    // Update DOM
+    const agentEl = card.querySelector('.wc-agent');
+    if (agentEl) agentEl.textContent = data.active_agent || data.node || w.typeLabel || '—';
+
+    const iterEl = card.querySelector('.wc-iter');
+    if (iterEl) iterEl.textContent = 'iter ' + (data.iteration || 0);
+
+    const tokRateEl = card.querySelector('.tok-rate');
+    if (tokRateEl) tokRateEl.textContent = w.tokPerSec > 0 ? w.tokPerSec.toFixed(1) + ' tok/s' : '— tok/s';
+
+    const tokTotalEl = card.querySelector('.tok-total');
+    if (tokTotalEl) tokTotalEl.textContent = (data.tokens_out || 0) + ' tok';
+
+    const snippetEl = card.querySelector('.wc-snippet');
+    if (snippetEl && data.snippet) snippetEl.textContent = data.snippet;
+  }
+
+  function handleStatusEvent(runId, data) {
+    const w = _workers[runId];
+    if (!w) return;
+    const snippetEl = w.card.querySelector('.wc-snippet');
+    if (snippetEl) snippetEl.textContent = data.message || data.task || '—';
+  }
+
+  function handleStreamEnd(runId, data) {
+    updateCardStatus(runId, 'done', 'DONE');
+    updateMonitorCounts();
+    const w = _workers[runId];
+    if (!w) return;
+    const elapsed = ((Date.now() - w.startTime) / 1000).toFixed(0);
+    const tokTotal = w.lastTokensOut;
+    logLine('RUN ' + runId.slice(0,8) + ': complete — ' + tokTotal + ' tokens in ' + elapsed + 's', 'info');
+    addToRunHistory(runId, data, elapsed, tokTotal, w);
+    // Immediately pull the completed run into the feed — don't wait for next poll cycle
+    if (!_feedCache[runId]) {
+      _feedCache[runId] = { fetching: true };
+      fetchRunDetail(runId);
+    }
+  }
+
+  function handleStreamError(runId, data) {
+    updateCardStatus(runId, 'error', 'ERROR');
+    updateMonitorCounts();
+    logLine('RUN ' + runId.slice(0,8) + ': error — ' + (data.message || 'unknown'), 'error');
+  }
+
+  function updateCardStatus(runId, status, label) {
+    const w = _workers[runId];
+    if (!w) return;
+    const card  = w.card;
+    card.classList.remove('running', 'done', 'error', 'queued');
+    card.classList.add(status);
+    const badge = card.querySelector('.wc-status-badge');
+    if (badge) {
+      badge.className = 'wc-status-badge ' + status;
+      badge.textContent = (label || status).toUpperCase();
+    }
+  }
+
+  async function cancelRun(runId) {
+    try {
+      await fetch('/api/runs/' + runId, { method: 'DELETE' });
+    } catch(_) {}
+    const es = _streams[runId];
+    if (es) { es.close(); delete _streams[runId]; }
+    updateCardStatus(runId, 'error', 'CANCELLED');
+    updateMonitorCounts();
+    logLine('CMD: CANCEL RUN ' + runId.slice(0,8), 'warn');
+  }
+
+  function clearDoneCards() {
+    const grid = document.getElementById('worker-grid');
+    Object.keys(_workers).forEach(function(runId) {
+      const w = _workers[runId];
+      if (!w.card.classList.contains('running')) {
+        w.card.remove();
+        delete _workers[runId];
+      }
+    });
+    // Show empty state if nothing left
+    const remaining = Object.keys(_workers).length;
+    if (!remaining) {
+      const empty = document.getElementById('worker-empty');
+      if (empty) empty.style.display = 'block';
+    }
+    updateMonitorCounts();
+  }
+
+  function updateMonitorCounts() {
+    const total   = Object.keys(_workers).length;
+    const running = Object.keys(_workers).filter(id => _workers[id].card.classList.contains('running')).length;
+    const done    = total - running;
+    document.getElementById('mon-workers').textContent = total;
+    document.getElementById('mon-running').textContent = running;
+    document.getElementById('mon-done').textContent    = done;
+  }
+
+  // ── Run History ─────────────────────────────────────────────
+  function addToRunHistory(runId, runData, elapsed, tokTotal, w) {
+    const record = {
+      id:       runId,
+      type:     w.typeLabel || '--',
+      domain:   w.domain || '--',
+      node:     'SPARK-BOB',
+      tokens:   tokTotal,
+      iters:    w.iteration,
+      duration: elapsed + 's',
+      status:   'done'
+    };
+    _history.unshift(record);
+    if (_history.length > 100) _history.pop();
+    renderHistory();
   }
 
   function renderActiveJobs() {
-    const tb = document.getElementById('active-jobs-body');
-    // Merge API jobs + local queued/running jobs
-    const active = [
-      ..._apiJobs,
-      ..._jobs.filter(j => j.status !== 'done' && j.status !== 'error')
-    ];
-    if (!active.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO ACTIVE JOBS</td></tr>'; return; }
-    tb.innerHTML = active.map(j => `<tr>
-      <td style="color:var(--orange-dark)">${j.id}</td>
-      <td>${j.type}</td>
-      <td>${j.domain}</td>
-      <td>${j.node}</td>
-      <td>${j.count}${j.severities ? ' <span style="color:#555;font-size:9px">×'+j.severities+'</span>' : ''}</td>
-      <td style="color:#777;font-size:10px">${j.chunk ?? '--'}</td>
-      <td style="color:#777;font-size:10px">${j.elapsed ?? '--'}</td>
-      <td style="min-width:90px">${j.progress}%<div class="prog-track"><div class="prog-fill" style="width:${j.progress}%"></div></div></td>
-      <td><span class="job-status ${j.status}">${j.status.toUpperCase()}</span></td>
-      <td><button class="ctr-btn" onclick="cancelJob('${j.id}')">CANCEL</button></td>
-    </tr>`).join('');
+    const tb     = document.getElementById('active-jobs-body');
+    const active = Array.isArray(_apiJobs)
+      ? _apiJobs.filter(j => j.status === 'running' || j.status === 'queued')
+      : [];
+    if (!active.length) {
+      tb.innerHTML = '<tr><td colspan="10" class="empty">NO ACTIVE JOBS</td></tr>';
+      return;
+    }
+    tb.innerHTML = active.map(function(j) {
+      return '<tr>' +
+        '<td style="color:var(--orange-dark)">' + j.id + '</td>' +
+        '<td>' + (j.type || '--') + '</td>' +
+        '<td>' + (j.domain || '--') + '</td>' +
+        '<td>' + (j.node || '--') + '</td>' +
+        '<td>' + (j.count || '--') + (j.severities ? ' <span style="color:#555;font-size:9px">×'+j.severities+'</span>' : '') + '</td>' +
+        '<td style="color:#777;font-size:10px">' + (j.chunk || '--') + '</td>' +
+        '<td style="color:#777;font-size:10px">' + (j.elapsed || '--') + '</td>' +
+        '<td style="min-width:90px">' + (j.progress||0) + '%' +
+          '<div class="prog-track"><div class="prog-fill" style="width:' + (j.progress||0) + '%"></div></div></td>' +
+        '<td><span class="job-status ' + j.status + '">' + j.status.toUpperCase() + '</span></td>' +
+        '<td><button class="ctr-btn" onclick="cancelJob(\'' + j.id + '\')">CANCEL</button></td>' +
+      '</tr>';
+    }).join('');
   }
 
   function renderHistory() {
     const tb = document.getElementById('history-body');
-    if (!_history.length) { tb.innerHTML = '<tr><td colspan="9" class="empty">NO JOB HISTORY</td></tr>'; return; }
-    tb.innerHTML = _history.map(j => `<tr>
-      <td style="color:var(--orange-dark)">${j.id}</td>
-      <td>${j.type}</td><td>${j.domain}</td><td>${j.node}</td><td>${j.count}</td>
-      <td>${j.fmt}</td><td>${j.duration||'--'}</td>
-      <td><span class="job-status ${j.status}">${j.status.toUpperCase()}</span></td>
-      <td style="font-size:10px;color:#999">${j.path}</td>
-    </tr>`).join('');
+    if (!_history.length) {
+      tb.innerHTML = '<tr><td colspan="8" class="empty">NO JOB HISTORY</td></tr>';
+      return;
+    }
+    tb.innerHTML = _history.map(function(j) {
+      return '<tr>' +
+        '<td style="color:var(--orange-dark);font-size:10px;font-family:monospace">' + j.id.slice(0,14) + '</td>' +
+        '<td>' + j.type + '</td>' +
+        '<td>' + j.domain + '</td>' +
+        '<td>' + j.node + '</td>' +
+        '<td style="color:#777">' + (j.tokens || '--') + '</td>' +
+        '<td style="color:#777">' + (j.iters || '--') + '</td>' +
+        '<td style="color:#777">' + (j.duration || '--') + '</td>' +
+        '<td><span class="job-status ' + j.status + '">' + j.status.toUpperCase() + '</span></td>' +
+      '</tr>';
+    }).join('');
   }
 
   function cancelJob(id) {
-    const j = _jobs.find(x => x.id === id);
-    if (j) { j.status = 'error'; j.duration = '--'; _history.unshift(j); _jobs = _jobs.filter(x => x.id !== id); }
-    logLine(`CMD: CANCEL — ${id}`, 'warn');
-    renderActiveJobs(); renderHistory();
+    logLine('CMD: CANCEL — ' + id, 'warn');
+    fetch('/api/jobs/' + id, { method: 'DELETE' }).catch(function(){});
+    pollJobs();
   }
 
-  function refreshJobs() { logLine('Jobs refreshed', 'info'); pollJobs(); renderHistory(); }
-  function exportHistory() { logLine('CMD: EXPORT HISTORY', 'info'); if (BCOM.apiBase === null) logLine('No API — export unavailable', 'warn'); }
+  function refreshJobs() { logLine('Jobs refreshed', 'info'); pollJobs(); }
+
+  function exportHistory() {
+    if (!_history.length) { logLine('No history to export', 'warn'); return; }
+    const rows = ['RUN ID,TYPE,DOMAIN,NODE,TOKENS,ITERS,DURATION,STATUS'];
+    _history.forEach(function(j) {
+      rows.push([j.id, j.type, j.domain, j.node, j.tokens, j.iters, j.duration, j.status].join(','));
+    });
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = 'datagen-history-' + Date.now() + '.csv';
+    a.click();
+    logLine('CMD: EXPORT HISTORY — ' + _history.length + ' records', 'info');
+  }
+
+  // ── Generation Feed ─────────────────────────────────────────
+  let _feedCache = {};   // runId -> enriched run object (or {fetching:true} placeholder)
+
+  async function pollRunHistory() {
+    try {
+      const res = await fetch('/api/runs?limit=50', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      const runs = data.runs || [];
+      for (var i = 0; i < runs.length; i++) {
+        var run = runs[i];
+        if (_feedCache[run.id]) continue;
+        if (run.status !== 'completed' && run.status !== 'failed' && run.status !== 'cancelled') continue;
+        // Placeholder so we don't double-fetch
+        _feedCache[run.id] = { fetching: true };
+        fetchRunDetail(run.id);
+      }
+    } catch(_) {}
+  }
+
+  async function fetchRunDetail(runId) {
+    try {
+      const res = await fetch('/api/runs/' + runId, { cache: 'no-store' });
+      if (!res.ok) { delete _feedCache[runId]; return; }
+      const data   = await res.json();
+      const run    = data.run    || {};
+      const events = data.events || [];
+
+      // Best snippet: last non-null snippet from a non-supervisor, non-system node
+      var bestSnippet = null;
+      var reversed    = events.slice().reverse();
+      for (var i = 0; i < reversed.length; i++) {
+        var ev = reversed[i];
+        if (ev.event_type === 'node_update' && ev.data && ev.data.snippet
+            && ev.node !== 'supervisor' && ev.node !== 'system' && ev.node !== 'finish') {
+          bestSnippet = ev.data.snippet; break;
+        }
+      }
+      // Fallback — any snippet
+      if (!bestSnippet) {
+        for (var j = 0; j < reversed.length; j++) {
+          if (reversed[j].event_type === 'node_update' && reversed[j].data && reversed[j].data.snippet) {
+            bestSnippet = reversed[j].data.snippet; break;
+          }
+        }
+      }
+      // Final fallback — last status message
+      if (!bestSnippet) {
+        for (var k = reversed.length - 1; k >= 0; k--) {
+          if (reversed[k].event_type === 'status' && reversed[k].data && reversed[k].data.message) {
+            bestSnippet = reversed[k].data.message; break;
+          }
+        }
+      }
+
+      var enriched = Object.assign({}, run, { snippet: bestSnippet, events: events, fetching: false });
+      _feedCache[runId] = enriched;
+      renderFeedItem(runId, enriched);
+    } catch(_) { delete _feedCache[runId]; }
+  }
+
+  function renderFeedItem(runId, d) {
+    var feed  = document.getElementById('gen-feed');
+    var empty = document.getElementById('feed-empty');
+    if (empty) empty.style.display = 'none';
+
+    // Remove stale entry if re-rendering
+    var stale = document.getElementById('fi-' + runId);
+    if (stale) stale.remove();
+
+    var status = d.status || 'completed';
+    var ts     = d.created_at ? new Date(d.created_at).toLocaleTimeString('en-US', {hour12:false}) : '--:--';
+    var dur    = d.duration_s != null ? d.duration_s + 's' : '--';
+    var tokOut = Number(d.tokens_out || 0).toLocaleString();
+    var tokIn  = Number(d.tokens_in  || 0).toLocaleString();
+
+    var snippetBlock = '';
+    if (d.snippet) {
+      var sid = 'snip-'   + runId;
+      var cid = 'chain-'  + runId;
+      snippetBlock =
+        '<div class="feed-snippet" id="' + sid + '">' + escHtml(d.snippet) + '</div>' +
+        '<div class="feed-event-chain" id="' + cid + '" style="display:none"></div>' +
+        '<button class="feed-snippet-toggle" onclick="toggleEventChain(\'' + runId + '\',this)">&#9660; EXPAND</button>';
+    }
+
+    var item = document.createElement('div');
+    item.className = 'feed-item ' + status;
+    item.id = 'fi-' + runId;
+    item.innerHTML =
+      '<div class="feed-header">' +
+        '<span class="feed-run-id">' + runId.slice(0, 14) + '</span>' +
+        '<span class="feed-ts">' + ts + '</span>' +
+        '<span class="feed-dur">&#9679; ' + dur + '</span>' +
+        '<span class="job-status ' + (status === 'completed' ? 'done' : 'error') + '" style="margin-left:auto">' +
+          status.toUpperCase() + '</span>' +
+      '</div>' +
+      '<div class="feed-task">' + escHtml(d.task || '--') + '</div>' +
+      snippetBlock +
+      '<div class="feed-footer">' +
+        '<span class="feed-model">model: ' + escHtml(d.model || '--') + '</span>' +
+        '<span>' + tokOut + ' tok out</span>' +
+        (tokIn !== '0' ? '<span>' + tokIn + ' tok in</span>' : '') +
+      '</div>';
+
+    // Prepend — newest first
+    feed.insertBefore(item, feed.firstChild);
+
+    // Update counter
+    var countEl = document.getElementById('feed-count');
+    if (countEl) countEl.textContent = feed.querySelectorAll('.feed-item').length;
+  }
+
+  function toggleEventChain(runId, btn) {
+    var snippetEl = document.getElementById('snip-'  + runId);
+    var chainEl   = document.getElementById('chain-' + runId);
+    if (!chainEl) return;
+
+    var expanding = (chainEl.style.display === 'none');
+
+    if (expanding) {
+      // Build event chain lazily on first expand
+      if (!chainEl.dataset.built) {
+        var cached = _feedCache[runId];
+        var events = (cached && cached.events) ? cached.events : [];
+        var lines  = [];
+        for (var i = 0; i < events.length; i++) {
+          var ev = events[i];
+          if (ev.event_type === 'node_update' && ev.data && ev.data.snippet) {
+            var agent = ev.data.active_agent || ev.node || '?';
+            lines.push(
+              '<div class="chain-entry">' +
+                '<span class="chain-agent">[' + escHtml(agent) + ']</span>' +
+                '<span class="chain-text">'   + escHtml(ev.data.snippet) + '</span>' +
+              '</div>'
+            );
+          }
+        }
+        chainEl.innerHTML = lines.length
+          ? lines.join('')
+          : '<div class="chain-empty">NO EVENT DATA</div>';
+        chainEl.dataset.built = '1';
+      }
+      if (snippetEl) snippetEl.style.display = 'none';
+      chainEl.style.display = 'flex';
+      btn.textContent = '\u25b2 COLLAPSE';
+    } else {
+      if (snippetEl) snippetEl.style.display = 'block';
+      chainEl.style.display = 'none';
+      btn.textContent = '\u25bc EXPAND';
+    }
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function clearFeed() {
+    _feedCache = {};
+    var feed = document.getElementById('gen-feed');
+    feed.innerHTML = '<div class="feed-empty" id="feed-empty">NO COMPLETED RUNS YET</div>';
+    var countEl = document.getElementById('feed-count');
+    if (countEl) countEl.textContent = '0';
+    logLine('Generation feed cleared', 'info');
+  }
+
+  // Kick off immediately + repeat every 8s
+  pollRunHistory();
+  setInterval(pollRunHistory, 8000);
+
+  function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
 
   // Terminal
   let _termNode = 'spark';
   function switchTerm(node) {
     _termNode = node;
-    document.querySelectorAll('.terminal-tab').forEach(t => t.classList.toggle('active', t.dataset.term === node));
-    ['spark','linux'].forEach(n => { const el = document.getElementById('term-out-'+n); if (el) el.style.display = n===node?'block':'none'; });
+    document.querySelectorAll('.terminal-tab').forEach(function(t) { t.classList.toggle('active', t.dataset.term === node); });
+    ['spark','linux'].forEach(function(n) { const el = document.getElementById('term-out-'+n); if (el) el.style.display = n===node?'block':'none'; });
     document.getElementById('term-prompt').textContent = (node==='spark'?'spark-bob':'linux-dsktp')+' $';
     document.getElementById('terminal-input').focus();
   }
@@ -343,8 +1136,6 @@
     const div = document.createElement('div'); div.className = 'term-line'+(cls?' '+cls:''); div.textContent = text;
     out.appendChild(div); out.scrollTop = out.scrollHeight;
   }
-  // terminal input wired by bcom-terminal.js
-  // minimize wired by bcom-terminal.js
   switchTerm('spark');
 </script>
   <script src="../assets/js/bcom-terminal.js?v=3"></script>

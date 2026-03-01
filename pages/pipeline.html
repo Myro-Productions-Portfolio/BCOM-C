@@ -585,6 +585,7 @@
   const STAGE_NAMES = ['Data Gen','Fine-Tune','Deploy','Eval','Check'];
 
   let _runSeq = 1, _runs = [], _activeRun = null, _simIv = null;
+  let _liveFinetuneId = null;
 
   // Stage live-metric strings for simulation
   const STAGE_LIVE_IDLE = ['—','—','—','—','—'];
@@ -642,27 +643,82 @@
       if (!res.ok) return;
       const d = await res.json();
       if (d && d.status === 'active' && !_activeRun) {
-        const banner = document.getElementById('active-banner');
-        banner.style.display = 'flex';
-        setText('bp-id',      d.id ? d.id.slice(0, 8) : '--');
-        setText('bp-model',   d.model_name ?? '--');
-        setText('bp-backend', d.backend    ?? '--');
-        setText('bp-node',    'SPARK-BOB');
-        setText('bp-iter',    '—');
-        setText('bp-score',   '—');
-        setStage(2); // highlight DEPLOY stage
-        document.getElementById('bp-prog').style.width = '60%';
-        // show live metric for deploy stage
+        // Always keep the deploy stage card live text current
         const lv = document.getElementById('live-deploy');
         if (lv) lv.textContent = `${d.backend} → SPARK-BOB`;
+        // Only take over the banner and stage if no finetune is currently displaying
+        if (!_liveFinetuneId) {
+          document.getElementById('active-banner').style.display = 'flex';
+          setText('bp-id',      d.id ? d.id.slice(0, 8) : '--');
+          setText('bp-model',   d.model_name ?? '--');
+          setText('bp-backend', d.backend    ?? '--');
+          setText('bp-node',    'SPARK-BOB');
+          setText('bp-iter',    '—');
+          setText('bp-score',   '—');
+          setStage(2);
+          document.getElementById('bp-prog').style.width = '60%';
+        }
       }
     } catch { /* soft fail */ }
   }
   pollActiveDeploy();
   setInterval(pollActiveDeploy, 10000);
 
+  // ── Real finetune status polling ──────────────────────────────────
+  async function pollActiveFinetune() {
+    try {
+      const [ftRes, jobsRes] = await Promise.all([
+        fetch('/api/finetune/', { cache: 'no-store' }),
+        fetch('/api/jobs/',     { cache: 'no-store' })
+      ]);
+      if (!ftRes.ok) return;
+      const ftJobs = await ftRes.json();
+      const running = Array.isArray(ftJobs) ? ftJobs.find(j => j.status === 'running') : null;
+
+      let jobInfo = null;
+      if (running && jobsRes.ok) {
+        const allJobs = await jobsRes.json();
+        jobInfo = Array.isArray(allJobs)
+          ? allJobs.find(j => j.pid === running.pid || j.id === 'PID-' + running.pid)
+          : null;
+      }
+
+      if (running && !_simIv) {
+        _liveFinetuneId = running.id;
+        const banner = document.getElementById('active-banner');
+        banner.style.display = 'flex';
+        setText('bp-id',      running.id.slice(0, 14));
+        setText('bp-model',   running.base_model ?? '--');
+        setText('bp-backend', 'Donut / PyTorch');
+        setText('bp-node',    jobInfo?.node ?? 'SPARK-BOB');
+        setText('bp-iter',    jobInfo?.chunk ?? (running.current_epoch != null ? `ep ${running.current_epoch}/${running.epochs}` : `0/${running.epochs} ep`));
+        setText('bp-score',   jobInfo?.elapsed ?? '—');
+        const progPct = Math.max(2, jobInfo?.progress ?? 0);
+        document.getElementById('bp-prog').style.width = progPct + '%';
+        if (!_activeRun) {
+          setStage(1);
+          const lv = document.getElementById('live-train');
+          if (lv) lv.textContent = `${running.epochs}e / lr ${running.learning_rate} / bs ${running.batch_size}`;
+        }
+      } else if (!running && _liveFinetuneId && !_activeRun && !_simIv) {
+        _liveFinetuneId = null;
+        document.getElementById('active-banner').style.display = 'none';
+        STAGES.forEach(id => { document.getElementById(id).className = 'stage-card'; });
+        ARROWS.forEach(id  => { document.getElementById(id).className = 'stage-conn'; });
+        STAGES.forEach(id  => {
+          const lv = document.getElementById('live-' + id.replace('st-',''));
+          if (lv) lv.textContent = '—';
+        });
+        logLine('Finetune completed — backend idle', 'info');
+      }
+    } catch { /* soft fail */ }
+  }
+  pollActiveFinetune();
+  setInterval(pollActiveFinetune, 8000);
+
   function launchPipeline() {
     if (_activeRun) { logLine('Pipeline already running', 'warn'); return; }
+    if (_liveFinetuneId) { logLine('ERROR: Live finetune active on backend — wait for completion before launching pipeline', 'warn'); return; }
     const model   = document.getElementById('pl-model').value.trim();
     const backend = document.getElementById('pl-backend').value;
     const node    = document.getElementById('pl-node').value;
