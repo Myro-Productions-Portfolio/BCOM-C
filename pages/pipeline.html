@@ -1,132 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pipeline — BCOM-C</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BCOM-C — Pipeline</title>
 <script>
   (function(){
-    var t=localStorage.getItem('bcom-theme')||'dark';
-    document.documentElement.setAttribute('data-theme',t);
-    try{var r=localStorage.getItem('bcom-theme-vars');if(r){var v=JSON.parse(r);Object.keys(v).forEach(function(k){document.documentElement.style.setProperty(k,v[k]);});}}catch(_){}
+    var t=localStorage.getItem("bcom-theme")||"dark";
+    document.documentElement.setAttribute("data-theme",t);
+    try { var raw=localStorage.getItem("bcom-theme-vars"); if(raw){ var vars=JSON.parse(raw); Object.keys(vars).forEach(function(k){ document.documentElement.style.setProperty(k,vars[k]); }); } } catch(_) {}
   })();
 </script>
-<link rel="stylesheet" href="../assets/css/bcom.css?v=3">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="../assets/css/bcom.css?v=3" />
 <style>
-/* ── Stage Flow ─────────────────────────────────────────── */
-.stage-flow-wrap{overflow-x:auto;padding:4px 0 0}
-.stage-flow{display:flex;align-items:center;gap:0;min-width:max-content;padding:20px 2px 0}
+  /* ── Stage Flow ──────────────────────────────────────────────────── */
+  .stage-flow-wrap { overflow-x: auto; padding: 4px 0 0; }
+  .stage-flow      { display: flex; align-items: center; gap: 0; min-width: max-content; padding: 20px 2px 0; }
 
-.stage-card{flex-shrink:0;width:128px;border:1px solid #1a0d05;background:#060402;position:relative;padding:20px 10px 12px;cursor:default;transition:border-color .25s,background .25s,box-shadow .25s}
-.stage-card::before{content:'';position:absolute;top:4px;left:4px;width:10px;height:10px;border-top:1.5px solid #1e1008;border-left:1.5px solid #1e1008;transition:border-color .25s}
-.stage-card::after{content:'';position:absolute;bottom:4px;right:4px;width:10px;height:10px;border-bottom:1.5px solid #1e1008;border-right:1.5px solid #1e1008;transition:border-color .25s}
-.stage-card.active{border-color:var(--orange-dark);background:#0b0603;animation:stage-pulse 2.4s ease-in-out infinite}
-.stage-card.active::before,.stage-card.active::after{border-color:var(--orange)}
-.stage-card.done{border-color:#1a2e1a;background:#050705}
-.stage-card.done::before,.stage-card.done::after{border-color:#27ae60}
-.stage-card.error{border-color:#3a1010}
-.stage-card.error::before,.stage-card.error::after{border-color:#e74c3c}
-@keyframes stage-pulse{0%,100%{box-shadow:0 0 6px rgba(218,119,86,.10)}50%{box-shadow:0 0 22px rgba(218,119,86,.32),inset 0 0 24px rgba(218,119,86,.04)}}
+  /* ── Stage Card ──────────────────────────────────────────────────── */
+  .stage-card {
+    flex-shrink: 0; width: 128px;
+    border: 1px solid #1a0d05;
+    background: #060402;
+    position: relative;
+    padding: 20px 10px 12px;
+    cursor: default;
+    transition: border-color .25s, background .25s, box-shadow .25s;
+  }
 
-.stage-num{position:absolute;top:5px;right:8px;font-size:8px;letter-spacing:2.5px;font-weight:700;color:#1e1008;transition:color .25s}
-.stage-card.active .stage-num{color:var(--orange-dark)}
-.stage-card.done   .stage-num{color:#27ae60}
-.stage-card.error  .stage-num{color:#e74c3c}
+  /* Corner bracket TL */
+  .stage-card::before {
+    content: '';
+    position: absolute; top: 4px; left: 4px;
+    width: 10px; height: 10px;
+    border-top: 1.5px solid #1e1008;
+    border-left: 1.5px solid #1e1008;
+    transition: border-color .25s;
+  }
+  /* Corner bracket BR */
+  .stage-card::after {
+    content: '';
+    position: absolute; bottom: 4px; right: 4px;
+    width: 10px; height: 10px;
+    border-bottom: 1.5px solid #1e1008;
+    border-right: 1.5px solid #1e1008;
+    transition: border-color .25s;
+  }
 
-.stage-icon-box{width:44px;height:44px;border:1px solid #1a0d05;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;position:relative;transition:border-color .25s}
-.stage-icon-box::before{content:'';position:absolute;top:-3px;left:-3px;width:5px;height:5px;background:#1a0d05;transition:background .25s}
-.stage-card.active .stage-icon-box{border-color:var(--orange-dark)}
-.stage-card.active .stage-icon-box::before{background:var(--orange-dark)}
-.stage-card.done   .stage-icon-box{border-color:#1a2e1a}
-.stage-card.done   .stage-icon-box::before{background:#27ae60}
-.stage-icon-box svg{width:22px;height:22px;overflow:visible}
-.stage-icon-box svg .ico{fill:none;stroke:#252525;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
-.stage-icon-box svg .ico-fill{fill:#1a1a1a;stroke:none;transition:fill .25s}
-.stage-card.active .stage-icon-box svg .ico{stroke:var(--orange)}
-.stage-card.active .stage-icon-box svg .ico-fill{fill:var(--orange-dark)}
-.stage-card.done   .stage-icon-box svg .ico{stroke:#27ae60}
-.stage-card.done   .stage-icon-box svg .ico-fill{fill:#27ae60}
-.stage-card.error  .stage-icon-box svg .ico{stroke:#e74c3c}
+  /* Active state */
+  .stage-card.active {
+    border-color: var(--orange-dark);
+    background: #0b0603;
+    animation: stage-pulse 2.4s ease-in-out infinite;
+  }
+  .stage-card.active::before,
+  .stage-card.active::after { border-color: var(--orange); }
 
-.stage-name{font-size:10px;letter-spacing:2px;font-weight:700;text-align:center;color:#2a2a2a;transition:color .25s}
-.stage-card.active .stage-name{color:var(--orange)}
-.stage-card.done   .stage-name{color:#27ae60}
-.stage-card.error  .stage-name{color:#e74c3c}
-.stage-sub{font-size:8.5px;letter-spacing:1px;text-align:center;color:#1e1e1e;margin-top:3px;transition:color .25s}
-.stage-card.active .stage-sub{color:#888}
-.stage-card.done   .stage-sub{color:#3a6a3a}
-.stage-live{font-size:9px;letter-spacing:.5px;text-align:center;color:#161616;margin-top:8px;min-height:14px;font-family:'Courier New',monospace;border-top:1px solid #0e0805;padding-top:6px;transition:color .25s,border-color .25s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stage-card.active .stage-live{color:var(--orange-dark);border-top-color:#1e1008}
-.stage-card.done   .stage-live{color:#2a5a2a;border-top-color:#1a2e1a}
+  /* Done state */
+  .stage-card.done { border-color: #1a2e1a; background: #050705; }
+  .stage-card.done::before,
+  .stage-card.done::after  { border-color: #27ae60; }
 
-.stage-conn{flex-shrink:0;display:flex;align-items:center;padding-bottom:52px;margin:0 -1px}
-.conn-line{width:22px;height:1px;background:#150c05;transition:background .25s}
-.conn-arrow{width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid #150c05;flex-shrink:0;transition:border-left-color .25s}
-.stage-conn.lit .conn-line{background:var(--orange-dark)}
-.stage-conn.lit .conn-arrow{border-left-color:var(--orange-dark)}
+  /* Error state */
+  .stage-card.error { border-color: #3a1010; }
+  .stage-card.error::before,
+  .stage-card.error::after { border-color: #e74c3c; }
 
-.loop-back{display:flex;align-items:flex-start;min-width:max-content;padding:0 64px;margin-top:0}
-.lb-stem-l,.lb-stem-r{width:1px;height:18px;background:#1a0d05;flex-shrink:0;transition:background .25s}
-.lb-line{flex:1;height:1px;background:#1a0d05;margin-top:17px;display:flex;align-items:center;justify-content:center;position:relative;transition:background .25s}
-.lb-label{position:absolute;background:#060402;padding:0 10px;font-size:8px;letter-spacing:2.5px;color:#1a0d05;white-space:nowrap;transition:color .25s}
-.lb-arrow{position:absolute;left:0;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-right:6px solid #1a0d05;transform:translateX(-6px);transition:border-right-color .25s}
-.loop-back.lit .lb-stem-l,.loop-back.lit .lb-stem-r{background:var(--orange-dark)}
-.loop-back.lit .lb-line{background:var(--orange-dark)}
-.loop-back.lit .lb-label{color:var(--orange-dark)}
-.loop-back.lit .lb-arrow{border-right-color:var(--orange-dark)}
+  @keyframes stage-pulse {
+    0%,100% { box-shadow: 0 0 6px rgba(218,119,86,.10); }
+    50%      { box-shadow: 0 0 22px rgba(218,119,86,.32), inset 0 0 24px rgba(218,119,86,.04); }
+  }
 
-.iter-badge{float:right;font-size:9px;letter-spacing:1.5px;color:#252525;transition:color .25s}
-.iter-badge.lit{color:var(--orange-dark)}
+  /* Stage number badge */
+  .stage-num {
+    position: absolute; top: 5px; right: 8px;
+    font-size: 8px; letter-spacing: 2.5px; font-weight: 700;
+    color: #1e1008; transition: color .25s;
+  }
+  .stage-card.active .stage-num { color: var(--orange-dark); }
+  .stage-card.done   .stage-num { color: #27ae60; }
+  .stage-card.error  .stage-num { color: #e74c3c; }
 
-/* ── Active banner ──────────────────────────────────────── */
-.active-banner{border:1px solid var(--orange-dark);padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:#0c0703;margin-top:12px}
-.banner-field{font-size:11px;letter-spacing:1px;color:#ccc}
-.banner-field span{color:var(--orange);display:block;margin-top:2px;font-weight:700}
-.prog-track{background:#0e0905;height:6px;margin-top:6px;flex:1;min-width:120px}
-.prog-fill{height:6px;background:var(--orange-dark);transition:width .4s}
+  /* Icon box */
+  .stage-icon-box {
+    width: 44px; height: 44px;
+    border: 1px solid #1a0d05;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+    position: relative;
+    transition: border-color .25s;
+  }
+  /* small dot accent on icon box TL */
+  .stage-icon-box::before {
+    content: '';
+    position: absolute; top: -3px; left: -3px;
+    width: 5px; height: 5px;
+    background: #1a0d05; transition: background .25s;
+  }
+  .stage-card.active .stage-icon-box         { border-color: var(--orange-dark); }
+  .stage-card.active .stage-icon-box::before { background: var(--orange-dark); }
+  .stage-card.done   .stage-icon-box         { border-color: #1a2e1a; }
+  .stage-card.done   .stage-icon-box::before { background: #27ae60; }
 
-/* ── Pipeline cards ─────────────────────────────────────── */
-.pl-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
-.pl-section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+  /* SVG icon paths */
+  .stage-icon-box svg {
+    width: 22px; height: 22px; overflow: visible;
+  }
+  .stage-icon-box svg .ico {
+    fill: none;
+    stroke: #252525;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke .25s;
+  }
+  .stage-icon-box svg .ico-fill {
+    fill: #1a1a1a; stroke: none; transition: fill .25s;
+  }
+  .stage-card.active .stage-icon-box svg .ico      { stroke: var(--orange); }
+  .stage-card.active .stage-icon-box svg .ico-fill { fill: var(--orange-dark); }
+  .stage-card.done   .stage-icon-box svg .ico      { stroke: #27ae60; }
+  .stage-card.done   .stage-icon-box svg .ico-fill { fill: #27ae60; }
+  .stage-card.error  .stage-icon-box svg .ico      { stroke: #e74c3c; }
 
-/* ── Config form ─────────────────────────────────────────── */
-.cfg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.cfg-grid.g2{grid-template-columns:repeat(2,1fr)}
-@media(max-width:600px){.cfg-grid,.cfg-grid.g2{grid-template-columns:1fr}}
-.cfg-group label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.cfg-group input,.cfg-group select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box}
-.cfg-group select option{background:var(--card)}
+  /* Stage text */
+  .stage-name {
+    font-size: 10px; letter-spacing: 2px; font-weight: 700;
+    text-align: center; color: #2a2a2a; transition: color .25s;
+  }
+  .stage-card.active .stage-name { color: var(--orange); }
+  .stage-card.done   .stage-name { color: #27ae60; }
+  .stage-card.error  .stage-name { color: #e74c3c; }
 
-/* ── Run history ─────────────────────────────────────────── */
-.pl-table{width:100%;border-collapse:collapse;font-size:12px;letter-spacing:.5px}
-.pl-table th{text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:1px solid var(--border)}
-.pl-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--fg);vertical-align:middle}
-.pl-table tr:hover td{background:rgba(255,255,255,.025);cursor:pointer}
-.run-status{display:inline-block;font-size:10px;letter-spacing:1.5px;padding:2px 8px;border:1px solid}
-.run-status.running{color:#27ae60;border-color:#27ae60}
-.run-status.queued{color:#f39c12;border-color:#f39c12}
-.run-status.done,.run-status.completed{color:#444;border-color:#333}
-.run-status.error,.run-status.failed{color:#e74c3c;border-color:#e74c3c}
-.run-status.cancelled{color:#888;border-color:#555}
+  .stage-sub {
+    font-size: 8.5px; letter-spacing: 1px; text-align: center;
+    color: #1e1e1e; margin-top: 3px; transition: color .25s;
+  }
+  .stage-card.active .stage-sub { color: #888; }
+  .stage-card.done   .stage-sub { color: #3a6a3a; }
 
-/* ── Loss chart ─────────────────────────────────────────── */
-.loss-chart-wrap{position:relative;height:220px}
+  /* Live metric line inside card (updates when running) */
+  .stage-live {
+    font-size: 9px; letter-spacing: .5px; text-align: center;
+    color: #161616; margin-top: 8px; min-height: 14px;
+    font-family: 'Courier New', monospace;
+    border-top: 1px solid #0e0805; padding-top: 6px;
+    transition: color .25s, border-color .25s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .stage-card.active .stage-live { color: var(--orange-dark); border-top-color: #1e1008; }
+  .stage-card.done   .stage-live { color: #2a5a2a; border-top-color: #1a2e1a; }
 
-/* ── Events log ─────────────────────────────────────────── */
-.ev-log{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 14px;max-height:180px;overflow-y:auto;font-family:'Courier New',monospace;font-size:11px}
-.ev-log-line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03);color:var(--muted)}
-.ev-log-line.info{color:var(--fg)}
-.ev-log-line.warn{color:#f39c12}
-.ev-log-line.err{color:#e74c3c}
-.ev-log-line .ev-time{color:#333;margin-right:8px}
+  /* ── Connector ────────────────────────────────────────────────────── */
+  .stage-conn {
+    flex-shrink: 0;
+    display: flex; align-items: center;
+    padding-bottom: 52px; /* vertically centers on icon area */
+    margin: 0 -1px;
+  }
+  .conn-line {
+    width: 22px; height: 1px; background: #150c05; transition: background .25s;
+  }
+  .conn-arrow {
+    width: 0; height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid #150c05;
+    flex-shrink: 0; transition: border-left-color .25s;
+  }
+  .stage-conn.lit .conn-line  { background: var(--orange-dark); }
+  .stage-conn.lit .conn-arrow { border-left-color: var(--orange-dark); }
+
+  /* ── Loop-back indicator ─────────────────────────────────────────── */
+  .loop-back {
+    display: flex; align-items: flex-start;
+    min-width: max-content;
+    padding: 0 64px; /* aligns roughly under centers of first/last cards */
+    margin-top: 0;
+  }
+  .lb-stem-l, .lb-stem-r {
+    width: 1px; height: 18px; background: #1a0d05; flex-shrink: 0;
+    transition: background .25s;
+  }
+  .lb-line {
+    flex: 1; height: 1px; background: #1a0d05;
+    margin-top: 17px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; transition: background .25s;
+  }
+  .lb-label {
+    position: absolute;
+    background: #060402; padding: 0 10px;
+    font-size: 8px; letter-spacing: 2.5px; color: #1a0d05;
+    white-space: nowrap; transition: color .25s;
+  }
+  /* left arrowhead pointing left */
+  .lb-arrow {
+    position: absolute; left: 0;
+    width: 0; height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-right: 6px solid #1a0d05;
+    transform: translateX(-6px); transition: border-right-color .25s;
+  }
+  .loop-back.lit .lb-stem-l,
+  .loop-back.lit .lb-stem-r { background: var(--orange-dark); }
+  .loop-back.lit .lb-line   { background: var(--orange-dark); }
+  .loop-back.lit .lb-label  { color: var(--orange-dark); }
+  .loop-back.lit .lb-arrow  { border-right-color: var(--orange-dark); }
+
+  /* ── Run table ───────────────────────────────────────────────────── */
+  .run-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
+  .run-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px;
+                  padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .run-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
+  .run-table tr[data-run]:hover td { background:#0e0905; cursor:pointer; }
+  .run-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
+  .run-status { display:inline-block; font-size:10px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
+  .run-status.running { color:#27ae60; border-color:#27ae60; }
+  .run-status.queued  { color:#f39c12; border-color:#f39c12; }
+  .run-status.done    { color:#444;    border-color:#333; }
+  .run-status.error   { color:#e74c3c; border-color:#e74c3c; }
+
+  /* ── Run detail panel ────────────────────────────────────────────── */
+  .run-detail {
+    border: 1px solid var(--orange-dark); background: #070402;
+    padding: 14px 16px; margin-top: 2px; display: none;
+  }
+  .run-detail.open { display: block; }
+  .run-detail-hdr {
+    font-size: 10px; letter-spacing: 2px; color: var(--orange);
+    margin-bottom: 10px; display: flex; justify-content: space-between;
+  }
+  .run-detail-stages {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .rd-stage {
+    border: 1px solid #1a0d05; padding: 8px 12px; font-size: 10px;
+    letter-spacing: 1px; color: #555; flex: 1; min-width: 100px;
+  }
+  .rd-stage.done  { border-color: #1a2e1a; color: #27ae60; }
+  .rd-stage.error { border-color: #3a1010; color: #e74c3c; }
+  .rd-stage-name  { font-weight: 700; font-size: 9px; letter-spacing: 2px; margin-bottom: 4px; }
+  .rd-stage-val   { font-size: 10px; color: inherit; }
+
+  /* ── Active pipeline banner ──────────────────────────────────────── */
+  .active-banner {
+    border: 1px solid var(--orange-dark); padding: 12px 16px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: #0c0703; margin-top: 12px;
+  }
+  .banner-field { font-size:11px; letter-spacing:1px; color:#ccc; }
+  .banner-field span { color:var(--orange); display:block; margin-top:2px; font-weight:700; }
+  .prog-track { background:#0e0905; height:6px; margin-top:6px; flex:1; min-width:120px; }
+  .prog-fill  { height:6px; background:var(--orange-dark); transition:width .4s; }
+
+  /* Iteration badge in card header */
+  .iter-badge { float: right; font-size: 9px; letter-spacing: 1.5px; color: #252525; transition: color .25s; }
+  .iter-badge.lit { color: var(--orange-dark); }
 </style>
 </head>
 <body>
+
 <div class="topbar">
   <div class="topbar-title">BCOM-C</div>
   <div class="topbar-right">
-    <a class="nav-btn" href="../index.html">DASHBOARD</a>
+    <a class="nav-btn" href="../index.html"><span class="nav-arrow">&#8592;</span> DASHBOARD</a>
     <a class="nav-btn" href="data-gen.html">DATA GEN</a>
     <a class="nav-btn active" href="pipeline.html">PIPELINE</a>
     <a class="nav-btn" href="resources.html">RESOURCES</a>
@@ -137,485 +276,636 @@
   </div>
 </div>
 
-<div class="bcom-page">
-  <div class="bcom-page-header">
-    <h1 class="bcom-page-title">Pipeline</h1>
-    <div class="bcom-page-actions">
-      <button class="bcom-btn bcom-btn-sm bcom-btn-danger" id="btn-cancel" style="display:none" onclick="cancelActivePipeline()">■ CANCEL</button>
-      <span id="pl-last-refresh" style="font-size:11px;color:var(--muted)">—</span>
+<div class="actionbar">
+  <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>
+  <button class="action-btn danger" onclick="triggerAction('RESTART LLM')">RESTART LLM</button>
+  <button class="action-btn" onclick="launchPipeline()">&#9654; LAUNCH PIPELINE</button>
+  <button class="action-btn" id="btn-stop" style="display:none" onclick="stopPipeline()">&#9632; STOP</button>
+</div>
+
+<div class="main">
+  <div class="info-grid">
+
+    <!-- PIPELINE STAGE FLOW -->
+    <div class="info-card">
+      <div class="info-card-hdr">
+        Closed-Loop Pipeline
+        <span class="iter-badge" id="iter-badge">ITER — / —</span>
+      </div>
+
+      <div class="stage-flow-wrap">
+        <div class="stage-flow" id="stage-flow">
+
+          <!-- 01 DATA GEN -->
+          <div class="stage-card" id="st-data">
+            <span class="stage-num">01</span>
+            <div class="stage-icon-box">
+              <!-- database rows / data table icon -->
+              <svg viewBox="0 0 22 22">
+                <rect class="ico" x="2" y="3"   width="18" height="4"  rx=".5"/>
+                <rect class="ico" x="2" y="9"   width="18" height="4"  rx=".5"/>
+                <rect class="ico" x="2" y="15"  width="11" height="4"  rx=".5"/>
+                <path class="ico" d="M15 15 L20 17 L15 19"/>
+              </svg>
+            </div>
+            <div class="stage-name">DATA GEN</div>
+            <div class="stage-sub">Q&amp;A PAIRS</div>
+            <div class="stage-live" id="live-data">—</div>
+          </div>
+
+          <div class="stage-conn" id="arr-0">
+            <div class="conn-line"></div><div class="conn-arrow"></div>
+          </div>
+
+          <!-- 02 FINE-TUNE -->
+          <div class="stage-card" id="st-train">
+            <span class="stage-num">02</span>
+            <div class="stage-icon-box">
+              <!-- neural net: 2 input, 1 hidden, 2 output -->
+              <svg viewBox="0 0 22 22">
+                <circle class="ico" cx="3"  cy="6"  r="2"/>
+                <circle class="ico" cx="3"  cy="16" r="2"/>
+                <circle class="ico" cx="11" cy="11" r="2.5"/>
+                <circle class="ico" cx="19" cy="7"  r="2"/>
+                <circle class="ico" cx="19" cy="15" r="2"/>
+                <line class="ico" x1="5"  y1="6.8"  x2="8.5"  y2="10"/>
+                <line class="ico" x1="5"  y1="15.2" x2="8.5"  y2="12"/>
+                <line class="ico" x1="13.5" y1="10"   x2="17" y2="7.8"/>
+                <line class="ico" x1="13.5" y1="12"   x2="17" y2="14.2"/>
+                <line class="ico" x1="3" y1="8" x2="3" y2="14"/>
+              </svg>
+            </div>
+            <div class="stage-name">FINE-TUNE</div>
+            <div class="stage-sub">LoRA</div>
+            <div class="stage-live" id="live-train">—</div>
+          </div>
+
+          <div class="stage-conn" id="arr-1">
+            <div class="conn-line"></div><div class="conn-arrow"></div>
+          </div>
+
+          <!-- 03 DEPLOY -->
+          <div class="stage-card" id="st-deploy">
+            <span class="stage-num">03</span>
+            <div class="stage-icon-box">
+              <!-- server rack + upload arrow -->
+              <svg viewBox="0 0 22 22">
+                <rect class="ico" x="3"  y="13" width="16" height="6" rx="1"/>
+                <circle class="ico-fill" cx="6.5" cy="16" r="1"/>
+                <circle class="ico-fill" cx="9.5" cy="16" r="1"/>
+                <rect class="ico" x="3"  y="8.5" width="16" height="4" rx=".5"/>
+                <circle class="ico-fill" cx="6.5" cy="10.5" r=".8"/>
+                <line  class="ico" x1="11" y1="7" x2="11" y2="1"/>
+                <path  class="ico" d="M8 4 L11 1 L14 4"/>
+              </svg>
+            </div>
+            <div class="stage-name">DEPLOY</div>
+            <div class="stage-sub">vLLM / OLLAMA</div>
+            <div class="stage-live" id="live-deploy">—</div>
+          </div>
+
+          <div class="stage-conn" id="arr-2">
+            <div class="conn-line"></div><div class="conn-arrow"></div>
+          </div>
+
+          <!-- 04 EVAL -->
+          <div class="stage-card" id="st-eval">
+            <span class="stage-num">04</span>
+            <div class="stage-icon-box">
+              <!-- star for eval/scoring -->
+              <svg viewBox="0 0 22 22">
+                <path class="ico" d="M11 2 L13.2 8 L19.5 8 L14.5 11.8 L16.5 18 L11 14.2 L5.5 18 L7.5 11.8 L2.5 8 L8.8 8 Z"/>
+              </svg>
+            </div>
+            <div class="stage-name">EVAL</div>
+            <div class="stage-sub">JUDGE + SUITE</div>
+            <div class="stage-live" id="live-eval">—</div>
+          </div>
+
+          <div class="stage-conn" id="arr-3">
+            <div class="conn-line"></div><div class="conn-arrow"></div>
+          </div>
+
+          <!-- 05 CHECK -->
+          <div class="stage-card" id="st-check">
+            <span class="stage-num">05</span>
+            <div class="stage-icon-box">
+              <!-- circle checkmark -->
+              <svg viewBox="0 0 22 22">
+                <circle class="ico" cx="11" cy="11" r="8"/>
+                <path class="ico" d="M7.5 11 L10 13.5 L15 8"/>
+                <!-- small loop indicator bottom-right -->
+                <path class="ico" d="M15 14.5 Q17.5 17 15.5 19 Q13 21 11 19.5" stroke-dasharray="1.5 1.5"/>
+                <path class="ico" d="M11 19.5 L9.5 21.5 M11 19.5 L12.5 21.5"/>
+              </svg>
+            </div>
+            <div class="stage-name">CHECK</div>
+            <div class="stage-sub">PASS / LOOP</div>
+            <div class="stage-live" id="live-check">—</div>
+          </div>
+
+        </div><!-- end .stage-flow -->
+
+        <!-- Loop-back arc below the flow -->
+        <div class="loop-back" id="loop-row">
+          <div class="lb-stem-l"></div>
+          <div class="lb-line">
+            <div class="lb-arrow"></div>
+            <span class="lb-label">&#x21BA;&nbsp; LOOP &mdash; SCORE BELOW TARGET</span>
+          </div>
+          <div class="lb-stem-r"></div>
+        </div>
+
+      </div><!-- end .stage-flow-wrap -->
+
+      <!-- Active pipeline banner -->
+      <div class="active-banner" id="active-banner" style="display:none">
+        <div class="banner-field">RUN ID<span id="bp-id">--</span></div>
+        <div class="banner-field">MODEL<span id="bp-model">--</span></div>
+        <div class="banner-field">BACKEND<span id="bp-backend">--</span></div>
+        <div class="banner-field">NODE<span id="bp-node">--</span></div>
+        <div class="banner-field">ITERATION<span id="bp-iter">--</span></div>
+        <div class="banner-field">SCORE<span id="bp-score">--</span></div>
+        <div class="banner-field" style="flex:1">
+          PROGRESS
+          <div class="prog-track"><div class="prog-fill" id="bp-prog" style="width:0%"></div></div>
+        </div>
+      </div>
     </div>
+
+    <!-- LAUNCH CONFIG -->
+    <div class="info-card">
+      <div class="info-card-hdr">Pipeline Configuration</div>
+      <div class="form-body">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Base Model</label>
+            <input class="form-input" id="pl-model" type="text" placeholder="e.g. gpt-oss-20b" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Backend</label>
+            <select class="form-select" id="pl-backend">
+              <option>vLLM</option><option>Ollama</option><option>Bedrock</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Node</label>
+            <select class="form-select" id="pl-node">
+              <option value="spark">SPARK-BOB</option>
+              <option value="linux">LINUX-DSKTP</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">Eval Suite</label>
+            <input class="form-input" id="pl-suite" type="text" value="hard_15" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Score %</label>
+            <input class="form-input" id="pl-target" type="number" value="80" min="1" max="100" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Iterations</label>
+            <input class="form-input" id="pl-maxiter" type="number" value="3" min="1" />
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">LoRA Rank</label>
+            <input class="form-input" id="pl-rank" type="number" value="16" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Epochs / Iter</label>
+            <input class="form-input" id="pl-epochs" type="number" value="3" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Learning Rate</label>
+            <input class="form-input" id="pl-lr" type="text" value="0.0002" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Data Gen Count / Iter</label>
+            <input class="form-input" id="pl-dgcount" type="number" value="200" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data Domain</label>
+            <input class="form-input" id="pl-domain" type="text" placeholder="e.g. IAM, S3" />
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:1px;color:#ccc;cursor:pointer;">
+            <input type="checkbox" id="pl-auto" style="accent-color:var(--orange-dark);" /> AUTO-LOOP UNTIL TARGET
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:1px;color:#ccc;cursor:pointer;">
+            <input type="checkbox" id="pl-notify" checked /> NOTIFY ON COMPLETE
+          </label>
+        </div>
+        <button class="form-submit" style="margin-top:12px;" onclick="launchPipeline()">&#9654; Launch Pipeline</button>
+        <div class="form-output" id="pl-output">--</div>
+      </div>
+    </div>
+
+    <!-- PIPELINE RUN HISTORY -->
+    <div class="info-card">
+      <div class="info-card-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Run History <span style="font-size:9px;color:#555;letter-spacing:1px;">— click row to inspect</span></span>
+        <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="exportRuns()">&#8659; Export</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="run-table">
+          <thead>
+            <tr><th>RUN ID</th><th>MODEL</th><th>BACKEND</th><th>NODE</th><th>SUITE</th><th>ITERS</th><th>FINAL SCORE</th><th>TARGET</th><th>STATUS</th><th>DURATION</th></tr>
+          </thead>
+          <tbody id="run-history-body">
+            <tr><td colspan="10" class="empty">NO PIPELINE RUNS YET</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Run detail drill-down (hidden by default) -->
+      <div class="run-detail" id="run-detail">
+        <div class="run-detail-hdr">
+          <span>RUN DETAIL — <span id="rd-id">--</span></span>
+          <span style="cursor:pointer;color:#555;" onclick="closeDetail()">&#10005; CLOSE</span>
+        </div>
+        <div class="run-detail-stages" id="rd-stages"></div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Stage Flow -->
-  <div class="pl-section">
-    <div class="pl-section-title">
-      Closed-Loop Pipeline
-      <span class="iter-badge" id="iter-badge">ITER — / —</span>
+  <div class="log-panel" id="log">
+    <div class="log-line"><span class="log-time">--:--:--</span><span class="log-msg info">PIPELINE module ready. Configure and launch a run.</span></div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>BOB-AI // BCOM-C v0.1</span>
+  <span id="footer-date"></span>
+  <span>SESSION ACTIVE</span>
+</div>
+
+<!-- TERMINAL DOCK -->
+<div class="terminal-dock" id="terminal-dock">
+  <div class="terminal-bar">
+    <div class="terminal-tabs">
+      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
+      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
     </div>
-    <div class="stage-flow-wrap">
-      <div class="stage-flow" id="stage-flow">
-        <div class="stage-card" id="st-data">
-          <span class="stage-num">01</span>
-          <div class="stage-icon-box">
-            <svg viewBox="0 0 22 22"><rect class="ico" x="2" y="3" width="18" height="4" rx=".5"/><rect class="ico" x="2" y="9" width="18" height="4" rx=".5"/><rect class="ico" x="2" y="15" width="11" height="4" rx=".5"/><path class="ico" d="M15 15 L20 17 L15 19"/></svg>
-          </div>
-          <div class="stage-name">DATA GEN</div>
-          <div class="stage-sub">Q&amp;A PAIRS</div>
-          <div class="stage-live" id="live-data">—</div>
-        </div>
-        <div class="stage-conn" id="arr-0"><div class="conn-line"></div><div class="conn-arrow"></div></div>
-        <div class="stage-card" id="st-train">
-          <span class="stage-num">02</span>
-          <div class="stage-icon-box">
-            <svg viewBox="0 0 22 22"><circle class="ico" cx="3" cy="6" r="2"/><circle class="ico" cx="3" cy="16" r="2"/><circle class="ico" cx="11" cy="11" r="2.5"/><circle class="ico" cx="19" cy="7" r="2"/><circle class="ico" cx="19" cy="15" r="2"/><line class="ico" x1="5" y1="6.8" x2="8.5" y2="10"/><line class="ico" x1="5" y1="15.2" x2="8.5" y2="12"/><line class="ico" x1="13.5" y1="10" x2="17" y2="7.8"/><line class="ico" x1="13.5" y1="12" x2="17" y2="14.2"/><line class="ico" x1="3" y1="8" x2="3" y2="14"/></svg>
-          </div>
-          <div class="stage-name">FINE-TUNE</div>
-          <div class="stage-sub">LoRA</div>
-          <div class="stage-live" id="live-train">—</div>
-        </div>
-        <div class="stage-conn" id="arr-1"><div class="conn-line"></div><div class="conn-arrow"></div></div>
-        <div class="stage-card" id="st-deploy">
-          <span class="stage-num">03</span>
-          <div class="stage-icon-box">
-            <svg viewBox="0 0 22 22"><rect class="ico" x="3" y="13" width="16" height="6" rx="1"/><circle class="ico-fill" cx="6.5" cy="16" r="1"/><circle class="ico-fill" cx="9.5" cy="16" r="1"/><rect class="ico" x="3" y="8.5" width="16" height="4" rx=".5"/><circle class="ico-fill" cx="6.5" cy="10.5" r=".8"/><line class="ico" x1="11" y1="7" x2="11" y2="1"/><path class="ico" d="M8 4 L11 1 L14 4"/></svg>
-          </div>
-          <div class="stage-name">DEPLOY</div>
-          <div class="stage-sub">vLLM / OLLAMA</div>
-          <div class="stage-live" id="live-deploy">—</div>
-        </div>
-        <div class="stage-conn" id="arr-2"><div class="conn-line"></div><div class="conn-arrow"></div></div>
-        <div class="stage-card" id="st-eval">
-          <span class="stage-num">04</span>
-          <div class="stage-icon-box">
-            <svg viewBox="0 0 22 22"><path class="ico" d="M11 2 L13.2 8 L19.5 8 L14.5 11.8 L16.5 18 L11 14.2 L5.5 18 L7.5 11.8 L2.5 8 L8.8 8 Z"/></svg>
-          </div>
-          <div class="stage-name">EVAL</div>
-          <div class="stage-sub">JUDGE + SUITE</div>
-          <div class="stage-live" id="live-eval">—</div>
-        </div>
-        <div class="stage-conn" id="arr-3"><div class="conn-line"></div><div class="conn-arrow"></div></div>
-        <div class="stage-card" id="st-check">
-          <span class="stage-num">05</span>
-          <div class="stage-icon-box">
-            <svg viewBox="0 0 22 22"><circle class="ico" cx="11" cy="11" r="8"/><path class="ico" d="M7.5 11 L10 13.5 L15 8"/><path class="ico" d="M15 14.5 Q17.5 17 15.5 19 Q13 21 11 19.5" stroke-dasharray="1.5 1.5"/><path class="ico" d="M11 19.5 L9.5 21.5 M11 19.5 L12.5 21.5"/></svg>
-          </div>
-          <div class="stage-name">CHECK</div>
-          <div class="stage-sub">PASS / LOOP</div>
-          <div class="stage-live" id="live-check">—</div>
-        </div>
-      </div>
-      <div class="loop-back" id="loop-row">
-        <div class="lb-stem-l"></div>
-        <div class="lb-line">
-          <div class="lb-arrow"></div>
-          <span class="lb-label">↺ LOOP — SCORE BELOW TARGET</span>
-        </div>
-        <div class="lb-stem-r"></div>
-      </div>
-    </div>
-    <!-- Active banner -->
-    <div class="active-banner" id="active-banner" style="display:none">
-      <div class="banner-field">RUN ID<span id="bp-id">--</span></div>
-      <div class="banner-field">MODEL<span id="bp-model">--</span></div>
-      <div class="banner-field">STAGE<span id="bp-stage">--</span></div>
-      <div class="banner-field">ITERATION<span id="bp-iter">--</span></div>
-      <div class="banner-field">SCORE<span id="bp-score">--</span></div>
-      <div class="banner-field" style="flex:1">
-        PROGRESS
-        <div class="prog-track"><div class="prog-fill" id="bp-prog" style="width:0%"></div></div>
-      </div>
+      <div class="terminal-tab" data-term="shell">SHELL</div>
+    <div class="terminal-controls">
+      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
     </div>
   </div>
-
-  <!-- Two columns: Config + Events -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
-
-    <!-- Launch Config -->
-    <div class="pl-section">
-      <div class="pl-section-title">Pipeline Configuration</div>
-      <div class="cfg-grid" style="margin-bottom:10px">
-        <div class="cfg-group"><label>Base Model</label><input id="pl-model" type="text" placeholder="e.g. llama3-8b"></div>
-        <div class="cfg-group"><label>Backend</label><select id="pl-backend"><option>vLLM</option><option>Ollama</option><option>Bedrock</option></select></div>
-        <div class="cfg-group"><label>Node</label><select id="pl-node"><option value="spark">SPARK-BOB</option><option value="linux">LINUX-DSKTP</option></select></div>
-      </div>
-      <div class="cfg-grid" style="margin-bottom:10px">
-        <div class="cfg-group"><label>Eval Suite</label><input id="pl-suite" type="text" value="hard_15"></div>
-        <div class="cfg-group"><label>Target Score %</label><input id="pl-target" type="number" value="80" min="1" max="100"></div>
-        <div class="cfg-group"><label>Max Iterations</label><input id="pl-maxiter" type="number" value="3" min="1"></div>
-      </div>
-      <div class="cfg-grid" style="margin-bottom:10px">
-        <div class="cfg-group"><label>LoRA Rank</label><input id="pl-rank" type="number" value="16" min="1"></div>
-        <div class="cfg-group"><label>Epochs / Iter</label><input id="pl-epochs" type="number" value="3" min="1"></div>
-        <div class="cfg-group"><label>Learning Rate</label><input id="pl-lr" type="text" value="0.0002"></div>
-      </div>
-      <div class="cfg-grid g2" style="margin-bottom:14px">
-        <div class="cfg-group"><label>Data Gen Count / Iter</label><input id="pl-dgcount" type="number" value="200" min="1"></div>
-        <div class="cfg-group"><label>Data Domain</label><input id="pl-domain" type="text" placeholder="e.g. IAM, S3"></div>
-      </div>
-      <button class="bcom-btn" onclick="launchPipeline()" style="width:100%">▶ Launch Pipeline</button>
-      <div id="pl-output" style="margin-top:10px;font-size:12px;color:var(--muted);font-family:monospace">—</div>
+  <div class="terminal-body" id="terminal-body">
+    <div class="terminal-output" id="term-out-spark">
+      <div class="term-line sys">[bcom-c] pipeline terminal ready</div>
     </div>
-
-    <!-- Live Events -->
-    <div class="pl-section">
-      <div class="pl-section-title">
-        Live Events
-        <button class="bcom-btn bcom-btn-sm" onclick="clearLog()">CLEAR</button>
-      </div>
-      <div class="ev-log" id="ev-log">
-        <div class="ev-log-line"><span class="ev-time">--:--:--</span>Pipeline module ready</div>
-      </div>
+    <div class="terminal-output" id="term-out-linux" style="display:none">
+      <div class="term-line sys">[bcom-c] pipeline terminal ready</div>
     </div>
-  </div>
-
-  <!-- Training Loss Chart -->
-  <div class="pl-section">
-    <div class="pl-section-title">Training Loss</div>
-    <div class="loss-chart-wrap">
-      <canvas id="loss-chart"></canvas>
-    </div>
-  </div>
-
-  <!-- Run History -->
-  <div class="pl-section">
-    <div class="pl-section-title">Run History</div>
-    <div style="overflow-x:auto">
-      <table class="pl-table">
-        <thead>
-          <tr><th>Run ID</th><th>Model</th><th>Backend</th><th>Suite</th><th>Iters</th><th>Score</th><th>Target</th><th>Status</th><th>Duration</th><th></th></tr>
-        </thead>
-        <tbody id="run-history-body">
-          <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No pipeline runs yet</td></tr>
-        </tbody>
-      </table>
+    <div id="xterm-container" style="display:none;flex:1;min-height:0;width:100%;background:#080808;"></div>
+    <div class="terminal-input-row">
+      <span class="term-prompt" id="term-prompt">$</span>
+      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
     </div>
   </div>
 </div>
 
 <script src="../assets/js/bcom.js?v=5"></script>
 <script>
-window.BCOM = window.BCOM || {};
-BCOM.apiBase = '';
+  BCOM.apiBase      = '';
+  BCOM.pollInterval = 5000;
+  startPolling();
 
-var _runs = [];
-var _activeId = null;
-var _sse = null;
-var _lossData = { labels: [], datasets: [] };
-var _lossChart = null;
-var _lossIter = 1;
+  const STAGES = ['st-data','st-train','st-deploy','st-eval','st-check'];
+  const ARROWS  = ['arr-0','arr-1','arr-2','arr-3'];
+  const STAGE_NAMES = ['Data Gen','Fine-Tune','Deploy','Eval','Check'];
 
-var STAGES     = ['st-data','st-train','st-deploy','st-eval','st-check'];
-var ARROWS     = ['arr-0','arr-1','arr-2','arr-3'];
-var STAGE_MAP  = { datagen:0, 'data-gen':0, data:0, finetune:1, train:1, training:1, deploy:2, eval:3, check:4, complete:4 };
+  let _runSeq = 1, _runs = [], _activeRun = null, _simIv = null;
 
-/* ── Toast ─────────────────────────────────────────────── */
-function toast(msg, type) {
-  var t = document.createElement('div');
-  t.className = 'bcom-toast' + (type === 'err' ? ' bcom-toast-err' : type === 'ok' ? ' bcom-toast-ok' : '');
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(function(){ t.remove(); }, 3500);
-}
-
-/* ── Log ────────────────────────────────────────────────── */
-function logEvent(msg, cls) {
-  var el = document.getElementById('ev-log');
-  var t  = new Date().toLocaleTimeString();
-  var div = document.createElement('div');
-  div.className = 'ev-log-line' + (cls ? ' ' + cls : '');
-  div.innerHTML = '<span class="ev-time">' + t + '</span>' + esc(msg);
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
-}
-
-window.clearLog = function() { document.getElementById('ev-log').innerHTML = ''; };
-
-/* ── Stage visuals ──────────────────────────────────────── */
-function setStage(idx, iterNum, maxIter, score) {
-  STAGES.forEach(function(id, i) {
-    var el = document.getElementById(id);
-    var cls = i < idx ? ' done' : i === idx ? ' active' : '';
-    el.className = 'stage-card' + cls;
-  });
-  ARROWS.forEach(function(id, i) {
-    document.getElementById(id).className = 'stage-conn' + (i < idx ? ' lit' : '');
-  });
-  var badge = document.getElementById('iter-badge');
-  if (iterNum !== undefined) {
-    badge.textContent = 'ITER ' + iterNum + ' / ' + (maxIter || '?');
-    badge.className = 'iter-badge lit';
+  // Stage live-metric strings for simulation
+  const STAGE_LIVE_IDLE = ['—','—','—','—','—'];
+  function stageLiveActive(idx, r) {
+    const s = [
+      `${r.dgcount||200} pairs / ${r.domain||'general'}`,
+      `rank ${r.rank||16} / ${r.epochs||3}e / lr ${r.lr||'2e-4'}`,
+      `${r.backend} → ${r.node}`,
+      `suite: ${r.suite} / judge`,
+      `target ${r.target}% / iter ${r.iter||1}`,
+    ];
+    return s[idx] || '—';
   }
-  var lb = document.getElementById('loop-row');
-  lb.className = 'loop-back' + (iterNum > 1 && idx === 0 ? ' lit' : '');
-}
+  function stageLiveDone(idx, r) {
+    const s = [
+      `${r.dgcount||200} pairs`,
+      `loss → ${(Math.random()*.08+.07).toFixed(4)}`,
+      `${r.backend} active`,
+      `score ${r.lastScore||'?'}%`,
+      r.score >= (r.target||80) ? 'PASS ✓' : 'LOOP →',
+    ];
+    return s[idx] || '—';
+  }
 
-function resetStages() {
-  STAGES.forEach(function(id) { document.getElementById(id).className = 'stage-card'; });
-  ARROWS.forEach(function(id) { document.getElementById(id).className = 'stage-conn'; });
-  STAGES.forEach(function(id) {
-    var lv = document.getElementById('live-' + id.replace('st-',''));
-    if (lv) lv.textContent = '—';
-  });
-  document.getElementById('iter-badge').textContent = 'ITER — / —';
-  document.getElementById('iter-badge').className = 'iter-badge';
-  document.getElementById('loop-row').className = 'loop-back';
-  document.getElementById('active-banner').style.display = 'none';
-  document.getElementById('btn-cancel').style.display = 'none';
-}
-
-function setLive(stageKey, text) {
-  var idx = STAGE_MAP[stageKey.toLowerCase()] || 0;
-  var id  = STAGES[idx];
-  var lv  = document.getElementById('live-' + id.replace('st-',''));
-  if (lv) lv.textContent = text;
-}
-
-/* ── Chart ──────────────────────────────────────────────── */
-function initLossChart() {
-  var ctx = document.getElementById('loss-chart').getContext('2d');
-  _lossChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: [], datasets: [] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      animation: { duration: 300 },
-      plugins: {
-        legend: { labels: { color: '#888', font: { size: 11 } } },
-        tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', borderWidth: 1, titleColor: '#ccc', bodyColor: '#ccc' }
-      },
-      scales: {
-        x: { ticks: { color: '#555', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } },
-        y: { ticks: { color: '#555', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } }
+  function setStage(idx) {
+    STAGES.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.className = 'stage-card' + (i < idx ? ' done' : i === idx ? ' active' : '');
+      const lv = document.getElementById('live-' + id.replace('st-',''));
+      if (!lv) return;
+      if (_activeRun) {
+        if (i < idx)       lv.textContent = stageLiveDone(i, _activeRun);
+        else if (i === idx) lv.textContent = stageLiveActive(i, _activeRun);
+        else                lv.textContent = '—';
       }
-    }
-  });
-}
-
-function pushLossPoint(step, loss, iterNum) {
-  var iterKey = 'iter ' + iterNum;
-  var ds = _lossChart.data.datasets.find(function(d){ return d.label === iterKey; });
-  if (!ds) {
-    var colors = ['rgba(180,90,20,1)','rgba(80,140,220,1)','rgba(60,180,100,1)','rgba(220,80,80,1)'];
-    var c = colors[(_lossChart.data.datasets.length) % colors.length];
-    ds = { label: iterKey, data: [], borderColor: c, backgroundColor: c.replace('1)','0.08)'),
-           borderWidth: 1.5, pointRadius: 2, tension: 0.3 };
-    _lossChart.data.datasets.push(ds);
-    // Keep labels synced
-    var maxLen = Math.max.apply(null, _lossChart.data.datasets.map(function(d){ return d.data.length; }));
-    _lossChart.data.labels = Array.from({ length: maxLen + 1 }, function(_, i){ return 'step ' + (i * 10); });
-  }
-  ds.data.push(loss);
-  var maxLen = Math.max.apply(null, _lossChart.data.datasets.map(function(d){ return d.data.length; }));
-  _lossChart.data.labels = Array.from({ length: maxLen }, function(_, i){ return 'step ' + (i * 10); });
-  _lossChart.update('none');
-}
-
-/* ── SSE ────────────────────────────────────────────────── */
-function openSSE(pipelineId) {
-  if (_sse) { _sse.close(); _sse = null; }
-  var url = BCOM.apiBase + '/api/pipeline/' + encodeURIComponent(pipelineId) + '/events';
-  try {
-    _sse = new EventSource(url);
-    _sse.onmessage = function(e) {
-      try { handleEvent(JSON.parse(e.data)); } catch(_) {}
-    };
-    _sse.addEventListener('stage_update', function(e) {
-      try { handleEvent(JSON.parse(e.data)); } catch(_) {}
     });
-    _sse.addEventListener('training_update', function(e) {
-      try { handleEvent(JSON.parse(e.data)); } catch(_) {}
+    ARROWS.forEach((id, i) => {
+      document.getElementById(id).className = 'stage-conn' + (i < idx ? ' lit' : '');
     });
-    _sse.addEventListener('pipeline_end', function(e) {
-      try { handleEvent(JSON.parse(e.data)); onPipelineEnd(); } catch(_) {}
-    });
-    _sse.onerror = function() { logEvent('SSE connection lost — falling back to polling', 'warn'); };
-  } catch(e) { logEvent('SSE not available: ' + e.message, 'warn'); }
-}
-
-function handleEvent(ev) {
-  var type  = ev.type || ev.event_type || '';
-  var stage = ev.stage || ev.current_stage || '';
-  var msg   = ev.message || ev.msg || '';
-  var iter  = ev.iteration || ev.iter || 1;
-  var loss  = ev.loss;
-  var score = ev.score;
-
-  if (msg) logEvent('[' + type + '] ' + msg, type === 'error' ? 'err' : 'info');
-
-  if (stage) {
-    var idx = STAGE_MAP[stage.toLowerCase()];
-    if (idx !== undefined) {
-      setStage(idx, iter, undefined, score);
-      setLive(stage, msg || stage);
-      document.getElementById('bp-stage').textContent = stage.toUpperCase();
-      document.getElementById('bp-iter').textContent  = iter;
+    // Light up loop-back when looping (stage wraps back to 0 on iter > 1)
+    const lb = document.getElementById('loop-row');
+    if (lb) lb.className = 'loop-back' + (_activeRun && _activeRun.iter > 1 && idx === 0 ? ' lit' : '');
+    // Iter badge
+    if (_activeRun) {
+      const badge = document.getElementById('iter-badge');
+      badge.textContent = `ITER ${_activeRun.iter} / ${_activeRun.maxiter}`;
+      badge.className = 'iter-badge lit';
     }
   }
-  if (typeof loss === 'number') {
-    pushLossPoint(ev.step || 0, loss, iter);
-  }
-  if (typeof score === 'number') {
-    document.getElementById('bp-score').textContent = score.toFixed ? score.toFixed(1) + '%' : score + '%';
-  }
-}
 
-function onPipelineEnd() {
-  if (_sse) { _sse.close(); _sse = null; }
-  _activeId = null;
-  resetStages();
-  pollRuns();
-  toast('Pipeline finished', 'ok');
-}
-
-/* ── Launch ─────────────────────────────────────────────── */
-window.launchPipeline = function() {
-  var model   = document.getElementById('pl-model').value.trim();
-  var backend = document.getElementById('pl-backend').value;
-  var node    = document.getElementById('pl-node').value;
-  var suite   = document.getElementById('pl-suite').value.trim() || 'hard_15';
-  var target  = parseInt(document.getElementById('pl-target').value)  || 80;
-  var maxiter = parseInt(document.getElementById('pl-maxiter').value) || 3;
-  var rank    = parseInt(document.getElementById('pl-rank').value)    || 16;
-  var epochs  = parseInt(document.getElementById('pl-epochs').value)  || 3;
-  var lr      = document.getElementById('pl-lr').value.trim()         || '0.0002';
-  var dgcount = parseInt(document.getElementById('pl-dgcount').value) || 200;
-  var domain  = document.getElementById('pl-domain').value.trim()     || 'general';
-  if (!model) { toast('Base Model required', 'err'); return; }
-
-  var body = { model_id: model, backend: backend, node: node, eval_suite: suite,
-               target_score: target / 100, max_iterations: maxiter,
-               lora_rank: rank, epochs: epochs, learning_rate: parseFloat(lr),
-               datagen_count: dgcount, domain: domain };
-
-  fetch(BCOM.apiBase + '/api/pipeline/start', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  }).then(function(r){ return r.json(); })
-    .then(function(d) {
-      var id = d.pipeline_id || d.id || d.run_id || '?';
-      _activeId = id;
-      document.getElementById('pl-output').textContent = '[' + new Date().toLocaleTimeString() + '] ' + id + ' launched';
-      document.getElementById('active-banner').style.display = 'flex';
-      document.getElementById('bp-id').textContent    = id.slice(0, 12);
-      document.getElementById('bp-model').textContent = model;
-      document.getElementById('bp-stage').textContent = 'STARTING';
-      document.getElementById('bp-iter').textContent  = '1 / ' + maxiter;
-      document.getElementById('bp-score').textContent = '—';
-      document.getElementById('btn-cancel').style.display = '';
-      setStage(0, 1, maxiter);
-      logEvent('Pipeline launched: ' + id, 'info');
-      openSSE(id);
-    })
-    .catch(function(e) { toast('Launch failed: ' + e.message, 'err'); });
-};
-
-/* ── Cancel ─────────────────────────────────────────────── */
-window.cancelActivePipeline = function() {
-  if (!_activeId) return;
-  if (!confirm('Cancel pipeline ' + _activeId + '?')) return;
-  fetch(BCOM.apiBase + '/api/pipeline/' + encodeURIComponent(_activeId) + '/cancel', { method: 'POST' })
-    .then(function(){ toast('Pipeline cancelled', 'ok'); onPipelineEnd(); })
-    .catch(function(e){ toast('Cancel failed: ' + e.message, 'err'); });
-};
-
-window.cancelRun = function(id, e) {
-  e.stopPropagation();
-  if (!confirm('Cancel ' + id + '?')) return;
-  fetch(BCOM.apiBase + '/api/pipeline/' + encodeURIComponent(id) + '/cancel', { method: 'POST' })
-    .then(function(){ toast('Cancelled', 'ok'); setTimeout(pollRuns, 1000); })
-    .catch(function(){ toast('Cancel failed', 'err'); });
-};
-
-/* ── Run history ────────────────────────────────────────── */
-function pollRuns() {
-  fetch(BCOM.apiBase + '/api/pipeline/', { cache: 'no-store' })
-    .then(function(r){ return r.json(); })
-    .then(function(data) {
-      _runs = Array.isArray(data) ? data : (data.pipelines || data.runs || data.items || []);
-      renderRuns();
-      // sync active state from server
-      var active = _runs.find(function(r){ return r.status === 'running' || r.status === 'queued'; });
-      if (active && !_activeId) {
-        _activeId = active.pipeline_id || active.id;
-        document.getElementById('active-banner').style.display = 'flex';
-        document.getElementById('bp-id').textContent    = _activeId.slice(0,12);
-        document.getElementById('bp-model').textContent = active.model_id || active.model || '—';
-        document.getElementById('btn-cancel').style.display = '';
-        openSSE(_activeId);
+  // ── Poll active deploy for banner ────────────────────────────────
+  async function pollActiveDeploy() {
+    try {
+      const res = await fetch('/api/deploy/active', { cache: 'no-store' });
+      if (!res.ok) return;
+      const d = await res.json();
+      if (d && d.status === 'active' && !_activeRun && !_ftJob) {
+        const banner = document.getElementById('active-banner');
+        banner.style.display = 'flex';
+        setText('bp-id',      d.id ? d.id.slice(0, 8) : '--');
+        setText('bp-model',   d.model_name ?? '--');
+        setText('bp-backend', d.backend    ?? '--');
+        setText('bp-node',    'SPARK-BOB');
+        setText('bp-iter',    '—');
+        setText('bp-score',   '—');
+        setStage(2); // highlight DEPLOY stage
+        document.getElementById('bp-prog').style.width = '60%';
+        // show live metric for deploy stage
+        const lv = document.getElementById('live-deploy');
+        if (lv) lv.textContent = `${d.backend} → SPARK-BOB`;
       }
-      document.getElementById('pl-last-refresh').textContent = 'updated ' + new Date().toLocaleTimeString();
-    })
-    .catch(function() {});
-}
-
-function renderRuns() {
-  var tbody = document.getElementById('run-history-body');
-  if (!_runs.length) {
-    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No pipeline runs yet</td></tr>';
-    return;
+    } catch { /* soft fail */ }
   }
-  tbody.innerHTML = _runs.slice(0, 50).map(function(r) {
-    var id     = r.pipeline_id || r.id || '?';
-    var model  = r.model_id || r.model || '—';
-    var back   = r.backend || '—';
-    var suite  = r.eval_suite || r.suite || '—';
-    var iters  = r.iterations_completed || r.iter || '—';
-    var score  = typeof r.final_score === 'number' ? (r.final_score * 100).toFixed(1) + '%'
-               : typeof r.score === 'number' ? r.score + '%' : '—';
-    var target = typeof r.target_score === 'number' ? (r.target_score * 100).toFixed(0) + '%'
-               : r.target ? r.target + '%' : '—';
-    var status = (r.status || 'unknown').toLowerCase();
-    var dur    = r.duration_s ? r.duration_s.toFixed(0) + 's' : (r.duration || '—');
-    var canCancel = status === 'running' || status === 'queued';
-    return '<tr>' +
-      '<td style="font-family:monospace;font-size:11px;color:var(--orange-dark)">' + esc(id.slice(0,12)) + '</td>' +
-      '<td>' + esc(model) + '</td>' +
-      '<td style="color:var(--muted)">' + esc(back) + '</td>' +
-      '<td style="color:var(--muted)">' + esc(suite) + '</td>' +
-      '<td>' + esc(String(iters)) + '</td>' +
-      '<td style="font-weight:600">' + score + '</td>' +
-      '<td style="color:var(--muted)">' + target + '</td>' +
-      '<td><span class="run-status ' + status + '">' + status + '</span></td>' +
-      '<td style="color:var(--muted)">' + dur + '</td>' +
-      '<td>' + (canCancel ? '<button class="bcom-btn bcom-btn-sm bcom-btn-danger" onclick="cancelRun(\'' + esc(id) + '\',event)">CANCEL</button>' : '') + '</td>' +
-      '</tr>';
-  }).join('');
-}
-
-/* ── Active deploy fallback ─────────────────────────────── */
-function pollActiveDeploy() {
-  if (_activeId) return;
-  fetch(BCOM.apiBase + '/api/deploy/active', { cache: 'no-store' })
-    .then(function(r){ return r.json(); })
-    .then(function(d) {
-      if (d && d.status === 'active') {
-        document.getElementById('active-banner').style.display = 'flex';
-        document.getElementById('bp-id').textContent    = (d.id || '').slice(0, 8);
-        document.getElementById('bp-model').textContent = d.model_name || '—';
-        document.getElementById('bp-stage').textContent = 'DEPLOY';
-        document.getElementById('bp-prog').style.width  = '60%';
-        setStage(2);
-        document.getElementById('live-deploy').textContent = (d.backend || '?') + ' active';
-      }
-    }).catch(function(){});
-}
-
-/* ── Utils ──────────────────────────────────────────────── */
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ── Init ───────────────────────────────────────────────── */
-function startPolling() {
-  initLossChart();
-  pollRuns();
   pollActiveDeploy();
-  setInterval(pollRuns, 15000);
-  setInterval(function(){ if (!_activeId) pollActiveDeploy(); }, 10000);
-}
+  setInterval(pollActiveDeploy, 10000);
 
-document.addEventListener('DOMContentLoaded', startPolling);
+  // ── Finetune job status polling ──────────────────────────────────────────
+  let _ftJob = null, _ftContainerId = null;
+
+  async function pollFinetuneLog() {
+    if (!_ftContainerId || _activeRun) return;
+    try {
+      const res = await fetch('/api/containers/' + _ftContainerId + '/logs?tail=3', { cache: 'no-store' });
+      if (!res.ok) return;
+      const d = await res.json();
+      const raw = d.logs || '';
+      // Parse last PROGRESS line: chunk X/Y: Z%  [epoch A/B  step C/D  loss=L  lr=LR]
+      const lines = raw.trim().split('\n');
+      let m = null;
+      for (let i = lines.length - 1; i >= 0; i--) {
+        const re = /PROGRESS chunk (\d+)\/(\d+): (\d+)%\s+\[epoch (\d+)\/(\d+)\s+step (\d+)\/(\d+)\s+loss=([\d.]+)/;
+        m = lines[i].match(re);
+        if (m) break;
+      }
+      if (!m) return;
+      const pct = m[3], epoch = m[4], totalEpoch = m[5], step = m[6], totalStep = m[7], loss = m[8];
+      // Live metric in FINE-TUNE stage card
+      const lv = document.getElementById('live-train');
+      if (lv) lv.textContent = 'e' + epoch + '/' + totalEpoch + ' s' + step + '/' + totalStep + ' loss=' + loss;
+      // Banner fields
+      document.getElementById('bp-iter').textContent  = 'EPOCH ' + epoch + ' / ' + totalEpoch;
+      document.getElementById('bp-score').textContent = 'LOSS ' + parseFloat(loss).toFixed(4);
+      document.getElementById('bp-prog').style.width  = pct + '%';
+      // Highlight FINE-TUNE stage and show banner
+      if (!_activeRun) {
+        document.getElementById('active-banner').style.display = 'flex';
+        setStage(1);
+      }
+    } catch(e) { /* soft fail */ }
+  }
+
+  async function pollFinetune() {
+    if (_activeRun) return;
+    try {
+      const res = await fetch('/api/finetune/', { cache: 'no-store' });
+      if (!res.ok) return;
+      const jobs = await res.json();
+      const running = jobs.find(function(j) { return j.status === 'running'; });
+      if (!running) {
+        if (_ftJob) {
+          _ftJob = null; _ftContainerId = null;
+          document.getElementById('active-banner').style.display = 'none';
+          STAGES.forEach(function(id) { document.getElementById(id).className = 'stage-card'; });
+          ARROWS.forEach(function(id)  { document.getElementById(id).className = 'stage-conn'; });
+          STAGES.forEach(function(id) {
+            const lv = document.getElementById('live-' + id.replace('st-',''));
+            if (lv) lv.textContent = '—';
+          });
+        }
+        return;
+      }
+      _ftJob = running;
+      // Resolve container ID if not yet known
+      if (!_ftContainerId) {
+        const cr = await fetch('/api/containers/', { cache: 'no-store' });
+        if (cr.ok) {
+          const containers = await cr.json();
+          const ft = containers.find(function(c) { return c.name === 'donut-finetune' && c.status === 'running'; });
+          if (ft) _ftContainerId = ft.id;
+        }
+      }
+      // Static banner fields
+      const shortId    = running.id.slice(0, 8);
+      const modelShort = (running.base_model || '').split('/').pop() || running.id;
+      const banner = document.getElementById('active-banner');
+      banner.style.display = 'flex';
+      document.getElementById('bp-id').textContent      = shortId;
+      document.getElementById('bp-model').textContent   = modelShort;
+      document.getElementById('bp-backend').textContent = 'TRAIN';
+      document.getElementById('bp-node').textContent    = 'DGX-SPARK';
+      // Immediately fetch a live log line
+      await pollFinetuneLog();
+    } catch(e) { /* soft fail */ }
+  }
+
+  pollFinetune();
+  setInterval(pollFinetune,    15000);
+  setInterval(pollFinetuneLog,  5000);
+
+
+  function launchPipeline() {
+    if (_activeRun) { logLine('Pipeline already running', 'warn'); return; }
+    const model   = document.getElementById('pl-model').value.trim();
+    const backend = document.getElementById('pl-backend').value;
+    const node    = document.getElementById('pl-node').value;
+    const suite   = document.getElementById('pl-suite').value.trim() || 'hard_15';
+    const target  = parseInt(document.getElementById('pl-target').value)  || 80;
+    const maxiter = parseInt(document.getElementById('pl-maxiter').value) || 3;
+    const rank    = parseInt(document.getElementById('pl-rank').value)    || 16;
+    const epochs  = parseInt(document.getElementById('pl-epochs').value)  || 3;
+    const lr      = document.getElementById('pl-lr').value.trim()         || '2e-4';
+    const dgcount = parseInt(document.getElementById('pl-dgcount').value) || 200;
+    const domain  = document.getElementById('pl-domain').value.trim()     || 'general';
+    if (!model) { logLine('Form error: Base Model required', 'warn'); return; }
+
+    const id = 'PLR-' + String(_runSeq++).padStart(4,'0');
+    const t  = new Date().toTimeString().split(' ')[0];
+    _activeRun = { id, model, backend, node: node==='spark'?'SPARK-BOB':'LINUX-DSKTP',
+                   suite, target, maxiter, rank, epochs, lr, dgcount, domain,
+                   iter:1, score:0, lastScore:0, status:'running', start:t, stageLog:[] };
+
+    logLine(`CMD: LAUNCH PIPELINE — ${id} [${model} / ${backend} / ${suite}]`, 'info');
+    const out = document.getElementById('pl-output');
+    out.textContent = `[${t}] ${id} launched — ${model} on ${_activeRun.node}`;
+    out.style.color = 'var(--orange-dark)';
+
+    document.getElementById('active-banner').style.display = 'flex';
+    document.getElementById('btn-stop').style.display = '';
+    document.getElementById('bp-id').textContent      = id;
+    document.getElementById('bp-model').textContent   = model;
+    document.getElementById('bp-backend').textContent = backend;
+    document.getElementById('bp-node').textContent    = _activeRun.node;
+
+    simulatePipeline();
+  }
+
+  function simulatePipeline() {
+    let stage = 0, prog = 0;
+    setStage(stage);
+    const r = _activeRun;
+
+    _simIv = setInterval(() => {
+      prog += Math.floor(Math.random()*14) + 4;
+      const totalProg = Math.min(((stage * 100) + Math.min(prog,100)) / STAGES.length, 100);
+      document.getElementById('bp-prog').style.width = totalProg + '%';
+      document.getElementById('bp-iter').textContent = `${r.iter} / ${r.maxiter}`;
+
+      if (prog >= 100) {
+        prog = 0;
+        r.stageLog.push({ stage: STAGE_NAMES[stage], iter: r.iter, status: 'done' });
+        logLine(`[${r.id}] Stage ${stage+1}/${STAGES.length}: ${STAGE_NAMES[stage]} — complete`, 'info');
+        stage++;
+
+        if (stage >= STAGES.length) {
+          r.lastScore = Math.floor(Math.random()*35) + 55;
+          r.score = r.lastScore;
+          document.getElementById('bp-score').textContent = r.score + '%';
+          logLine(`[${r.id}] Iter ${r.iter} — score: ${r.score}% / target: ${r.target}%`, 'info');
+
+          if (r.score >= r.target || r.iter >= r.maxiter) {
+            clearInterval(_simIv); _simIv = null;
+            r.status   = r.score >= r.target ? 'done' : 'error';
+            r.duration = Math.floor(Math.random()*120+30) + 'm';
+            logLine(`[${r.id}] Pipeline ${r.status==='done' ? 'PASSED ✓' : 'MAX ITERS — STOPPED'} (${r.score}%)`,
+                    r.status==='done' ? 'info' : 'warn');
+            setStage(r.status==='done' ? STAGES.length : stage-1);
+            _runs.unshift({ ...r });
+            _activeRun = null;
+            document.getElementById('btn-stop').style.display = 'none';
+            document.getElementById('iter-badge').className = 'iter-badge';
+            document.getElementById('iter-badge').textContent = 'ITER — / —';
+            document.getElementById('loop-row').className = 'loop-back';
+            renderRuns();
+          } else {
+            r.iter++; stage = 0;
+            logLine(`[${r.id}] Score below target — starting iter ${r.iter}`, 'warn');
+            // light loop-back briefly
+            const lb = document.getElementById('loop-row');
+            lb.className = 'loop-back lit';
+            setStage(0);
+            setTimeout(() => { if (lb) lb.className = 'loop-back'; }, 2000);
+          }
+          return;
+        }
+        setStage(stage);
+      }
+    }, 600);
+  }
+
+  function stopPipeline() {
+    if (!_activeRun) return;
+    if (_simIv) { clearInterval(_simIv); _simIv = null; }
+    logLine(`CMD: STOP PIPELINE — ${_activeRun.id}`, 'warn');
+    _activeRun.status = 'error'; _activeRun.duration = '--';
+    _runs.unshift({ ..._activeRun }); _activeRun = null;
+    document.getElementById('btn-stop').style.display = 'none';
+    document.getElementById('active-banner').style.display = 'none';
+    document.getElementById('iter-badge').className = 'iter-badge';
+    document.getElementById('iter-badge').textContent = 'ITER — / —';
+    document.getElementById('loop-row').className = 'loop-back';
+    STAGES.forEach(id => { document.getElementById(id).className = 'stage-card'; });
+    ARROWS.forEach(id => { document.getElementById(id).className = 'stage-conn'; });
+    STAGES.forEach(id => {
+      const lv = document.getElementById('live-' + id.replace('st-',''));
+      if (lv) lv.textContent = '—';
+    });
+    renderRuns();
+  }
+
+  function renderRuns() {
+    const tb = document.getElementById('run-history-body');
+    if (!_runs.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">NO PIPELINE RUNS YET</td></tr>'; return; }
+    tb.innerHTML = _runs.map((r, i) => `<tr data-run="${i}" onclick="openDetail(${i})">
+      <td style="color:var(--orange-dark)">${r.id}</td>
+      <td>${r.model}</td><td>${r.backend}</td><td>${r.node}</td><td>${r.suite}</td>
+      <td>${r.iter}</td><td>${r.score}%</td><td>${r.target}%</td>
+      <td><span class="run-status ${r.status}">${r.status.toUpperCase()}</span></td>
+      <td>${r.duration||'--'}</td>
+    </tr>`).join('');
+  }
+
+  function openDetail(idx) {
+    const r = _runs[idx];
+    if (!r) return;
+    document.getElementById('rd-id').textContent = r.id;
+    const stages = [
+      { name: 'DATA GEN',   val: `${r.dgcount} pairs — ${r.domain}`,             status: 'done' },
+      { name: 'FINE-TUNE',  val: `rank ${r.rank} / ${r.epochs}e / lr ${r.lr}`,   status: 'done' },
+      { name: 'DEPLOY',     val: `${r.backend} on ${r.node}`,                     status: 'done' },
+      { name: 'EVAL',       val: `suite: ${r.suite} → ${r.score}%`,              status: r.score >= r.target ? 'done' : 'error' },
+      { name: 'CHECK',      val: r.score >= r.target ? `PASS ✓ — ${r.score}%` : `FAIL — below ${r.target}%`, status: r.score >= r.target ? 'done' : 'error' },
+    ];
+    document.getElementById('rd-stages').innerHTML = stages.map(s => `
+      <div class="rd-stage ${s.status}">
+        <div class="rd-stage-name">${s.name}</div>
+        <div class="rd-stage-val">${s.val}</div>
+      </div>`).join('');
+    document.getElementById('run-detail').classList.add('open');
+  }
+  function closeDetail() { document.getElementById('run-detail').classList.remove('open'); }
+
+  function exportRuns() { logLine('CMD: EXPORT RUN HISTORY', 'info'); }
+
+  // Terminal
+  let _termNode = 'spark';
+  function switchTerm(node) {
+    _termNode = node;
+    document.querySelectorAll('.terminal-tab').forEach(t => t.classList.toggle('active', t.dataset.term === node));
+    ['spark','linux'].forEach(n => { const el = document.getElementById('term-out-'+n); if (el) el.style.display = n===node?'block':'none'; });
+    document.getElementById('term-prompt').textContent = (node==='spark'?'spark-bob':'linux-dsktp')+' $';
+    document.getElementById('terminal-input').focus();
+  }
+  function termLine(text, cls) {
+    const out = document.getElementById('term-out-'+_termNode); if (!out) return;
+    const div = document.createElement('div'); div.className = 'term-line'+(cls?' '+cls:''); div.textContent = text;
+    out.appendChild(div); out.scrollTop = out.scrollHeight;
+  }
+  // terminal input wired by bcom-terminal.js
+  // minimize wired by bcom-terminal.js
+  switchTerm('spark');
 </script>
+  <script src="../assets/js/bcom-terminal.js?v=3"></script>
 </body>
 </html>
