@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Models - BCOM-C Dashboard</title>
+  <link rel="stylesheet" href="../bcom.css?v=3">
+  <style>
+    body {
+      background: #080604;
+      color: #e8e6e1;
+    }
+
+    .hero-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-chip {
+      background: rgba(255, 107, 53, 0.08);
+      border: 1px solid var(--orange-dark);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .stat-chip .value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--orange-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-chip .label {
+      font-size: 0.85rem;
+      color: #a89985;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 2.5rem 0 1.5rem 0;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+    }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0;
+      color: #e8e6e1;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .search-bar input {
+      background: rgba(255, 107, 53, 0.05);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      color: #e8e6e1;
+      font-size: 0.9rem;
+      width: 250px;
+    }
+
+    .search-bar input::placeholder {
+      color: #6b5d52;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--orange-dark);
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .leaderboard-table, .registry-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+      background: rgba(8, 6, 4, 0.5);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .leaderboard-table thead, .registry-table thead {
+      background: rgba(255, 107, 53, 0.08);
+      border-bottom: 1px solid rgba(255, 107, 53, 0.3);
+    }
+
+    .leaderboard-table th, .registry-table th {
+      padding: 1rem;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--orange-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .leaderboard-table th:hover, .registry-table th:hover {
+      background: rgba(255, 107, 53, 0.12);
+    }
+
+    .leaderboard-table tbody tr, .registry-table tbody tr {
+      border-bottom: 1px solid rgba(255, 107, 53, 0.1);
+      transition: background 0.2s;
+    }
+
+    .leaderboard-table tbody tr:hover, .registry-table tbody tr:hover {
+      background: rgba(255, 107, 53, 0.05);
+      cursor: pointer;
+    }
+
+    .leaderboard-table td, .registry-table td {
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .rank-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #080604;
+    }
+
+    .rank-pill.gold {
+      background: #FFD700;
+    }
+
+    .rank-pill.silver {
+      background: #C0C0C0;
+    }
+
+    .rank-pill.bronze {
+      background: #CD7F32;
+    }
+
+    .rank-pill.other {
+      background: rgba(255, 107, 53, 0.3);
+      color: #e8e6e1;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .status-pill.ready {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4CAF50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+
+    .status-pill.pulling {
+      background: rgba(255, 193, 7, 0.15);
+      color: #FFC107;
+      border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .status-pill.error {
+      background: rgba(244, 67, 54, 0.15);
+      color: #F44336;
+      border: 1px solid rgba(244, 67, 54, 0.3);
+    }
+
+    .pull-model-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      align-items: center;
+    }
+
+    .pull-model-row input {
+      background: rgba(255, 107, 53, 0.05);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 6px;
+      padding: 0.7rem 1rem;
+      color: #e8e6e1;
+      font-size: 0.9rem;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .pull-model-row input::placeholder {
+      color: #6b5d52;
+    }
+
+    .pull-model-row input:focus {
+      outline: none;
+      border-color: var(--orange-dark);
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .btn {
+      background: var(--orange-dark);
+      color: #080604;
+      border: none;
+      border-radius: 6px;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:hover {
+      background: #ff7a3d;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      border: 1px solid rgba(255, 107, 53, 0.5);
+      color: var(--orange-dark);
+    }
+
+    .btn.secondary:hover {
+      background: rgba(255, 107, 53, 0.1);
+      border-color: var(--orange-dark);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-buttons button {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    .slide-panel {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100vh;
+      background: #0a0805;
+      border-left: 1px solid rgba(255, 107, 53, 0.3);
+      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      transition: right 0.3s ease-out;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-panel.open {
+      right: 0;
+    }
+
+    .slide-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+      flex-shrink: 0;
+    }
+
+    .slide-panel-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #e8e6e1;
+    }
+
+    .slide-panel-close {
+      background: none;
+      border: none;
+      color: var(--orange-dark);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-panel-close:hover {
+      color: #ff7a3d;
+    }
+
+    .slide-panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .card-section {
+      margin-bottom: 2rem;
+    }
+
+    .card-section h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--orange-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+    }
+
+    .card-detail {
+      margin-bottom: 1rem;
+    }
+
+    .card-detail-label {
+      font-size: 0.75rem;
+      color: #a89985;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 0.3rem;
+    }
+
+    .card-detail-value {
+      font-size: 0.9rem;
+      color: #e8e6e1;
+      word-break: break-word;
+    }
+
+    .lineage-chain {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .lineage-node {
+      background: rgba(255, 107, 53, 0.08);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .lineage-node-id {
+      font-weight: 600;
+      color: var(--orange-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .lineage-node-version {
+      color: #a89985;
+      font-size: 0.75rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 300;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .toast.ok {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4CAF50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+
+    .toast.err {
+      background: rgba(244, 67, 54, 0.15);
+      color: #F44336;
+      border: 1px solid rgba(244, 67, 54, 0.3);
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(200px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #a89985;
+    }
+
+    .loader {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(255, 107, 53, 0.3);
+      border-top-color: var(--orange-dark);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: #a89985;
+    }
+
+    .empty-state-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="bcom-nav">
+    <div class="nav-container">
+      <div class="nav-logo">BCOM-C</div>
+      <div class="nav-links">
+        <a href="./registry.html">REGISTRY</a>
+        <a href="./datagen.html">DATAGEN</a>
+        <a href="./analytics.html">ANALYTICS</a>
+        <a href="./coordinator.html">COORDINATOR</a>
+        <a href="./datasets.html">DATASETS</a>
+        <a href="./evals.html">EVALS</a>
+        <a href="./models.html" class="active">MODELS</a>
+        <a href="./monitor.html">MONITOR</a>
+        <a href="./pipeline.html">PIPELINE</a>
+        <a href="./deploy.html">DEPLOY</a>
+        <a href="./reports.html">REPORTS</a>
+        <a href="./settings.html">⚙</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="hero-row">
+      <div class="stat-chip">
+        <div class="value" id="stat-total">0</div>
+        <div class="label">Total Models</div>
+      </div>
+      <div class="stat-chip">
+        <div class="value" id="stat-params">0B</div>
+        <div class="label">Total Params</div>
+      </div>
+      <div class="stat-chip">
+        <div class="value" id="stat-benchmark">0.0</div>
+        <div class="label">Avg Benchmark</div>
+      </div>
+      <div class="stat-chip">
+        <div class="value" id="stat-week">0</div>
+        <div class="label">Pulled This Week</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>Leaderboard</h2>
+    </div>
+    <table class="leaderboard-table" id="leaderboard-table">
+      <thead>
+        <tr>
+          <th style="width: 60px;">Rank</th>
+          <th>Model Name</th>
+          <th>Benchmark Score</th>
+          <th style="width: 120px;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body">
+        <tr><td colspan="4" class="loading"><div class="loader"></div> Loading leaderboard...</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-header">
+      <h2>Pull Model</h2>
+    </div>
+    <div class="pull-model-row">
+      <input type="text" id="pull-input" placeholder="Model ID (e.g., gpt-4-turbo-v1)">
+      <button class="btn" onclick="pullModel()">PULL</button>
+    </div>
+
+    <div class="section-header">
+      <h2>Model Registry</h2>
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search models..." onkeyup="updateSearch()">
+      </div>
+    </div>
+    <table class="registry-table" id="registry-table">
+      <thead>
+        <tr>
+          <th>Model ID</th>
+          <th>Base</th>
+          <th style="width: 80px;">Size</th>
+          <th style="width: 100px;">Status</th>
+          <th style="width: 150px;">Created</th>
+          <th style="width: 180px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="registry-body">
+        <tr><td colspan="6" class="loading"><div class="loader"></div> Loading registry...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="slide-panel" id="slide-panel">
+    <div class="slide-panel-header">
+      <h3 id="panel-title">Model Details</h3>
+      <button class="slide-panel-close" onclick="closePanel()">×</button>
+    </div>
+    <div class="slide-panel-content" id="panel-content">
+      <div class="loading"><div class="loader"></div> Loading model details...</div>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="../bcom.css?v=3">
+  <script src="../bcom.js?v=5"></script>
+  <script>
+    window.BCOM = window.BCOM || {};
+    BCOM.apiBase = '';
+
+    var _search = '';
+    var _panel = null;
+    var _leaderboardData = [];
+    var _registryData = [];
+
+    function toast(msg, type) {
+      var t = document.createElement('div');
+      t.className = 'toast ' + (type || 'ok');
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(function() { t.remove(); }, 3000);
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return '0B';
+      var k = 1024;
+      var sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      var i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 10) / 10 + sizes[i];
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '-';
+      try {
+        return new Date(iso).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'2-digit'});
+      } catch(e) { return iso; }
+    }
+
+    function getRankPill(rank) {
+      var cls = 'rank-pill';
+      if (rank === 1) cls += ' gold';
+      else if (rank === 2) cls += ' silver';
+      else if (rank === 3) cls += ' bronze';
+      else cls += ' other';
+      return '<span class="' + cls + '">' + rank + '</span>';
+    }
+
+    function getStatusPill(status) {
+      var cls = 'status-pill ' + (status || 'ready');
+      var label = (status || 'ready').toUpperCase();
+      return '<span class="' + cls + '">' + label + '</span>';
+    }
+
+    function updateStats() {
+      var total = _registryData.length;
+      var totalParams = 0;
+      var benchmarks = [];
+      var thisWeek = 0;
+      var now = new Date();
+      var weekAgo = new Date(now.getTime() - 7*24*60*60*1000);
+
+      _registryData.forEach(function(m) {
+        if (m.params) totalParams += m.params;
+        if (m.created_at && new Date(m.created_at) > weekAgo) thisWeek++;
+      });
+
+      _leaderboardData.forEach(function(m) {
+        if (m.benchmark_score) benchmarks.push(m.benchmark_score);
+      });
+
+      var avgBench = benchmarks.length > 0 ? (benchmarks.reduce(function(a,b){return a+b;}) / benchmarks.length).toFixed(2) : '0.0';
+
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-params').textContent = formatBytes(totalParams);
+      document.getElementById('stat-benchmark').textContent = avgBench;
+      document.getElementById('stat-week').textContent = thisWeek;
+    }
+
+    function pollLeaderboard() {
+      fetch(BCOM.apiBase + '/api/models/registry/leaderboard')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data || !Array.isArray(data)) return;
+          _leaderboardData = data;
+          renderLeaderboard();
+          updateStats();
+        })
+        .catch(function(e) {
+          console.error('Leaderboard fetch failed:', e);
+        });
+    }
+
+    function renderLeaderboard() {
+      var tbody = document.getElementById('leaderboard-body');
+      if (!_leaderboardData || _leaderboardData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><div class="empty-state-icon">📊</div><div>No models in leaderboard</div></td></tr>';
+        return;
+      }
+
+      var html = '';
+      _leaderboardData.forEach(function(m, idx) {
+        var rank = idx + 1;
+        var benchmark = m.benchmark_score ? m.benchmark_score.toFixed(2) : '-';
+        var status = m.status || 'ready';
+        html += '<tr onclick="openCard(\'' + (m.model_id || m.id) + '\')">';
+        html += '<td>' + getRankPill(rank) + '</td>';
+        html += '<td>' + (m.model_name || m.model_id || m.id || 'Unknown') + '</td>';
+        html += '<td>' + benchmark + '</td>';
+        html += '<td>' + getStatusPill(status) + '</td>';
+        html += '</tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    function pollRegistry() {
+      fetch(BCOM.apiBase + '/api/models/registry')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data) return;
+          if (Array.isArray(data)) {
+            _registryData = data;
+          } else if (data.models && Array.isArray(data.models)) {
+            _registryData = data.models;
+          } else {
+            _registryData = [];
+          }
+          renderRegistry();
+          updateStats();
+        })
+        .catch(function(e) {
+          console.error('Registry fetch failed:', e);
+        });
+    }
+
+    function renderRegistry() {
+      var tbody = document.getElementById('registry-body');
+      if (!_registryData || _registryData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">📦</div><div>No models in registry</div></td></tr>';
+        return;
+      }
+
+      var filtered = _registryData.filter(function(m) {
+        var id = m.model_id || m.id || '';
+        var base = m.base || '';
+        var name = m.model_name || '';
+        var searchTerm = (_search || '').toLowerCase();
+        return id.toLowerCase().includes(searchTerm) || base.toLowerCase().includes(searchTerm) || name.toLowerCase().includes(searchTerm);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No models match search</td></tr>';
+        return;
+      }
+
+      var html = '';
+      filtered.forEach(function(m) {
+        var id = m.model_id || m.id || 'unknown';
+        var base = m.base || '-';
+        var size = m.size ? formatBytes(m.size) : '-';
+        var status = m.status || 'ready';
+        var created = formatDate(m.created_at || m.created);
+        html += '<tr>';
+        html += '<td>' + id + '</td>';
+        html += '<td>' + base + '</td>';
+        html += '<td>' + size + '</td>';
+        html += '<td>' + getStatusPill(status) + '</td>';
+        html += '<td>' + created + '</td>';
+        html += '<td><div class="action-buttons">';
+        html += '<button class="btn secondary" onclick="openCard(\'' + id + '\')">CARD</button>';
+        html += '<button class="btn secondary" onclick="openLineage(\'' + id + '\')">LINEAGE</button>';
+        html += '<button class="btn secondary" onclick="deleteModel(\'' + id + '\')">DELETE</button>';
+        html += '</div></td>';
+        html += '</tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    function updateSearch() {
+      _search = document.getElementById('search-input').value;
+      renderRegistry();
+    }
+
+    function pullModel() {
+      var id = document.getElementById('pull-input').value.trim();
+      if (!id) {
+        toast('Enter a model ID', 'err');
+        return;
+      }
+      var btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'PULLING...';
+      fetch(BCOM.apiBase + '/api/models/pull', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({model_id: id})
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          toast('Pull started: ' + id, 'ok');
+          document.getElementById('pull-input').value = '';
+          setTimeout(pollRegistry, 2000);
+        })
+        .catch(function(e) {
+          toast('Pull failed: ' + e.message, 'err');
+        })
+        .finally(function() {
+          btn.disabled = false;
+          btn.textContent = 'PULL';
+        });
+    }
+
+    window.deleteModel = function(id) {
+      if (!confirm('Delete ' + id + '?')) return;
+      fetch(BCOM.apiBase + '/api/models/' + encodeURIComponent(id), {
+        method: 'DELETE'
+      })
+        .then(function(r) {
+          if (!r.ok) throw new Error('Delete failed');
+          toast('Deleted ' + id, 'ok');
+          setTimeout(pollRegistry, 1000);
+        })
+        .catch(function(e) {
+          toast('Delete failed: ' + e.message, 'err');
+        });
+    };
+
+    window.openCard = function(id) {
+      _panel = id;
+      var panel = document.getElementById('slide-panel');
+      panel.classList.add('open');
+      document.getElementById('panel-title').textContent = id;
+      document.getElementById('panel-content').innerHTML = '<div class="loading"><div class="loader"></div> Loading model details...</div>';
+
+      Promise.all([
+        fetch(BCOM.apiBase + '/api/models/' + encodeURIComponent(id) + '/card').then(r=>r.json()).catch(()=>null),
+        fetch(BCOM.apiBase + '/api/models/' + encodeURIComponent(id) + '/lineage').then(r=>r.json()).catch(()=>null)
+      ])
+        .then(function(results) {
+          var card = results[0];
+          var lineage = results[1];
+          renderPanelContent(card, lineage);
+        })
+        .catch(function(e) {
+          document.getElementById('panel-content').innerHTML = '<div class="empty-state">Failed to load details</div>';
+        });
+    };
+
+    window.openLineage = function(id) {
+      openCard(id);
+    };
+
+    function renderPanelContent(card, lineage) {
+      var html = '';
+
+      if (card) {
+        html += '<div class="card-section">';
+        html += '<h4>Model Card</h4>';
+        if (card.id) {
+          html += '<div class="card-detail"><div class="card-detail-label">ID</div><div class="card-detail-value">' + card.id + '</div></div>';
+        }
+        if (card.name) {
+          html += '<div class="card-detail"><div class="card-detail-label">Name</div><div class="card-detail-value">' + card.name + '</div></div>';
+        }
+        if (card.description) {
+          html += '<div class="card-detail"><div class="card-detail-label">Description</div><div class="card-detail-value">' + card.description + '</div></div>';
+        }
+        if (card.version) {
+          html += '<div class="card-detail"><div class="card-detail-label">Version</div><div class="card-detail-value">' + card.version + '</div></div>';
+        }
+        if (card.base) {
+          html += '<div class="card-detail"><div class="card-detail-label">Base Model</div><div class="card-detail-value">' + card.base + '</div></div>';
+        }
+        if (card.params) {
+          html += '<div class="card-detail"><div class="card-detail-label">Parameters</div><div class="card-detail-value">' + formatBytes(card.params) + '</div></div>';
+        }
+        if (card.created_at) {
+          html += '<div class="card-detail"><div class="card-detail-label">Created</div><div class="card-detail-value">' + formatDate(card.created_at) + '</div></div>';
+        }
+        if (card.framework) {
+          html += '<div class="card-detail"><div class="card-detail-label">Framework</div><div class="card-detail-value">' + card.framework + '</div></div>';
+        }
+        if (card.tags && Array.isArray(card.tags)) {
+          html += '<div class="card-detail"><div class="card-detail-label">Tags</div><div class="card-detail-value">' + card.tags.join(', ') + '</div></div>';
+        }
+        html += '</div>';
+      }
+
+      if (lineage && Array.isArray(lineage) && lineage.length > 0) {
+        html += '<div class="card-section">';
+        html += '<h4>Lineage Chain</h4>';
+        html += '<div class="lineage-chain">';
+        lineage.forEach(function(node) {
+          html += '<div class="lineage-node">';
+          html += '<div class="lineage-node-id">' + (node.id || node.model_id || 'unknown') + '</div>';
+          if (node.version) {
+            html += '<div class="lineage-node-version">v' + node.version + '</div>';
+          }
+          html += '</div>';
+        });
+        html += '</div>';
+        html += '</div>';
+      } else if (!lineage && card) {
+        html += '<div class="card-section"><div class="card-detail-label">No lineage data</div></div>';
+      }
+
+      if (!card && !lineage) {
+        html = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div>No model data available</div></div>';
+      }
+
+      document.getElementById('panel-content').innerHTML = html || '<div class="empty-state">No data</div>';
+    }
+
+    function closePanel() {
+      document.getElementById('slide-panel').classList.remove('open');
+      _panel = null;
+    }
+
+    function startPolling() {
+      pollLeaderboard();
+      pollRegistry();
+      setInterval(pollLeaderboard, 30000);
+      setInterval(pollRegistry, 20000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      startPolling();
+    });
+  </script>
+</body>
+</html>
