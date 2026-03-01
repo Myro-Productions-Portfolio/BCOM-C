@@ -1,0 +1,19 @@
+name: Deploy to DGX Spark
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync-dgx:
+    name: Sync DGX mirror
+    runs-on: [self-hosted, dgx, arm64]
+    steps:
+      - name: Pull latest on DGX mirror
+        run: |
+          git -C /home/nmyers/Projects/BCOM-C pull origin main
+
+      - name: Verify deployment
+        run: |
+          echo "DGX mirror updated at $(date)"
+          git -C /home/nmyers/Projects/BCOM-C log --oneline -3
