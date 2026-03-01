@@ -1245,7 +1245,7 @@ async function themeSaveConfirm() {
 
 /* ── Load themes list (localStorage primary, backend merge) ─────────── */
 function themeLoadList() {
-  const container = document.getElementById(\'saved-themes-list\');
+  const container = document.getElementById('saved-themes-list');
   const themes = _getLocalThemes();
   if (!themes.length) {
     container.innerHTML = '<span style="font-size:10px;color:var(--text-muted);letter-spacing:1px;">No saved themes yet.</span>';
@@ -1260,7 +1260,7 @@ function themeLoadList() {
       <div class="saved-theme-dot-row">${dots}</div>
       <span class="saved-theme-name">${t.name}</span>
       <button class="saved-theme-btn" onclick="themeLoad(${JSON.stringify(JSON.stringify(t.vars))})">LOAD</button>
-      <button class="saved-theme-btn del" onclick="themeDelete('${t.id}','${t.name.replace(/'/g,"\\'")}')">✕</button>
+      <button class="saved-theme-btn del" onclick="themeDelete('${t.id}','${t.name.replace(/'/g,"\'")}')">✕</button>
     </div>`;
   }).join('');
 }
