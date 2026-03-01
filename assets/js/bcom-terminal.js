@@ -17,15 +17,13 @@
   const FIT_VERSION   = '0.9.0';
 
   // ── Helpers ─────────────────────────────────────────────────────────────
-  function _apiBase() {
-    try {
-      const s = JSON.parse(localStorage.getItem('bcom-settings') || '{}');
-      return s['api-base-url'] || 'http://10.0.0.69:9010';
-    } catch (_) { return 'http://10.0.0.69:9010'; }
-  }
-
-  function _wsBase() {
-    return _apiBase().replace(/^http/, 'ws');
+  // Always route through the page's own host so Caddy proxies /api/* correctly.
+  // This avoids mixed-content blocks when the site is served over HTTPS
+  // (e.g. via Cloudflare tunnel) — a direct ws://10.0.0.69 would be blocked.
+  function _wsUrl() {
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host  = window.location.host;  // e.g. "bcom.myroproductions.com" or "10.0.0.223"
+    return `${proto}//${host}/api/terminal/ws`;
   }
 
   function _setMinimized(min) {
@@ -168,7 +166,7 @@
   function _connectWS() {
     if (_ws && (_ws.readyState === WebSocket.CONNECTING || _ws.readyState === WebSocket.OPEN)) return;
 
-    const url = _wsBase() + '/api/terminal/ws';
+    const url = _wsUrl();
     _ws = new WebSocket(url);
     _ws.binaryType = 'arraybuffer';
 
