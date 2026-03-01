@@ -248,15 +248,16 @@
   startPolling();
 
   // ── Live model list ────────────────────────────────────────────────
-  let _liveModels = [];
+  let _sparkModels = [];
+  let _linuxModels = [];
 
-  function _liveToRegistry(models) {
+  function _liveToRegistry(models, node) {
     return models.map(m => ({
       id:      m.name ?? m.model ?? '--',
       type:    (m.details?.family ?? 'llm').toUpperCase(),
       size:    m.size ? (m.size / 1e9).toFixed(1) + ' GB' : '--',
       backend: 'Ollama',
-      node:    'spark',
+      node:    node,
       vram:    '--',
       quant:   m.details?.quantization_level ?? '--',
       status:  'loaded',
@@ -266,7 +267,10 @@
   function renderRegistry() {
     const fn = document.getElementById('reg-filter-node').value;
     const fs = document.getElementById('reg-filter-status').value;
-    let m = _liveModels.length ? _liveToRegistry(_liveModels) : [];
+    let m = [
+      ..._liveToRegistry(_sparkModels, 'spark'),
+      ..._liveToRegistry(_linuxModels, 'linux'),
+    ];
     if (fn !== 'all') m = m.filter(x => x.node === fn);
     if (fs !== 'all') m = m.filter(x => x.status === fs);
     const tb = document.getElementById('reg-body');
@@ -317,12 +321,13 @@
   // ── Resource page poll (system stats, storage, models) ─────────────
   async function pollResourcePage() {
     try {
-      const [statsRes, infoRes, storageRes, modelsRes, linuxRes] = await Promise.allSettled([
+      const [statsRes, infoRes, storageRes, modelsRes, linuxRes, linuxModelsRes] = await Promise.allSettled([
         fetch('/api/system/stats',        { cache: 'no-store' }),
         fetch('/api/system/info',         { cache: 'no-store' }),
         fetch('/api/system/storage',      { cache: 'no-store' }),
         fetch('/api/models/',             { cache: 'no-store' }),
         fetch('/api/system/linux/stats',  { cache: 'no-store' }),
+        fetch('/api/models/linux',        { cache: 'no-store' }),
       ]);
 
       // Spark stats → compute chips
@@ -350,10 +355,17 @@
         if (sp.root)        setStorBar('sf-spark-root',  'stor-spark-root',   sp.root.used_gb,        sp.root.total_gb);
       }
 
-      // Models → registry table
+      // Spark models → registry table
       if (modelsRes.status === 'fulfilled' && modelsRes.value.ok) {
         const mdl = await modelsRes.value.json();
-        _liveModels = mdl.models ?? (Array.isArray(mdl) ? mdl : []);
+        _sparkModels = mdl.models ?? (Array.isArray(mdl) ? mdl : []);
+        renderRegistry();
+      }
+
+      // Linux Desktop models → merge into registry table
+      if (linuxModelsRes.status === 'fulfilled' && linuxModelsRes.value.ok) {
+        const lmdl = await linuxModelsRes.value.json();
+        _linuxModels = (!lmdl.error && lmdl.models) ? lmdl.models : [];
         renderRegistry();
       }
 
