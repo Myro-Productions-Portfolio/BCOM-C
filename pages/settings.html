@@ -74,56 +74,6 @@
 <!-- SETTINGS LAYOUT -->
 <div class="sett-layout">
 
-  <!-- ── APPEARANCE ─────────────────────────────────────────── -->
-  <div class="sett-section">
-    <div class="sett-hdr"><span class="sett-hdr-icon">🎨</span> Appearance</div>
-
-    <div class="sett-row">
-      <label>Theme</label>
-      <div class="theme-btn-group">
-        <button class="theme-btn" id="btn-dark"  onclick="applyTheme('dark')">◼ DARK</button>
-        <button class="theme-btn" id="btn-light" onclick="applyTheme('light')">◻ LIGHT</button>
-      </div>
-    </div>
-
-    <div class="sett-row">
-      <label>Accent Color</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="accent-color" value="#DA7756"
-               style="width:32px;height:24px;border:1.5px solid var(--orange-dark);background:transparent;cursor:pointer;padding:1px;"
-               oninput="previewAccent(this.value)" />
-        <span style="font-size:11px;color:var(--text-muted);letter-spacing:1px;" id="accent-hex">#DA7756</span>
-        <button class="sett-btn" onclick="resetAccent()" style="padding:3px 10px;font-size:10px;">RESET</button>
-      </div>
-    </div>
-
-    <div class="sett-row">
-      <label>Clock Format</label>
-      <select class="sett-select" id="clock-format" style="width:120px;">
-        <option value="24h">24-HOUR</option>
-        <option value="12h">12-HOUR</option>
-      </select>
-    </div>
-
-    <div class="sett-row">
-      <label>Compact Density</label>
-      <label class="sett-toggle">
-        <input type="checkbox" id="tog-compact" onchange="saveSettings()" />
-        <span class="sett-toggle-track"></span>
-        <span class="sett-toggle-label" id="lbl-compact">OFF</span>
-      </label>
-    </div>
-
-    <div class="sett-row">
-      <label>Animate Gauges</label>
-      <label class="sett-toggle">
-        <input type="checkbox" id="tog-animate" checked onchange="saveSettings()" />
-        <span class="sett-toggle-track"></span>
-        <span class="sett-toggle-label" id="lbl-animate">ON</span>
-      </label>
-    </div>
-  </div>
-
   <!-- ── API & CONNECTIVITY ──────────────────────────────────── -->
   <div class="sett-section">
     <div class="sett-hdr"><span class="sett-hdr-icon">🔌</span> API &amp; Connectivity</div>
@@ -288,7 +238,7 @@
     <div class="sett-row">
       <label>Alert on Node Offline</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-offline-alert" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-offline-alert" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-offline-alert">ON</span>
       </label>
@@ -296,7 +246,7 @@
     <div class="sett-row">
       <label>Browser Notification</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-browser-notif" onchange="saveSettings()" />
+        <input type="checkbox" id="tog-browser-notif" />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-browser-notif">OFF</span>
       </label>
@@ -310,7 +260,7 @@
     <div class="sett-row">
       <label>Show Spark Node</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-show-spark" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-show-spark" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-show-spark">ON</span>
       </label>
@@ -318,7 +268,7 @@
     <div class="sett-row">
       <label>Show Linux Node</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-show-linux" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-show-linux" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-show-linux">ON</span>
       </label>
@@ -326,7 +276,7 @@
     <div class="sett-row">
       <label>Show Containers</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-show-containers" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-show-containers" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-show-containers">ON</span>
       </label>
@@ -334,7 +284,7 @@
     <div class="sett-row">
       <label>Show Models</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-show-models" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-show-models" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-show-models">ON</span>
       </label>
@@ -342,7 +292,7 @@
     <div class="sett-row">
       <label>Show Evaluations</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-show-evals" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-show-evals" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-show-evals">ON</span>
       </label>
@@ -350,7 +300,7 @@
     <div class="sett-row">
       <label>Show MCP Servers</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-show-mcp" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-show-mcp" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-show-mcp">ON</span>
       </label>
@@ -358,7 +308,7 @@
     <div class="sett-row">
       <label>Auto-Scroll Logs</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-autoscroll" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-autoscroll" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-autoscroll">ON</span>
       </label>
@@ -416,7 +366,7 @@
     <div class="sett-row">
       <label>Stream Responses</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-stream" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-stream" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-stream">ON</span>
       </label>
@@ -425,7 +375,7 @@
     <div class="sett-row">
       <label>Auto-Load Model on Start</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-autoload" onchange="saveSettings()" />
+        <input type="checkbox" id="tog-autoload" />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-autoload">OFF</span>
       </label>
@@ -476,7 +426,7 @@
     <div class="sett-row">
       <label>Auto-Dispatch Tasks</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-auto-dispatch" onchange="saveSettings()" />
+        <input type="checkbox" id="tog-auto-dispatch" />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-auto-dispatch">OFF</span>
       </label>
@@ -485,7 +435,7 @@
     <div class="sett-row">
       <label>LangChain Tracing</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-lc-trace" onchange="saveSettings()" />
+        <input type="checkbox" id="tog-lc-trace" />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-lc-trace">OFF</span>
       </label>
@@ -504,7 +454,7 @@
     <div class="sett-row">
       <label>Retry on Failure</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-retry" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-retry" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-retry">ON</span>
       </label>
@@ -556,7 +506,7 @@
     <div class="sett-row">
       <label>Auto-Retry Failed Jobs</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-job-retry" checked onchange="saveSettings()" />
+        <input type="checkbox" id="tog-job-retry" checked />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-job-retry">ON</span>
       </label>
@@ -565,7 +515,7 @@
     <div class="sett-row">
       <label>Save Intermediate Steps</label>
       <label class="sett-toggle">
-        <input type="checkbox" id="tog-save-steps" onchange="saveSettings()" />
+        <input type="checkbox" id="tog-save-steps" />
         <span class="sett-toggle-track"></span>
         <span class="sett-toggle-label" id="lbl-save-steps">OFF</span>
       </label>
@@ -684,8 +634,58 @@
   <div class="sett-section" id="theme-editor-section">
     <div class="sett-hdr"><span class="sett-hdr-icon">🎨</span> Theme Editor</div>
 
-    <!-- Color layers -->
+    <!-- ── Appearance (consolidated from top card) ── -->
     <div class="sett-row" style="background:rgba(218,119,86,0.04);">
+      <label style="color:var(--text-dim);font-weight:700;letter-spacing:1px;">APPEARANCE</label>
+    </div>
+
+    <div class="sett-row">
+      <label>Theme</label>
+      <div class="theme-btn-group">
+        <button class="theme-btn" id="btn-dark"  onclick="applyTheme('dark')">◼ DARK</button>
+        <button class="theme-btn" id="btn-light" onclick="applyTheme('light')">◻ LIGHT</button>
+      </div>
+    </div>
+
+    <div class="sett-row">
+      <label>Accent Color</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="color" id="accent-color" value="#DA7756"
+               style="width:32px;height:24px;border:1.5px solid var(--orange-dark);background:transparent;cursor:pointer;padding:1px;"
+               oninput="previewAccent(this.value)" />
+        <span style="font-size:11px;color:var(--text-muted);letter-spacing:1px;" id="accent-hex">#DA7756</span>
+        <button class="sett-btn" onclick="resetAccent()" style="padding:3px 10px;font-size:10px;">RESET</button>
+      </div>
+    </div>
+
+    <div class="sett-row">
+      <label>Clock Format</label>
+      <select class="sett-select" id="clock-format" style="width:120px;">
+        <option value="24h">24-HOUR</option>
+        <option value="12h">12-HOUR</option>
+      </select>
+    </div>
+
+    <div class="sett-row">
+      <label>Compact Density</label>
+      <label class="sett-toggle">
+        <input type="checkbox" id="tog-compact" />
+        <span class="sett-toggle-track"></span>
+        <span class="sett-toggle-label" id="lbl-compact">OFF</span>
+      </label>
+    </div>
+
+    <div class="sett-row">
+      <label>Animate Gauges</label>
+      <label class="sett-toggle">
+        <input type="checkbox" id="tog-animate" checked />
+        <span class="sett-toggle-track"></span>
+        <span class="sett-toggle-label" id="lbl-animate">ON</span>
+      </label>
+    </div>
+
+    <!-- Color layers -->
+    <div class="sett-row" style="background:rgba(218,119,86,0.04);margin-top:4px;">
       <label style="color:var(--text-dim);font-weight:700;letter-spacing:1px;">BACKGROUNDS</label>
     </div>
 
@@ -830,6 +830,7 @@
 <!-- SAVE BAR -->
 <div class="sett-save-bar">
   <span class="sett-save-msg" id="save-msg">✓ SETTINGS SAVED</span>
+  <span id="unsaved-indicator" style="display:none;font-size:10px;letter-spacing:1px;color:var(--orange);">● UNSAVED CHANGES</span>
   <button class="sett-btn" onclick="loadSettings()">REVERT</button>
   <button class="sett-btn success" onclick="saveSettings(true)">SAVE SETTINGS</button>
 </div>
@@ -912,7 +913,39 @@ const FIELDS = [
 
 const TOGGLE_IDS = TOGGLES.map(([i]) => i);
 
-function saveSettings(showMsg) {
+/* ── Dirty / unsaved state ───────────────────── */
+let _dirty = false;
+
+function markDirty() {
+  if (_dirty) return;
+  _dirty = true;
+  const ind = document.getElementById('unsaved-indicator');
+  if (ind) ind.style.display = 'inline';
+}
+
+function clearDirty() {
+  _dirty = false;
+  const ind = document.getElementById('unsaved-indicator');
+  if (ind) ind.style.display = 'none';
+}
+
+/* Attach dirty listeners to all inputs after DOM ready */
+function _attachDirtyListeners() {
+  document.querySelectorAll('.sett-input, .sett-select').forEach(el => {
+    el.addEventListener('input', markDirty);
+    el.addEventListener('change', markDirty);
+  });
+  document.querySelectorAll('.sett-toggle input[type="checkbox"]').forEach(el => {
+    el.addEventListener('change', markDirty);
+  });
+  const acEl = document.getElementById('accent-color');
+  if (acEl) acEl.addEventListener('input', markDirty);
+  const cfEl = document.getElementById('clock-format');
+  if (cfEl) cfEl.addEventListener('change', markDirty);
+}
+
+/* ── Collect current form state ──────────────── */
+function _collectSettings() {
   const obj = {};
   FIELDS.forEach(id => {
     const el = document.getElementById(id);
@@ -923,33 +956,61 @@ function saveSettings(showMsg) {
     if (el) obj[id] = el.checked;
   });
   obj['accent-color'] = document.getElementById('accent-color')?.value;
+  return obj;
+}
+
+/* ── Save ────────────────────────────────────── */
+async function saveSettings(showMsg) {
+  const obj = _collectSettings();
   localStorage.setItem(SETT_KEY, JSON.stringify(obj));
   syncAllLabels();
+  clearDirty();
+
   if (showMsg) {
-    const msg = document.getElementById('save-msg');
-    if (msg) { msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 2500); }
+    /* POST snapshot to backend */
+    try {
+      await fetch(_apiBase() + '/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(obj),
+      });
+    } catch(_) { /* backend unavailable — localStorage save is sufficient */ }
+
+    _flashMsg('✓ SETTINGS SAVED');
   }
 }
 
-function loadSettings() {
-  const raw = localStorage.getItem(SETT_KEY);
-  if (!raw) return;
+/* ── Load ────────────────────────────────────── */
+async function loadSettings() {
+  let obj = null;
+
+  /* Try backend first */
   try {
-    const obj = JSON.parse(raw);
-    FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el && obj[id] !== undefined) el.value = obj[id];
-    });
-    TOGGLE_IDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el && obj[id] !== undefined) el.checked = obj[id];
-    });
-    if (obj['accent-color']) {
-      const ac = document.getElementById('accent-color');
-      if (ac) { ac.value = obj['accent-color']; previewAccent(obj['accent-color']); }
-    }
-    syncAllLabels();
+    const r = await fetch(_apiBase() + '/api/settings', { cache: 'no-store', signal: AbortSignal.timeout(3000) });
+    if (r.ok) obj = await r.json();
   } catch(_) {}
+
+  /* Fall back to localStorage */
+  if (!obj) {
+    const raw = localStorage.getItem(SETT_KEY);
+    if (!raw) { clearDirty(); return; }
+    try { obj = JSON.parse(raw); } catch(_) { clearDirty(); return; }
+  }
+
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && obj[id] !== undefined) el.value = obj[id];
+  });
+  TOGGLE_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && obj[id] !== undefined) el.checked = obj[id];
+  });
+  if (obj['accent-color']) {
+    const ac = document.getElementById('accent-color');
+    if (ac) { ac.value = obj['accent-color']; previewAccent(obj['accent-color']); }
+  }
+  syncAllLabels();
+  clearDirty();
 }
 
 function resetAllSettings() {
@@ -1044,6 +1105,7 @@ function triggerAction(name) {
 syncThemeBtns();
 loadSettings();
 syncAllLabels();
+_attachDirtyListeners();
 
 /* Auto-run connection test on load */
 setTimeout(testConnection, 800);
