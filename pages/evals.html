@@ -7,21 +7,21 @@
 <link rel="stylesheet" href="../assets/css/bcom.css?v=3">
 <style>
 .ev-hero{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
-.ev-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 20px;min-width:140px}
+.ev-chip{background:var(--card);border:1px solid var(--border);border-radius: 0;padding:14px 20px;min-width:140px}
 .ev-chip-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
 .ev-chip-val{font-size:26px;font-weight:700;color:var(--fg)}
 .ev-chip-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
-.ev-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+.ev-section{background:var(--card);border:1px solid var(--border);border-radius: 0;padding:20px;margin-bottom:20px}
 .ev-section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
 
 .ev-run-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-.ev-run-row select,.ev-run-row input{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:8px 12px;font-size:13px;height:36px}
+.ev-run-row select,.ev-run-row input{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius: 0;padding:8px 12px;font-size:13px;height:36px}
 .ev-run-row select{min-width:180px}
 .ev-run-row input{flex:1;min-width:200px}
 
 .ev-filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.ev-filter-row input,.ev-filter-row select{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:7px 11px;font-size:12px}
+.ev-filter-row input,.ev-filter-row select{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius: 0;padding:7px 11px;font-size:12px}
 .ev-filter-row input{flex:1;min-width:180px}
 
 .ev-table{width:100%;border-collapse:collapse;font-size:13px}
@@ -30,23 +30,23 @@
 .ev-table tr:hover td{background:rgba(255,255,255,.025);cursor:pointer}
 .ev-table tr.selected td{background:rgba(180,90,20,.1)}
 
-.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.pill{display:inline-block;padding:2px 8px;border-radius: 0;font-size:11px;font-weight:600}
 .pill-pass{background:rgba(40,180,40,.18);color:#6f6}
 .pill-fail{background:rgba(220,60,60,.18);color:#f88}
 .pill-running{background:rgba(180,90,20,.18);color:var(--orange-dark)}
-.pill-pending{background:rgba(120,120,120,.18);color:#999}
+.pill-pending{background:rgba(120,120,120,.18);color:var(--text-muted)}
 
 .score-bar{display:inline-flex;align-items:center;gap:6px}
-.score-bar-bg{width:80px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
-.score-bar-fill{height:100%;border-radius:3px;background:var(--orange-dark)}
+.score-bar-bg{width:80px;height:6px;background:rgba(255,255,255,.08);border-radius: 0;overflow:hidden}
+.score-bar-fill{height:100%;border-radius: 0;background:var(--orange-dark)}
 .score-bar-fill.high{background:#4c4}
 .score-bar-fill.med{background:#ca4}
 
 .compare-selects{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-.compare-selects select{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:8px 12px;font-size:13px;flex:1;min-width:180px}
+.compare-selects select{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius: 0;padding:8px 12px;font-size:13px;flex:1;min-width:180px}
 .compare-vs{color:var(--muted);font-size:12px;font-weight:600}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.compare-col{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px}
+.compare-col{background:var(--bg);border:1px solid var(--border);border-radius: 0;padding:16px}
 .compare-col-header{font-size:12px;font-weight:700;color:var(--orange-dark);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .compare-metric{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
 .compare-metric:last-child{border-bottom:none}
@@ -74,24 +74,25 @@
 .ev-results-table td{padding:6px 6px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--fg)}
 
 .import-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
-.import-row input{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:8px 12px;font-size:13px;flex:1;min-width:200px}
+.import-row input{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius: 0;padding:8px 12px;font-size:13px;flex:1;min-width:200px}
 </style>
 </head>
 <body>
 <nav class="bcom-nav">
   <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
   <div class="bcom-nav-links">
+    <a href="dashboard.html">← DASHBOARD</a>
+    <a href="data-gen.html">DATA GEN</a>
     <a href="pipeline.html">PIPELINE</a>
-    <a href="data-gen.html">DATAGEN</a>
-    <a href="analytics.html">ANALYTICS</a>
     <a href="coordinator.html">COORDINATOR</a>
     <a href="datasets.html">DATASETS</a>
     <a href="evals.html" class="active">EVALS</a>
     <a href="models.html">MODELS</a>
-    <a href="monitor.html">MONITOR</a>
     <a href="deploy.html">DEPLOY</a>
+    <a href="resources.html">RESOURCES</a>
     <a href="reports.html">REPORTS</a>
-    <a href="resources.html">⚙</a>
+    <a href="orchestrator.html">ORCHESTRATOR</a>
+    <a href="settings.html">⚙</a>
   </div>
 </nav>
 

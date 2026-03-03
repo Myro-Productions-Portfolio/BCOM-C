@@ -21,8 +21,8 @@
     margin-bottom: 16px;
   }
   .ds-chip {
-    background: #0a0704;
-    border: 1px solid #1a0e06;
+    background: var(--card);
+    border: 1px solid var(--border);
     padding: 12px 18px;
     display: flex;
     flex-direction: column;
@@ -32,7 +32,7 @@
   .ds-chip-label {
     font-size: 9px;
     letter-spacing: 1.8px;
-    color: #555;
+    color: var(--muted);
     text-transform: uppercase;
   }
   .ds-chip-val {
@@ -52,8 +52,8 @@
   }
   .ds-search {
     flex: 1 1 220px;
-    background: #0a0704;
-    border: 1px solid #1a0e06;
+    background: var(--card);
+    border: 1px solid var(--border);
     color: var(--text-primary);
     padding: 7px 10px;
     font-size: 12px;
@@ -61,11 +61,11 @@
     outline: none;
   }
   .ds-search:focus { border-color: var(--orange-dark); }
-  .ds-search::placeholder { color: #444; }
+  .ds-search::placeholder { color: var(--muted); }
 
   .ds-filter-sel {
-    background: #0a0704;
-    border: 1px solid #1a0e06;
+    background: var(--card);
+    border: 1px solid var(--border);
     color: var(--text-primary);
     padding: 7px 10px;
     font-size: 12px;
@@ -89,8 +89,8 @@
     padding: 8px 10px;
     font-size: 9px;
     letter-spacing: 1.5px;
-    color: #555;
-    border-bottom: 1px solid #1a0e06;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
@@ -101,14 +101,14 @@
   .ds-table th.sort-active .sort-arrow { opacity: 1; }
   .ds-table td {
     padding: 9px 10px;
-    border-bottom: 1px solid #120b04;
+    border-bottom: 1px solid var(--border);
     color: var(--text-primary);
     vertical-align: middle;
     white-space: nowrap;
   }
-  .ds-table tr:hover td { background: #0e0804; cursor: pointer; }
+  .ds-table tr:hover td { background: var(--border); cursor: pointer; }
   .ds-table .ds-id {
-    color: #444;
+    color: var(--muted);
     font-size: 10px;
     max-width: 120px;
     overflow: hidden;
@@ -126,13 +126,13 @@
     font-size: 9px;
     letter-spacing: 1px;
     padding: 2px 6px;
-    border: 1px solid #1a0e06;
-    color: #888;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
     margin-right: 3px;
   }
   .ds-empty {
     text-align: center;
-    color: #444;
+    color: var(--muted);
     padding: 32px;
     font-size: 12px;
     letter-spacing: 1px;
@@ -151,8 +151,8 @@
     position: fixed;
     top: 0; right: 0; bottom: 0;
     width: min(620px, 100vw);
-    background: #0a0704;
-    border-left: 1px solid #1a0e06;
+    background: var(--card);
+    border-left: 1px solid var(--border);
     z-index: 201;
     display: flex;
     flex-direction: column;
@@ -168,7 +168,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px;
-    border-bottom: 1px solid #1a0e06;
+    border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
   .ds-detail-title {
@@ -179,8 +179,8 @@
   }
   .ds-detail-close {
     background: none;
-    border: 1px solid #1a0e06;
-    color: #888;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
     padding: 4px 10px;
     cursor: pointer;
     font-size: 11px;
@@ -201,10 +201,10 @@
   .ds-sec-label {
     font-size: 9px;
     letter-spacing: 2px;
-    color: #555;
+    color: var(--muted);
     margin-bottom: 8px;
     padding-bottom: 4px;
-    border-bottom: 1px solid #150d05;
+    border-bottom: 1px solid var(--border);
   }
   .ds-kv-grid {
     display: grid;
@@ -215,7 +215,7 @@
   .ds-kv-key {
     font-size: 9px;
     letter-spacing: 1.5px;
-    color: #444;
+    color: var(--muted);
   }
   .ds-kv-val {
     font-size: 13px;
@@ -225,8 +225,8 @@
 
   /* Examples preview */
   .ds-example-card {
-    background: #080604;
-    border: 1px solid #150d05;
+    background: var(--card);
+    border: 1px solid var(--border);
     padding: 10px 12px;
     margin-bottom: 8px;
     font-size: 11px;
@@ -239,7 +239,7 @@
     margin-bottom: 5px;
   }
   .ds-ex-text {
-    color: #aaa;
+    color: var(--text-muted);
     white-space: pre-wrap;
     word-break: break-word;
     max-height: 120px;
@@ -265,7 +265,7 @@
     top: 24px;
     bottom: -4px;
     width: 1px;
-    background: #1a0e06;
+    background: var(--border);
   }
   .prov-dot {
     width: 22px;
@@ -278,7 +278,7 @@
     color: var(--orange-dark);
     flex-shrink: 0;
     margin-top: 2px;
-    background: #080604;
+    background: var(--card);
   }
   .prov-info {
     padding-bottom: 16px;
@@ -292,25 +292,25 @@
   }
   .prov-meta {
     font-size: 10px;
-    color: #555;
+    color: var(--muted);
     margin-top: 2px;
   }
   .prov-src {
     font-size: 10px;
-    color: #888;
+    color: var(--text-muted);
     margin-top: 3px;
     font-style: italic;
   }
 
   .ds-detail-spinner {
     text-align: center;
-    color: #444;
+    color: var(--muted);
     padding: 40px;
     font-size: 11px;
     letter-spacing: 1.5px;
   }
   .ds-detail-err {
-    color: #e74c3c;
+    color: var(--status-err);
     font-size: 11px;
     letter-spacing: 1px;
     padding: 12px;
@@ -325,17 +325,18 @@
 <nav class="bcom-nav">
   <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
   <div class="bcom-nav-links">
+    <a href="dashboard.html">← DASHBOARD</a>
+    <a href="data-gen.html">DATA GEN</a>
     <a href="pipeline.html">PIPELINE</a>
-    <a href="data-gen.html">DATAGEN</a>
-    <a href="analytics.html">ANALYTICS</a>
     <a href="coordinator.html">COORDINATOR</a>
     <a href="datasets.html" class="active">DATASETS</a>
     <a href="evals.html">EVALS</a>
     <a href="models.html">MODELS</a>
-    <a href="monitor.html">MONITOR</a>
     <a href="deploy.html">DEPLOY</a>
+    <a href="resources.html">RESOURCES</a>
     <a href="reports.html">REPORTS</a>
-    <a href="resources.html">⚙</a>
+    <a href="orchestrator.html">ORCHESTRATOR</a>
+    <a href="settings.html">⚙</a>
   </div>
 </nav>
 

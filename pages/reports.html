@@ -8,11 +8,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 .rpt-hero{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
-.rpt-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 20px;min-width:130px}
+.rpt-chip{background:var(--card);border:1px solid var(--border);border-radius: 0;padding:14px 20px;min-width:130px}
 .rpt-chip-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
 .rpt-chip-val{font-size:26px;font-weight:700;color:var(--fg)}
 
-.rpt-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+.rpt-section{background:var(--card);border:1px solid var(--border);border-radius: 0;padding:20px;margin-bottom:20px}
 .rpt-section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 
 .rpt-table{width:100%;border-collapse:collapse;font-size:12px}
@@ -21,7 +21,7 @@
 .rpt-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--fg);vertical-align:middle}
 .rpt-table tr:hover td{background:rgba(255,255,255,.025)}
 
-.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.pill{display:inline-block;padding:2px 8px;border-radius: 0;font-size:11px;font-weight:600}
 .pill-pass{background:rgba(40,180,40,.18);color:#6f6}
 .pill-fail{background:rgba(220,60,60,.18);color:#f88}
 .score-hi{color:#6f6;font-weight:700}
@@ -32,7 +32,7 @@
 .chart-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
 @media(max-width:700px){.chart-2col{grid-template-columns:1fr}}
 .chart-wrap{position:relative;height:220px}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius: 0;padding:18px}
 .chart-card-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
 
 /* Heatmap */
@@ -45,31 +45,32 @@
 
 /* Filter row */
 .flt-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.flt-row input,.flt-row select{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:6px 10px;font-size:12px}
+.flt-row input,.flt-row select{background:var(--bg);border:1px solid var(--border);color:var(--fg);border-radius: 0;padding:6px 10px;font-size:12px}
 .flt-row input{flex:1;min-width:140px}
 
 /* Timeline bars */
 .timeline-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px}
 .timeline-label{width:180px;flex-shrink:0;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
-.timeline-track{flex:1;height:18px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden;position:relative}
-.timeline-bar{height:100%;border-radius:3px;display:flex;align-items:center;padding:0 6px;font-size:10px;font-weight:600;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;min-width:2px}
+.timeline-track{flex:1;height:18px;background:rgba(255,255,255,.04);border-radius: 0;overflow:hidden;position:relative}
+.timeline-bar{height:100%;border-radius: 0;display:flex;align-items:center;padding:0 6px;font-size:10px;font-weight:600;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;min-width:2px}
 </style>
 </head>
 <body>
 <nav class="bcom-nav">
   <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
   <div class="bcom-nav-links">
+    <a href="dashboard.html">← DASHBOARD</a>
+    <a href="data-gen.html">DATA GEN</a>
     <a href="pipeline.html">PIPELINE</a>
-    <a href="data-gen.html">DATAGEN</a>
-    <a href="analytics.html">ANALYTICS</a>
     <a href="coordinator.html">COORDINATOR</a>
     <a href="datasets.html">DATASETS</a>
     <a href="evals.html">EVALS</a>
     <a href="models.html">MODELS</a>
-    <a href="monitor.html">MONITOR</a>
     <a href="deploy.html">DEPLOY</a>
+    <a href="resources.html">RESOURCES</a>
     <a href="reports.html" class="active">REPORTS</a>
-    <a href="resources.html">⚙</a>
+    <a href="orchestrator.html">ORCHESTRATOR</a>
+    <a href="settings.html">⚙</a>
   </div>
 </nav>
 

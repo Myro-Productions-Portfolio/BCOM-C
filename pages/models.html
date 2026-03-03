@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="../assets/css/bcom.css?v=3">
   <style>
     body {
-      background: #080604;
-      color: #e8e6e1;
+      background: var(--card);
+      color: var(--text-dim);
     }
 
     .hero-row {
@@ -21,7 +21,7 @@
     .stat-chip {
       background: rgba(255, 107, 53, 0.08);
       border: 1px solid var(--orange-dark);
-      border-radius: 8px;
+      border-radius: 0;
       padding: 1.5rem;
       text-align: center;
     }
@@ -53,7 +53,7 @@
       font-size: 1.3rem;
       font-weight: 600;
       margin: 0;
-      color: #e8e6e1;
+      color: var(--text-dim);
     }
 
     .search-bar {
@@ -65,9 +65,9 @@
     .search-bar input {
       background: rgba(255, 107, 53, 0.05);
       border: 1px solid rgba(255, 107, 53, 0.3);
-      border-radius: 6px;
+      border-radius: 0;
       padding: 0.6rem 1rem;
-      color: #e8e6e1;
+      color: var(--text-dim);
       font-size: 0.9rem;
       width: 250px;
     }
@@ -88,7 +88,7 @@
       margin-bottom: 2rem;
       background: rgba(8, 6, 4, 0.5);
       border: 1px solid rgba(255, 107, 53, 0.2);
-      border-radius: 8px;
+      border-radius: 0;
       overflow: hidden;
     }
 
@@ -137,7 +137,7 @@
       border-radius: 50%;
       font-weight: 600;
       font-size: 0.85rem;
-      color: #080604;
+      color: var(--card);
     }
 
     .rank-pill.gold {
@@ -154,13 +154,13 @@
 
     .rank-pill.other {
       background: rgba(255, 107, 53, 0.3);
-      color: #e8e6e1;
+      color: var(--text-dim);
     }
 
     .status-pill {
       display: inline-block;
       padding: 0.4rem 0.8rem;
-      border-radius: 20px;
+      border-radius: 0;
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -195,9 +195,9 @@
     .pull-model-row input {
       background: rgba(255, 107, 53, 0.05);
       border: 1px solid rgba(255, 107, 53, 0.3);
-      border-radius: 6px;
+      border-radius: 0;
       padding: 0.7rem 1rem;
-      color: #e8e6e1;
+      color: var(--text-dim);
       font-size: 0.9rem;
       flex: 1;
       max-width: 400px;
@@ -215,9 +215,9 @@
 
     .btn {
       background: var(--orange-dark);
-      color: #080604;
+      color: var(--card);
       border: none;
-      border-radius: 6px;
+      border-radius: 0;
       padding: 0.7rem 1.5rem;
       font-size: 0.9rem;
       font-weight: 600;
@@ -289,7 +289,7 @@
     .slide-panel-header h3 {
       margin: 0;
       font-size: 1.1rem;
-      color: #e8e6e1;
+      color: var(--text-dim);
     }
 
     .slide-panel-close {
@@ -345,7 +345,7 @@
 
     .card-detail-value {
       font-size: 0.9rem;
-      color: #e8e6e1;
+      color: var(--text-dim);
       word-break: break-word;
     }
 
@@ -358,7 +358,7 @@
     .lineage-node {
       background: rgba(255, 107, 53, 0.08);
       border: 1px solid rgba(255, 107, 53, 0.2);
-      border-radius: 6px;
+      border-radius: 0;
       padding: 0.75rem;
       font-size: 0.85rem;
     }
@@ -379,7 +379,7 @@
       bottom: 2rem;
       right: 2rem;
       padding: 1rem 1.5rem;
-      border-radius: 6px;
+      border-radius: 0;
       font-size: 0.9rem;
       font-weight: 500;
       z-index: 300;
@@ -443,21 +443,22 @@
 </head>
 <body>
   <nav class="bcom-nav">
-    <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
-    <div class="bcom-nav-links">
-      <a href="pipeline.html">PIPELINE</a>
-      <a href="data-gen.html">DATAGEN</a>
-      <a href="analytics.html">ANALYTICS</a>
-      <a href="coordinator.html">COORDINATOR</a>
-      <a href="datasets.html">DATASETS</a>
-      <a href="evals.html">EVALS</a>
-      <a href="models.html" class="active">MODELS</a>
-      <a href="monitor.html">MONITOR</a>
-      <a href="deploy.html">DEPLOY</a>
-      <a href="reports.html">REPORTS</a>
-      <a href="resources.html">⚙</a>
-    </div>
-  </nav>
+  <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
+  <div class="bcom-nav-links">
+    <a href="dashboard.html">← DASHBOARD</a>
+    <a href="data-gen.html">DATA GEN</a>
+    <a href="pipeline.html">PIPELINE</a>
+    <a href="coordinator.html">COORDINATOR</a>
+    <a href="datasets.html">DATASETS</a>
+    <a href="evals.html">EVALS</a>
+    <a href="models.html" class="active">MODELS</a>
+    <a href="deploy.html">DEPLOY</a>
+    <a href="resources.html">RESOURCES</a>
+    <a href="reports.html">REPORTS</a>
+    <a href="orchestrator.html">ORCHESTRATOR</a>
+    <a href="settings.html">⚙</a>
+  </div>
+</nav>
 
   <div class="container">
     <div class="hero-row">

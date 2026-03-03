@@ -15,54 +15,54 @@
 <style>
   /* ── Hero chips ───────────────────────────────────────────────────── */
   .hero-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
-  .hero-chip { flex:1; min-width:110px; padding:10px 14px; border:1px solid #1a0e05; background:#090603; }
-  .hero-chip-label { font-size:9px; letter-spacing:2px; color:#666; margin-bottom:4px; }
+  .hero-chip { flex:1; min-width:110px; padding:10px 14px; border:1px solid var(--border); background:var(--card); }
+  .hero-chip-label { font-size:9px; letter-spacing:2px; color:var(--text-muted); margin-bottom:4px; }
   .hero-chip-val { font-size:20px; font-weight:700; color:var(--orange); letter-spacing:1px; }
-  .hero-chip-sub { font-size:9px; color:#555; margin-top:2px; letter-spacing:1px; }
+  .hero-chip-sub { font-size:9px; color:var(--muted); margin-top:2px; letter-spacing:1px; }
 
   /* ── Generic table ────────────────────────────────────────────────── */
   .res-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
-  .res-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px; padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
-  .res-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
-  .res-table tr:hover td { background:#0e0905; }
-  .res-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
+  .res-table th { background:var(--border); color:var(--text-dim); font-weight:600; letter-spacing:1.5px; padding:7px 10px; text-align:left; border-bottom:1px solid var(--border); }
+  .res-table td { padding:7px 10px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--text-dim); }
+  .res-table tr:hover td { background:var(--border); }
+  .res-table .empty { text-align:center; color:var(--input-bg); padding:24px; letter-spacing:2px; }
 
   /* ── Status pills ─────────────────────────────────────────────────── */
   .spill { display:inline-block; font-size:9px; letter-spacing:1.5px; padding:2px 7px; border:1px solid; }
-  .spill.up      { color:#27ae60; border-color:#27ae60; }
-  .spill.running { color:#27ae60; border-color:#27ae60; }
-  .spill.down    { color:#e74c3c; border-color:#e74c3c; }
-  .spill.stopped { color:#e74c3c; border-color:#e74c3c; }
-  .spill.paused  { color:#f39c12; border-color:#f39c12; }
+  .spill.up      { color:var(--status-ok); border-color:var(--status-ok); }
+  .spill.running { color:var(--status-ok); border-color:var(--status-ok); }
+  .spill.down    { color:var(--status-err); border-color:var(--status-err); }
+  .spill.stopped { color:var(--status-err); border-color:var(--status-err); }
+  .spill.paused  { color:var(--status-warn); border-color:var(--status-warn); }
   .spill.restarting { color:var(--orange); border-color:var(--orange-dark); }
-  .spill.loaded  { color:#27ae60; border-color:#27ae60; }
+  .spill.loaded  { color:var(--status-ok); border-color:var(--status-ok); }
   .spill.cached  { color:var(--orange); border-color:var(--orange-dark); }
-  .spill.avail   { color:#444; border-color:#333; }
+  .spill.avail   { color:var(--muted); border-color:#333; }
 
   /* ── Action buttons in tables ─────────────────────────────────────── */
-  .ctr-btn { font-size:9px; letter-spacing:1.5px; padding:2px 8px; background:#0e0905; border:1px solid #2a1508; color:#aaa; cursor:pointer; }
+  .ctr-btn { font-size:9px; letter-spacing:1.5px; padding:2px 8px; background:var(--border); border:1px solid #2a1508; color:var(--text-muted); cursor:pointer; }
   .ctr-btn:hover { border-color:var(--orange-dark); color:var(--orange); }
-  .ctr-btn.danger { border-color:#3a1010; color:#e74c3c; }
-  .ctr-btn.danger:hover { border-color:#e74c3c; }
+  .ctr-btn.danger { border-color:#3a1010; color:var(--status-err); }
+  .ctr-btn.danger:hover { border-color:var(--status-err); }
   .btn-row { display:flex; gap:4px; }
 
   /* ── Storage bars ─────────────────────────────────────────────────── */
   .stor-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .stor-node { padding:12px; border:1px solid #1a0e05; background:#090603; }
+  .stor-node { padding:12px; border:1px solid var(--border); background:var(--card); }
   .stor-hdr  { font-size:11px; letter-spacing:2px; color:var(--orange-dark); margin-bottom:10px; font-weight:700; }
   .stor-row  { margin-bottom:8px; }
-  .stor-label{ font-size:10px; letter-spacing:1px; color:#ccc; display:flex; justify-content:space-between; margin-bottom:3px; }
-  .stor-track{ background:#0e0905; height:6px; }
+  .stor-label{ font-size:10px; letter-spacing:1px; color:var(--text-dim); display:flex; justify-content:space-between; margin-bottom:3px; }
+  .stor-track{ background:var(--border); height:6px; }
   .stor-fill { height:6px; background:var(--orange-dark); transition:width .6s; }
-  .stor-fill.warn   { background:#f39c12; }
-  .stor-fill.danger { background:#e74c3c; }
+  .stor-fill.warn   { background:var(--status-warn); }
+  .stor-fill.danger { background:var(--status-err); }
 
   /* ── Pull model form ──────────────────────────────────────────────── */
   .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:10px; }
   .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-  .form-grp label { display:block; font-size:9px; letter-spacing:1.5px; color:#777; margin-bottom:4px; }
+  .form-grp label { display:block; font-size:9px; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:4px; }
   .form-grp input, .form-grp select { width:100%; box-sizing:border-box; }
-  .pull-out { font-size:11px; letter-spacing:1px; color:#555; margin-top:6px; min-height:18px; }
+  .pull-out { font-size:11px; letter-spacing:1px; color:var(--muted); margin-top:6px; min-height:18px; }
 
   /* ── Section header with actions ──────────────────────────────────── */
   .card-hdr-row { display:flex; align-items:center; justify-content:space-between; }
@@ -81,19 +81,19 @@
   .mon-status-pill { font-size:9px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
   .mon-status-pill.online  { color:var(--status-ok);  border-color:var(--status-ok); }
   .mon-status-pill.offline { color:var(--status-err); border-color:var(--status-err); }
-  .mon-status-pill.unknown { color:var(--muted);      border-color:#444; }
+  .mon-status-pill.unknown { color:var(--muted);      border-color:var(--muted); }
   .mon-metrics { display:flex; flex-direction:column; gap:8px; }
   .mon-metric { display:flex; flex-direction:column; gap:3px; }
   .mon-metric-hdr { display:flex; justify-content:space-between; font-size:10px; }
-  .mon-metric-key { color:#444; letter-spacing:1px; }
+  .mon-metric-key { color:var(--muted); letter-spacing:1px; }
   .mon-metric-val { color:var(--text-dim); font-variant-numeric:tabular-nums; }
-  .mon-bar-track { background:#0e0a06; height:4px; }
+  .mon-bar-track { background:var(--border); height:4px; }
   .mon-bar-fill  { height:4px; background:var(--orange-dark); transition:width .5s; }
   .mon-bar-fill.warn { background:var(--status-warn); }
   .mon-bar-fill.crit { background:var(--status-err); }
   .mon-metrics-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px; }
   .mon-m-chip { background:var(--card); border:1px solid var(--border); padding:8px 14px; }
-  .mon-m-chip-label { font-size:9px; letter-spacing:1.5px; color:#444; }
+  .mon-m-chip-label { font-size:9px; letter-spacing:1.5px; color:var(--muted); }
   .mon-m-chip-val   { font-size:16px; color:var(--orange-dark); font-variant-numeric:tabular-nums; }
   .mon-empty { color:#333; font-size:11px; letter-spacing:1.5px; padding:16px; text-align:center; }
 </style>
@@ -103,17 +103,18 @@
 <nav class="bcom-nav">
   <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
   <div class="bcom-nav-links">
+    <a href="dashboard.html">← DASHBOARD</a>
+    <a href="data-gen.html">DATA GEN</a>
     <a href="pipeline.html">PIPELINE</a>
-    <a href="data-gen.html">DATAGEN</a>
-    <a href="analytics.html">ANALYTICS</a>
     <a href="coordinator.html">COORDINATOR</a>
     <a href="datasets.html">DATASETS</a>
     <a href="evals.html">EVALS</a>
     <a href="models.html">MODELS</a>
-    <a href="monitor.html">MONITOR</a>
     <a href="deploy.html">DEPLOY</a>
+    <a href="resources.html" class="active">RESOURCES</a>
     <a href="reports.html">REPORTS</a>
-    <a href="resources.html" class="active">⚙</a>
+    <a href="orchestrator.html">ORCHESTRATOR</a>
+    <a href="settings.html">⚙</a>
   </div>
 </nav>
 

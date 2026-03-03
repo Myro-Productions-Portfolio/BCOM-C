@@ -16,21 +16,21 @@
 <style>
   /* ── Job table ───────────────────────────────────────────── */
   .job-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
-  .job-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px;
-                   padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
-  .job-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
-  .job-table tr:hover td { background:#0e0905; }
-  .job-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
+  .job-table th { background:var(--border); color:var(--text-dim); font-weight:600; letter-spacing:1.5px;
+                   padding:7px 10px; text-align:left; border-bottom:1px solid var(--border); }
+  .job-table td { padding:7px 10px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--text-dim); }
+  .job-table tr:hover td { background:var(--border); }
+  .job-table .empty { text-align:center; color:var(--input-bg); padding:24px; letter-spacing:2px; }
   .job-status { display:inline-block; font-size:10px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
-  .job-status.running { color:#27ae60; border-color:#27ae60; }
-  .job-status.queued  { color:#f39c12; border-color:#f39c12; }
-  .job-status.done    { color:#444;    border-color:#333; }
-  .job-status.error   { color:#e74c3c; border-color:#e74c3c; }
+  .job-status.running { color:var(--status-ok); border-color:var(--status-ok); }
+  .job-status.queued  { color:var(--status-warn); border-color:var(--status-warn); }
+  .job-status.done    { color:var(--muted);    border-color:#333; }
+  .job-status.error   { color:var(--status-err); border-color:var(--status-err); }
   .job-wrap { overflow-x:auto; }
   .opt-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
-  .opt-toggle { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:1px; color:#ccc; cursor:pointer; }
+  .opt-toggle { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:1px; color:var(--text-dim); cursor:pointer; }
   .opt-toggle input { accent-color:var(--orange-dark); }
-  .prog-track { background:#0e0905; height:4px; margin-top:4px; }
+  .prog-track { background:var(--border); height:4px; margin-top:4px; }
   .prog-fill   { height:4px; background:var(--orange-dark); transition:width .4s; }
 
   /* ── Analytics section ───────────────────────────────────── */
@@ -62,8 +62,8 @@
   }
 
   .worker-card {
-    background: #0c0804;
-    border: 1px solid #1e1008;
+    background: var(--card);
+    border: 1px solid var(--border);
     min-width: 220px;
     flex: 1 1 220px;
     max-width: 320px;
@@ -75,9 +75,9 @@
     position: relative;
   }
   .worker-card.running { border-color: var(--orange-dark); }
-  .worker-card.done    { border-color: #27ae60; }
-  .worker-card.error   { border-color: #e74c3c; }
-  .worker-card.queued  { border-color: #f39c12; }
+  .worker-card.done    { border-color: var(--status-ok); }
+  .worker-card.error   { border-color: var(--status-err); }
+  .worker-card.queued  { border-color: var(--status-warn); }
 
   .wc-header {
     display: flex;
@@ -102,11 +102,11 @@
     border: 1px solid;
     white-space: nowrap;
   }
-  .wc-status-badge.running { color:#27ae60; border-color:#27ae60; }
-  .wc-status-badge.done    { color:#444;    border-color:#333; }
-  .wc-status-badge.error   { color:#e74c3c; border-color:#e74c3c; }
-  .wc-status-badge.queued  { color:#f39c12; border-color:#f39c12; }
-  .wc-status-badge.cancelled { color:#e74c3c; border-color:#e74c3c; }
+  .wc-status-badge.running { color:var(--status-ok); border-color:var(--status-ok); }
+  .wc-status-badge.done    { color:var(--muted);    border-color:#333; }
+  .wc-status-badge.error   { color:var(--status-err); border-color:var(--status-err); }
+  .wc-status-badge.queued  { color:var(--status-warn); border-color:var(--status-warn); }
+  .wc-status-badge.cancelled { color:var(--status-err); border-color:var(--status-err); }
 
   .wc-meta {
     display: flex;
@@ -116,7 +116,7 @@
     letter-spacing: 1px;
   }
   .wc-agent {
-    color: #aaa;
+    color: var(--text-muted);
     font-size: 10px;
     letter-spacing: .5px;
     white-space: nowrap;
@@ -125,7 +125,7 @@
     max-width: 150px;
   }
   .wc-iter {
-    color: #555;
+    color: var(--muted);
     font-size: 9px;
     letter-spacing: 1px;
     white-space: nowrap;
@@ -145,13 +145,13 @@
   }
   .tok-total {
     font-size: 10px;
-    color: #555;
+    color: var(--muted);
     letter-spacing: .5px;
   }
 
   .wc-snippet {
     font-size: 10px;
-    color: #888;
+    color: var(--text-muted);
     line-height: 1.5;
     min-height: 32px;
     max-height: 48px;
@@ -174,18 +174,18 @@
 
   .monitor-hdr-meta {
     font-size: 10px;
-    color: #555;
+    color: var(--muted);
     letter-spacing: 1px;
     display: flex;
     gap: 16px;
   }
-  .monitor-hdr-meta span { color: #999; }
+  .monitor-hdr-meta span { color: var(--text-muted); }
 
   /* Empty grid state */
   .worker-empty {
     width: 100%;
     text-align: center;
-    color: #2a2a2a;
+    color: var(--input-bg);
     padding: 32px;
     letter-spacing: 2px;
     font-size: 11px;
@@ -199,11 +199,11 @@
     flex-direction: column;
   }
   .gen-feed::-webkit-scrollbar { width: 4px; }
-  .gen-feed::-webkit-scrollbar-track { background: #080604; }
+  .gen-feed::-webkit-scrollbar-track { background: var(--card); }
   .gen-feed::-webkit-scrollbar-thumb { background: #2a1a0a; }
 
   .feed-item {
-    border-bottom: 1px solid #0e0905;
+    border-bottom: 1px solid var(--border);
     padding: 12px 16px;
     display: flex;
     flex-direction: column;
@@ -212,9 +212,9 @@
     transition: background .15s;
   }
   .feed-item:hover { background: #090604; }
-  .feed-item.completed { border-left-color: #27ae60; }
-  .feed-item.failed    { border-left-color: #e74c3c; }
-  .feed-item.cancelled { border-left-color: #555; }
+  .feed-item.completed { border-left-color: var(--status-ok); }
+  .feed-item.failed    { border-left-color: var(--status-err); }
+  .feed-item.cancelled { border-left-color: var(--muted); }
 
   .feed-header {
     display: flex;
@@ -230,24 +230,24 @@
   }
   .feed-ts {
     font-size: 10px;
-    color: #555;
+    color: var(--muted);
     letter-spacing: .5px;
   }
   .feed-dur {
     font-size: 10px;
-    color: #555;
+    color: var(--muted);
     letter-spacing: .5px;
   }
   .feed-tok {
     font-size: 10px;
-    color: #555;
+    color: var(--muted);
     letter-spacing: .5px;
     margin-left: auto;
   }
 
   .feed-task {
     font-size: 11px;
-    color: #999;
+    color: var(--text-muted);
     letter-spacing: .3px;
     line-height: 1.4;
   }
@@ -257,7 +257,7 @@
     color: #88a0a0;
     font-family: monospace;
     background: #060402;
-    border: 1px solid #0e0a06;
+    border: 1px solid var(--border);
     border-left: 2px solid #1e2a2a;
     padding: 8px 10px;
     white-space: pre-wrap;
@@ -286,7 +286,7 @@
     font-size: 10px;
     font-family: monospace;
     background: #060402;
-    border: 1px solid #0e0a06;
+    border: 1px solid var(--border);
     border-left: 2px solid #2a3a1e;
     padding: 8px 10px;
     display: flex;
@@ -321,7 +321,7 @@
     white-space: pre-wrap;
   }
   .chain-empty {
-    color: #444;
+    color: var(--muted);
     letter-spacing: 1.5px;
     font-size: 10px;
     text-align: center;
@@ -333,27 +333,27 @@
     align-items: center;
     gap: 14px;
     font-size: 10px;
-    color: #444;
+    color: var(--muted);
     letter-spacing: .5px;
   }
-  .feed-model { color: #555; }
+  .feed-model { color: var(--muted); }
 
   .feed-empty {
     text-align: center;
-    color: #2a2a2a;
+    color: var(--input-bg);
     padding: 32px;
     letter-spacing: 2px;
     font-size: 11px;
   }
   .feed-hdr-meta {
     font-size: 10px;
-    color: #555;
+    color: var(--muted);
     letter-spacing: 1px;
     display: flex;
     align-items: center;
     gap: 16px;
   }
-  .feed-hdr-meta span { color: #999; }
+  .feed-hdr-meta span { color: var(--text-muted); }
 
   /* Pulse animation on running cards */
   @keyframes pulse-glow {
@@ -367,21 +367,23 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-title">BCOM-C</div>
-  <div class="topbar-right">
-    <a class="nav-btn" href="../index.html"><span class="nav-arrow">&#8592;</span> DASHBOARD</a>
-    <a class="nav-btn active" href="data-gen.html">DATA GEN</a>
-    <a class="nav-btn" href="pipeline.html">PIPELINE</a>
-    <a class="nav-btn" href="coordinator.html">COORDINATOR</a>
-    <a class="nav-btn" href="datasets.html">DATASETS</a>
-    <a class="nav-btn" href="resources.html">RESOURCES</a>
-    <a class="nav-btn" href="reports.html">REPORTS</a>
-    <a class="nav-btn" href="orchestrator.html">ORCHESTRATOR</a>
-    <a class="cog-btn" href="settings.html" title="Settings">⚙</a>
-    <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
+<nav class="bcom-nav">
+  <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
+  <div class="bcom-nav-links">
+    <a href="dashboard.html">← DASHBOARD</a>
+    <a href="data-gen.html" class="active">DATA GEN</a>
+    <a href="pipeline.html">PIPELINE</a>
+    <a href="coordinator.html">COORDINATOR</a>
+    <a href="datasets.html">DATASETS</a>
+    <a href="evals.html">EVALS</a>
+    <a href="models.html">MODELS</a>
+    <a href="deploy.html">DEPLOY</a>
+    <a href="resources.html">RESOURCES</a>
+    <a href="reports.html">REPORTS</a>
+    <a href="orchestrator.html">ORCHESTRATOR</a>
+    <a href="settings.html">⚙</a>
   </div>
-</div>
+</nav>
 
 <div class="actionbar">
   <button class="action-btn danger" onclick="triggerAction('RESTART VLLM')">RESTART VLLM</button>

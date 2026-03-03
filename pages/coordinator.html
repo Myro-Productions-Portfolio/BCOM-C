@@ -22,8 +22,8 @@
   }
   .node-card {
     flex: 1 1 260px;
-    background: #0a0704;
-    border: 1px solid #1a0e06;
+    background: var(--card);
+    border: 1px solid var(--border);
     padding: 14px 16px;
     display: flex;
     flex-direction: column;
@@ -47,9 +47,9 @@
     padding: 2px 8px;
     border: 1px solid;
   }
-  .node-pill.online  { color: #27ae60; border-color: #27ae60; }
-  .node-pill.offline { color: #e74c3c; border-color: #e74c3c; }
-  .node-pill.unknown { color: #555;    border-color: #444; }
+  .node-pill.online  { color: var(--status-ok); border-color: var(--status-ok); }
+  .node-pill.offline { color: var(--status-err); border-color: var(--status-err); }
+  .node-pill.unknown { color: var(--muted);    border-color: var(--muted); }
 
   .node-metrics {
     display: flex;
@@ -65,7 +65,7 @@
   .nm-label {
     font-size: 8px;
     letter-spacing: 1.5px;
-    color: #444;
+    color: var(--muted);
     text-transform: uppercase;
   }
   .nm-val {
@@ -76,7 +76,7 @@
   }
   .nm-bar {
     height: 2px;
-    background: #1a0e06;
+    background: var(--border);
     margin-top: 2px;
   }
   .nm-bar-fill {
@@ -84,8 +84,8 @@
     background: var(--orange-dark);
     transition: width .5s;
   }
-  .nm-bar-fill.warn { background: #f39c12; }
-  .nm-bar-fill.crit { background: #e74c3c; }
+  .nm-bar-fill.warn { background: var(--status-warn); }
+  .nm-bar-fill.crit { background: var(--status-err); }
 
   /* ── Queue panel ─────────────────────────────────────── */
   .queue-list {
@@ -96,7 +96,7 @@
     overflow-y: auto;
   }
   .queue-list::-webkit-scrollbar { width: 4px; }
-  .queue-list::-webkit-scrollbar-track { background: #080604; }
+  .queue-list::-webkit-scrollbar-track { background: var(--card); }
   .queue-list::-webkit-scrollbar-thumb { background: #2a1a0a; }
 
   .queue-item {
@@ -104,7 +104,7 @@
     align-items: center;
     gap: 10px;
     padding: 9px 14px;
-    border-bottom: 1px solid #0e0a06;
+    border-bottom: 1px solid var(--border);
     transition: background .1s;
     flex-wrap: wrap;
   }
@@ -129,13 +129,13 @@
     padding: 2px 7px;
     border: 1px solid;
   }
-  .qi-status.running  { color: #27ae60; border-color: #27ae60; }
-  .qi-status.queued   { color: #f39c12; border-color: #f39c12; }
-  .qi-status.done     { color: #444;    border-color: #333; }
-  .qi-status.error    { color: #e74c3c; border-color: #e74c3c; }
+  .qi-status.running  { color: var(--status-ok); border-color: var(--status-ok); }
+  .qi-status.queued   { color: var(--status-warn); border-color: var(--status-warn); }
+  .qi-status.done     { color: var(--muted);    border-color: #333; }
+  .qi-status.error    { color: var(--status-err); border-color: var(--status-err); }
   .qi-task {
     font-size: 10px;
-    color: #777;
+    color: var(--text-muted);
     flex: 1;
     letter-spacing: .3px;
     white-space: nowrap;
@@ -145,7 +145,7 @@
   }
   .qi-model {
     font-size: 9px;
-    color: #444;
+    color: var(--muted);
     letter-spacing: .5px;
     white-space: nowrap;
   }
@@ -168,48 +168,48 @@
   .coord-stats {
     display: flex;
     gap: 1px;
-    background: #1a0e06;
-    border: 1px solid #1a0e06;
+    background: var(--border);
+    border: 1px solid var(--border);
     border-bottom: none;
     flex-wrap: wrap;
   }
   .cs-chip {
     flex: 1 1 80px;
-    background: #080604;
+    background: var(--card);
     padding: 8px 14px;
     display: flex;
     flex-direction: column;
     gap: 3px;
   }
-  .cs-label { font-size: 8px; letter-spacing: 1.5px; color: #444; }
+  .cs-label { font-size: 8px; letter-spacing: 1.5px; color: var(--muted); }
   .cs-val   { font-size: 16px; font-weight: 700; color: var(--orange-dark); font-variant-numeric: tabular-nums; }
 
   /* ── Run table ───────────────────────────────────────── */
   .run-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
-  .run-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px;
-                  padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
-  .run-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
-  .run-table tr:hover td { background:#0e0905; }
-  .run-table .empty { text-align:center; color:#2a2a2a; padding:20px; letter-spacing:2px; }
+  .run-table th { background:var(--border); color:var(--text-dim); font-weight:600; letter-spacing:1.5px;
+                  padding:7px 10px; text-align:left; border-bottom:1px solid var(--border); }
+  .run-table td { padding:7px 10px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--text-dim); }
+  .run-table tr:hover td { background:var(--border); }
+  .run-table .empty { text-align:center; color:var(--input-bg); padding:20px; letter-spacing:2px; }
   .run-wrap { overflow-x:auto; max-height:320px; overflow-y:auto; }
   .run-wrap::-webkit-scrollbar { width:4px; height:4px; }
-  .run-wrap::-webkit-scrollbar-track { background:#080604; }
+  .run-wrap::-webkit-scrollbar-track { background:var(--card); }
   .run-wrap::-webkit-scrollbar-thumb { background:#2a1a0a; }
 
   .st-badge {
     display:inline-block; font-size:9px; letter-spacing:1.5px; padding:2px 7px; border:1px solid;
   }
-  .st-badge.running   { color:#27ae60; border-color:#27ae60; }
-  .st-badge.queued    { color:#f39c12; border-color:#f39c12; }
-  .st-badge.completed { color:#444;    border-color:#333; }
-  .st-badge.failed    { color:#e74c3c; border-color:#e74c3c; }
-  .st-badge.cancelled { color:#555;    border-color:#444; }
+  .st-badge.running   { color:var(--status-ok); border-color:var(--status-ok); }
+  .st-badge.queued    { color:var(--status-warn); border-color:var(--status-warn); }
+  .st-badge.completed { color:var(--muted);    border-color:#333; }
+  .st-badge.failed    { color:var(--status-err); border-color:var(--status-err); }
+  .st-badge.cancelled { color:var(--muted);    border-color:var(--muted); }
 
   .coord-hdr-meta {
-    font-size: 10px; color:#555; letter-spacing:1px;
+    font-size: 10px; color:var(--muted); letter-spacing:1px;
     display:flex; gap:14px; align-items:center;
   }
-  .coord-hdr-meta span { color:#999; }
+  .coord-hdr-meta span { color:var(--text-muted); }
 </style>
 </head>
 <body>
@@ -217,17 +217,18 @@
 <nav class="bcom-nav">
   <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
   <div class="bcom-nav-links">
+    <a href="dashboard.html">← DASHBOARD</a>
+    <a href="data-gen.html">DATA GEN</a>
     <a href="pipeline.html">PIPELINE</a>
-    <a href="data-gen.html">DATAGEN</a>
-    <a href="analytics.html">ANALYTICS</a>
     <a href="coordinator.html" class="active">COORDINATOR</a>
     <a href="datasets.html">DATASETS</a>
     <a href="evals.html">EVALS</a>
     <a href="models.html">MODELS</a>
-    <a href="monitor.html">MONITOR</a>
     <a href="deploy.html">DEPLOY</a>
+    <a href="resources.html">RESOURCES</a>
     <a href="reports.html">REPORTS</a>
-    <a href="resources.html">⚙</a>
+    <a href="orchestrator.html">ORCHESTRATOR</a>
+    <a href="settings.html">⚙</a>
   </div>
 </nav>
 
