@@ -14,23 +14,23 @@
 <link rel="stylesheet" href="../assets/css/bcom.css?v=3" />
 <style>
   /* ── Job table ───────────────────────────────────────────── */
-  .job-table { width:100%; border-collapse:collapse; font-size:13px; letter-spacing:.5px; }
+  .job-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
   .job-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px;
-                   padding:10px 14px; text-align:left; border-bottom:1px solid #1e1008; }
-  .job-table td { padding:10px 14px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
+                   padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .job-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
   .job-table tr:hover td { background:#0e0905; }
-  .job-table .empty { text-align:center; color:#2a2a2a; padding:28px; letter-spacing:2px; }
-  .job-status { display:inline-block; font-size:11px; letter-spacing:1.5px; padding:3px 9px; border:1px solid; }
+  .job-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
+  .job-status { display:inline-block; font-size:10px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
   .job-status.running { color:#27ae60; border-color:#27ae60; }
   .job-status.queued  { color:#f39c12; border-color:#f39c12; }
   .job-status.done    { color:#444;    border-color:#333; }
   .job-status.error   { color:#e74c3c; border-color:#e74c3c; }
   .job-wrap { overflow-x:auto; }
   .opt-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
-  .opt-toggle { display:flex; align-items:center; gap:8px; font-size:13px; letter-spacing:1px; color:#ccc; cursor:pointer; }
+  .opt-toggle { display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:1px; color:#ccc; cursor:pointer; }
   .opt-toggle input { accent-color:var(--orange-dark); }
-  .prog-track { background:#0e0905; height:6px; margin-top:4px; }
-  .prog-fill   { height:6px; background:var(--orange-dark); transition:width .4s; }
+  .prog-track { background:#0e0905; height:4px; margin-top:4px; }
+  .prog-fill   { height:4px; background:var(--orange-dark); transition:width .4s; }
 
   /* ── Live Monitor / Worker Cards ────────────────────────── */
   #live-monitor { display:none; }
@@ -45,13 +45,13 @@
   .worker-card {
     background: #0c0804;
     border: 1px solid #1e1008;
-    min-width: 260px;
-    flex: 1 1 260px;
-    max-width: 380px;
-    padding: 14px 16px;
+    min-width: 220px;
+    flex: 1 1 220px;
+    max-width: 320px;
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     transition: border-color .2s;
     position: relative;
   }
@@ -67,19 +67,19 @@
     gap: 8px;
   }
   .wc-id {
-    font-size: 12px;
+    font-size: 10px;
     letter-spacing: 1.5px;
     color: var(--orange-dark);
     font-family: monospace;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 180px;
+    max-width: 140px;
   }
   .wc-status-badge {
-    font-size: 11px;
+    font-size: 9px;
     letter-spacing: 1.5px;
-    padding: 3px 8px;
+    padding: 2px 6px;
     border: 1px solid;
     white-space: nowrap;
   }
@@ -93,21 +93,21 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: 10px;
     letter-spacing: 1px;
   }
   .wc-agent {
     color: #aaa;
-    font-size: 12px;
+    font-size: 10px;
     letter-spacing: .5px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 190px;
+    max-width: 150px;
   }
   .wc-iter {
-    color: #666;
-    font-size: 11px;
+    color: #555;
+    font-size: 9px;
     letter-spacing: 1px;
     white-space: nowrap;
   }
@@ -118,24 +118,24 @@
     gap: 10px;
   }
   .tok-rate {
-    font-size: 17px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--orange-dark);
     letter-spacing: .5px;
     font-variant-numeric: tabular-nums;
   }
   .tok-total {
-    font-size: 12px;
-    color: #666;
+    font-size: 10px;
+    color: #555;
     letter-spacing: .5px;
   }
 
   .wc-snippet {
-    font-size: 12px;
+    font-size: 10px;
     color: #888;
     line-height: 1.5;
-    min-height: 36px;
-    max-height: 56px;
+    min-height: 32px;
+    max-height: 48px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -154,22 +154,22 @@
   }
 
   .monitor-hdr-meta {
-    font-size: 12px;
-    color: #666;
+    font-size: 10px;
+    color: #555;
     letter-spacing: 1px;
     display: flex;
     gap: 16px;
   }
-  .monitor-hdr-meta span { color: #aaa; }
+  .monitor-hdr-meta span { color: #999; }
 
   /* Empty grid state */
   .worker-empty {
     width: 100%;
     text-align: center;
-    color: #333;
-    padding: 36px;
+    color: #2a2a2a;
+    padding: 32px;
     letter-spacing: 2px;
-    font-size: 13px;
+    font-size: 11px;
   }
 
   /* ── Generation Feed ─────────────────────────────────────── */
@@ -185,7 +185,7 @@
 
   .feed-item {
     border-bottom: 1px solid #0e0905;
-    padding: 16px 20px;
+    padding: 12px 16px;
     display: flex;
     flex-direction: column;
     gap: 7px;
@@ -204,37 +204,37 @@
     flex-wrap: wrap;
   }
   .feed-run-id {
-    font-size: 12px;
+    font-size: 10px;
     font-family: monospace;
     color: var(--orange-dark);
     letter-spacing: .5px;
   }
   .feed-ts {
-    font-size: 12px;
-    color: #666;
+    font-size: 10px;
+    color: #555;
     letter-spacing: .5px;
   }
   .feed-dur {
-    font-size: 12px;
-    color: #666;
+    font-size: 10px;
+    color: #555;
     letter-spacing: .5px;
   }
   .feed-tok {
-    font-size: 12px;
-    color: #666;
+    font-size: 10px;
+    color: #555;
     letter-spacing: .5px;
     margin-left: auto;
   }
 
   .feed-task {
-    font-size: 13px;
+    font-size: 11px;
     color: #999;
     letter-spacing: .3px;
     line-height: 1.4;
   }
 
   .feed-snippet {
-    font-size: 12px;
+    font-size: 10px;
     color: #88a0a0;
     font-family: monospace;
     background: #060402;
@@ -250,7 +250,7 @@
   }
   .feed-snippet.expanded { max-height: none; }
   .feed-snippet-toggle {
-    font-size: 11px;
+    font-size: 9px;
     letter-spacing: 1px;
     color: var(--orange-dark);
     cursor: pointer;
@@ -264,7 +264,7 @@
   .feed-snippet-toggle:hover { text-decoration: underline; }
 
   .feed-event-chain {
-    font-size: 12px;
+    font-size: 10px;
     font-family: monospace;
     background: #060402;
     border: 1px solid #0e0a06;
@@ -291,10 +291,10 @@
     color: var(--orange-dark);
     white-space: nowrap;
     flex-shrink: 0;
-    font-size: 11px;
+    font-size: 9px;
     letter-spacing: .5px;
     padding-top: 1px;
-    min-width: 70px;
+    min-width: 60px;
   }
   .chain-text {
     color: #88a0a0;
@@ -302,39 +302,39 @@
     white-space: pre-wrap;
   }
   .chain-empty {
-    color: #555;
+    color: #444;
     letter-spacing: 1.5px;
-    font-size: 12px;
+    font-size: 10px;
     text-align: center;
-    padding: 10px;
+    padding: 8px;
   }
 
   .feed-footer {
     display: flex;
     align-items: center;
     gap: 14px;
-    font-size: 12px;
-    color: #555;
+    font-size: 10px;
+    color: #444;
     letter-spacing: .5px;
   }
   .feed-model { color: #555; }
 
   .feed-empty {
     text-align: center;
-    color: #333;
-    padding: 36px;
+    color: #2a2a2a;
+    padding: 32px;
     letter-spacing: 2px;
-    font-size: 13px;
+    font-size: 11px;
   }
   .feed-hdr-meta {
-    font-size: 12px;
-    color: #666;
+    font-size: 10px;
+    color: #555;
     letter-spacing: 1px;
     display: flex;
     align-items: center;
     gap: 16px;
   }
-  .feed-hdr-meta span { color: #aaa; }
+  .feed-hdr-meta span { color: #999; }
 
   /* Pulse animation on running cards */
   @keyframes pulse-glow {
@@ -351,7 +351,7 @@
 <div class="topbar">
   <div class="topbar-title">BCOM-C</div>
   <div class="topbar-right">
-    <a class="nav-btn" href="dashboard.html">DASHBOARD</a>
+    <a class="nav-btn" href="../index.html"><span class="nav-arrow">&#8592;</span> DASHBOARD</a>
     <a class="nav-btn active" href="data-gen.html">DATA GEN</a>
     <a class="nav-btn" href="pipeline.html">PIPELINE</a>
     <a class="nav-btn" href="resources.html">RESOURCES</a>
@@ -360,12 +360,6 @@
     <a class="cog-btn" href="settings.html" title="Settings">⚙</a>
     <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
   </div>
-  </div>
-</div>
-
-<div class="subnav">
-  <a class="subnav-btn active" href="data-gen.html">DATA GEN</a>
-  <a class="subnav-btn" href="coordinator.html">COORDINATOR</a>
 </div>
 
 <div class="actionbar">
@@ -429,7 +423,7 @@
         </div>
         <div class="form-row-3">
           <div class="form-group">
-            <label class="form-label">Workers <span style="color:#555;font-size:10px;letter-spacing:1px">(1–18)</span></label>
+            <label class="form-label">Workers <span style="color:#555;font-size:9px;letter-spacing:1px">(1–18)</span></label>
             <input class="form-input" id="dg-workers" type="number" value="1" min="1" max="18" />
           </div>
           <div class="form-group">
@@ -551,6 +545,33 @@
   <span>BOB-AI // BCOM-C v0.1</span>
   <span id="footer-date"></span>
   <span>SESSION ACTIVE</span>
+</div>
+
+<!-- TERMINAL DOCK -->
+<div class="terminal-dock" id="terminal-dock">
+  <div class="terminal-bar">
+    <div class="terminal-tabs">
+      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
+      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
+    </div>
+      <div class="terminal-tab" data-term="shell">SHELL</div>
+    <div class="terminal-controls">
+      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminal-body">
+    <div class="terminal-output" id="term-out-spark">
+      <div class="term-line sys">[bcom-c] data-gen terminal ready</div>
+    </div>
+    <div class="terminal-output" id="term-out-linux" style="display:none">
+      <div class="term-line sys">[bcom-c] data-gen terminal ready</div>
+    </div>
+    <div id="xterm-container" style="display:none;flex:1;min-height:0;width:100%;background:#080808;"></div>
+    <div class="terminal-input-row">
+      <span class="term-prompt" id="term-prompt">$</span>
+      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
+    </div>
+  </div>
 </div>
 
 <script src="../assets/js/bcom.js?v=5"></script>
@@ -1028,7 +1049,6 @@
         '<span class="feed-model">model: ' + escHtml(d.model || '--') + '</span>' +
         '<span>' + tokOut + ' tok out</span>' +
         (tokIn !== '0' ? '<span>' + tokIn + ' tok in</span>' : '') +
-        '<a href="datagen-run.html?id=' + encodeURIComponent(runId) + '" class="feed-snippet-toggle" style="margin-left:auto;text-decoration:none">&#8599; VIEW DETAIL</a>' +
       '</div>';
 
     // Prepend — newest first
@@ -1101,7 +1121,23 @@
   setInterval(pollRunHistory, 8000);
 
   function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  // Terminal
+  let _termNode = 'spark';
+  function switchTerm(node) {
+    _termNode = node;
+    document.querySelectorAll('.terminal-tab').forEach(function(t) { t.classList.toggle('active', t.dataset.term === node); });
+    ['spark','linux'].forEach(function(n) { const el = document.getElementById('term-out-'+n); if (el) el.style.display = n===node?'block':'none'; });
+    document.getElementById('term-prompt').textContent = (node==='spark'?'spark-bob':'linux-dsktp')+' $';
+    document.getElementById('terminal-input').focus();
   }
+  function termLine(text, cls) {
+    const out = document.getElementById('term-out-'+_termNode); if (!out) return;
+    const div = document.createElement('div'); div.className = 'term-line'+(cls?' '+cls:''); div.textContent = text;
+    out.appendChild(div); out.scrollTop = out.scrollHeight;
+  }
+  switchTerm('spark');
 </script>
+  <script src="../assets/js/bcom-terminal.js?v=3"></script>
 </body>
 </html>
