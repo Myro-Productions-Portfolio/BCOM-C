@@ -21,13 +21,13 @@
     margin-bottom: 12px;
   }
   .node-card {
-    flex: 1 1 300px;
+    flex: 1 1 260px;
     background: #0a0704;
     border: 1px solid #1a0e06;
-    padding: 20px 22px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
   }
   .node-card-hdr {
     display: flex;
@@ -36,15 +36,15 @@
     gap: 8px;
   }
   .node-name {
-    font-size: 14px;
+    font-size: 11px;
     letter-spacing: 2px;
     color: var(--orange-dark);
     font-weight: 600;
   }
   .node-pill {
-    font-size: 11px;
+    font-size: 9px;
     letter-spacing: 1.5px;
-    padding: 3px 10px;
+    padding: 2px 8px;
     border: 1px solid;
   }
   .node-pill.online  { color: #27ae60; border-color: #27ae60; }
@@ -63,24 +63,24 @@
     min-width: 60px;
   }
   .nm-label {
-    font-size: 10px;
+    font-size: 8px;
     letter-spacing: 1.5px;
-    color: #555;
+    color: #444;
     text-transform: uppercase;
   }
   .nm-val {
-    font-size: 22px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--orange-dark);
     font-variant-numeric: tabular-nums;
   }
   .nm-bar {
-    height: 4px;
+    height: 2px;
     background: #1a0e06;
-    margin-top: 4px;
+    margin-top: 2px;
   }
   .nm-bar-fill {
-    height: 4px;
+    height: 2px;
     background: var(--orange-dark);
     transition: width .5s;
   }
@@ -92,7 +92,7 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    max-height: 360px;
+    max-height: 280px;
     overflow-y: auto;
   }
   .queue-list::-webkit-scrollbar { width: 4px; }
@@ -102,31 +102,31 @@
   .queue-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 18px;
+    gap: 10px;
+    padding: 9px 14px;
     border-bottom: 1px solid #0e0a06;
     transition: background .1s;
     flex-wrap: wrap;
   }
   .queue-item:hover { background: #090604; }
   .qi-pos {
-    font-size: 12px;
-    color: #444;
+    font-size: 10px;
+    color: #333;
     font-family: monospace;
-    min-width: 24px;
+    min-width: 20px;
     letter-spacing: 1px;
   }
   .qi-id {
-    font-size: 12px;
+    font-size: 10px;
     font-family: monospace;
     color: var(--orange-dark);
-    min-width: 130px;
+    min-width: 110px;
     letter-spacing: .5px;
   }
   .qi-status {
-    font-size: 11px;
+    font-size: 9px;
     letter-spacing: 1.5px;
-    padding: 3px 8px;
+    padding: 2px 7px;
     border: 1px solid;
   }
   .qi-status.running  { color: #27ae60; border-color: #27ae60; }
@@ -134,18 +134,18 @@
   .qi-status.done     { color: #444;    border-color: #333; }
   .qi-status.error    { color: #e74c3c; border-color: #e74c3c; }
   .qi-task {
-    font-size: 12px;
-    color: #888;
+    font-size: 10px;
+    color: #777;
     flex: 1;
     letter-spacing: .3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 380px;
+    max-width: 320px;
   }
   .qi-model {
-    font-size: 11px;
-    color: #555;
+    font-size: 9px;
+    color: #444;
     letter-spacing: .5px;
     white-space: nowrap;
   }
@@ -155,6 +155,14 @@
     margin-left: auto;
     flex-shrink: 0;
   }
+
+  /* ── Dispatch form ───────────────────────────────────── */
+  .dispatch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 680px) { .dispatch-grid { grid-template-columns: 1fr 1fr; } }
 
   /* ── Summary stat chips ──────────────────────────────── */
   .coord-stats {
@@ -168,28 +176,28 @@
   .cs-chip {
     flex: 1 1 80px;
     background: #080604;
-    padding: 14px 18px;
+    padding: 8px 14px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 3px;
   }
-  .cs-label { font-size: 10px; letter-spacing: 1.5px; color: #555; }
-  .cs-val   { font-size: 24px; font-weight: 700; color: var(--orange-dark); font-variant-numeric: tabular-nums; }
+  .cs-label { font-size: 8px; letter-spacing: 1.5px; color: #444; }
+  .cs-val   { font-size: 16px; font-weight: 700; color: var(--orange-dark); font-variant-numeric: tabular-nums; }
 
   /* ── Run table ───────────────────────────────────────── */
-  .run-table { width:100%; border-collapse:collapse; font-size:13px; letter-spacing:.5px; }
+  .run-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
   .run-table th { background:#0e0a06; color:#ccc; font-weight:600; letter-spacing:1.5px;
-                  padding:10px 14px; text-align:left; border-bottom:1px solid #1e1008; }
-  .run-table td { padding:10px 14px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
+                  padding:7px 10px; text-align:left; border-bottom:1px solid #1e1008; }
+  .run-table td { padding:7px 10px; border-bottom:1px solid #120b04; vertical-align:middle; color:#ccc; }
   .run-table tr:hover td { background:#0e0905; }
-  .run-table .empty { text-align:center; color:#2a2a2a; padding:24px; letter-spacing:2px; }
-  .run-wrap { overflow-x:auto; max-height:420px; overflow-y:auto; }
+  .run-table .empty { text-align:center; color:#2a2a2a; padding:20px; letter-spacing:2px; }
+  .run-wrap { overflow-x:auto; max-height:320px; overflow-y:auto; }
   .run-wrap::-webkit-scrollbar { width:4px; height:4px; }
   .run-wrap::-webkit-scrollbar-track { background:#080604; }
   .run-wrap::-webkit-scrollbar-thumb { background:#2a1a0a; }
 
   .st-badge {
-    display:inline-block; font-size:11px; letter-spacing:1.5px; padding:3px 9px; border:1px solid;
+    display:inline-block; font-size:9px; letter-spacing:1.5px; padding:2px 7px; border:1px solid;
   }
   .st-badge.running   { color:#27ae60; border-color:#27ae60; }
   .st-badge.queued    { color:#f39c12; border-color:#f39c12; }
@@ -198,121 +206,10 @@
   .st-badge.cancelled { color:#555;    border-color:#444; }
 
   .coord-hdr-meta {
-    font-size: 12px; color:#666; letter-spacing:1px;
+    font-size: 10px; color:#555; letter-spacing:1px;
     display:flex; gap:14px; align-items:center;
   }
-  .coord-hdr-meta span { color:#aaa; }
-
-  /* ── Active coordinator job panel ───────────────────────── */
-  .acj-banner {
-    border: 1px solid var(--orange-dark);
-    background: #0a0603;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    display: none;
-  }
-  .acj-banner.visible { display: block; }
-
-  .acj-hdr {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-  }
-  .acj-title {
-    font-size: 13px;
-    letter-spacing: 2px;
-    color: var(--orange);
-    font-weight: 600;
-  }
-  .acj-id {
-    font-family: monospace;
-    font-size: 13px;
-    color: var(--orange-dark);
-    letter-spacing: .5px;
-  }
-  .acj-live {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: #27ae60;
-    border: 1px solid #27ae60;
-    padding: 2px 10px;
-    animation: acj-pulse 2s ease-in-out infinite;
-  }
-  @keyframes acj-pulse {
-    0%,100% { opacity: 1; }
-    50%      { opacity: .5; }
-  }
-
-  .acj-nodes {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  .acj-node-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: #080503;
-    border: 1px solid #1a0e06;
-    flex-wrap: wrap;
-  }
-  .acj-node-name {
-    font-size: 13px;
-    letter-spacing: 1.5px;
-    color: var(--orange-dark);
-    font-family: monospace;
-    min-width: 140px;
-  }
-  .acj-node-status {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    padding: 3px 10px;
-    border: 1px solid;
-    text-transform: uppercase;
-  }
-  .acj-node-status.running { color: #27ae60; border-color: #27ae60; }
-  .acj-node-status.paused  { color: #f39c12; border-color: #f39c12; }
-  .acj-node-status.offline { color: #e74c3c; border-color: #e74c3c; }
-
-  .acj-node-meta {
-    font-size: 11px;
-    color: #666;
-    letter-spacing: .5px;
-    font-family: monospace;
-    flex: 1;
-  }
-  .acj-node-actions {
-    display: flex;
-    gap: 6px;
-    margin-left: auto;
-    flex-shrink: 0;
-  }
-
-  .acj-add-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    border-top: 1px solid #1a0e06;
-    padding-top: 12px;
-  }
-  .acj-add-label {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: #666;
-  }
-
-  .acj-empty {
-    font-size: 13px;
-    color: #444;
-    letter-spacing: 2px;
-    padding: 12px 0;
-    text-align: center;
-  }
+  .coord-hdr-meta span { color:#999; }
 </style>
 </head>
 <body>
@@ -320,25 +217,21 @@
 <div class="topbar">
   <div class="topbar-title">BCOM-C</div>
   <div class="topbar-right">
-    <a class="nav-btn" href="dashboard.html">DASHBOARD</a>
+    <a class="nav-btn" href="../index.html"><span class="nav-arrow">&#8592;</span> DASHBOARD</a>
     <a class="nav-btn" href="data-gen.html">DATA GEN</a>
     <a class="nav-btn" href="pipeline.html">PIPELINE</a>
+    <a class="nav-btn active" href="coordinator.html">COORDINATOR</a>
+    <a class="nav-btn" href="datasets.html">DATASETS</a>
     <a class="nav-btn" href="resources.html">RESOURCES</a>
     <a class="nav-btn" href="reports.html">REPORTS</a>
-    <a class="nav-btn" href="orchestrator.html">ORCHESTRATOR</a>
     <a class="cog-btn" href="settings.html" title="Settings">⚙</a>
     <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
   </div>
-  </div>
-</div>
-
-<div class="subnav">
-  <a class="subnav-btn" href="data-gen.html">DATA GEN</a>
-  <a class="subnav-btn active" href="coordinator.html">COORDINATOR</a>
 </div>
 
 <div class="actionbar">
-  <button class="action-btn" onclick="refreshAll()">&#8635; REFRESH ALL</button>
+  <button class="action-btn" onclick="dispatchRun()">&#9654; DISPATCH RUN</button>
+  <button class="action-btn" onclick="refreshAll()">&#8635; REFRESH</button>
   <button class="action-btn danger" onclick="cancelAllQueued()">&#10007; CANCEL QUEUED</button>
 </div>
 
@@ -383,7 +276,7 @@
           <div class="nm-bar"><div class="nm-bar-fill" id="nb-spark-ram" style="width:0%"></div></div>
         </div>
       </div>
-      <div style="font-size:11px;color:#555;letter-spacing:.5px;" id="nm-spark-model">model: —</div>
+      <div style="font-size:9px;color:#444;letter-spacing:.5px;" id="nm-spark-model">model: —</div>
     </div>
 
     <!-- LINUX-DSKTP -->
@@ -414,31 +307,7 @@
           <div class="nm-bar"><div class="nm-bar-fill" id="nb-linux-ram" style="width:0%"></div></div>
         </div>
       </div>
-      <div style="font-size:11px;color:#555;letter-spacing:.5px;" id="nm-linux-model">model: —</div>
-    </div>
-  </div>
-
-  <!-- ── Active Coordinator Job ───────────────────────────── -->
-  <div class="acj-banner" id="acj-banner">
-    <div class="acj-hdr">
-      <span class="acj-title">ACTIVE COORDINATOR JOB</span>
-      <span class="acj-id" id="acj-id">—</span>
-      <span class="acj-live">● RUNNING</span>
-      <span style="font-size:11px;color:#666;letter-spacing:1px;margin-left:auto" id="acj-meta">—</span>
-    </div>
-
-    <div class="acj-nodes" id="acj-nodes">
-      <div class="acj-empty" id="acj-nodes-empty">NO NODE DATA</div>
-    </div>
-
-    <div class="acj-add-row">
-      <span class="acj-add-label">ADD NODE</span>
-      <select class="form-select" id="acj-add-node-select" style="width:180px;padding:4px 8px;font-size:10px">
-        <option value="spark">SPARK-BOB</option>
-        <option value="linux">LINUX-DSKTP</option>
-      </select>
-      <button class="action-btn" style="font-size:12px;padding:5px 14px" onclick="addNodeToJob()">+ ADD NODE</button>
-      <span id="acj-add-output" style="font-size:12px;color:#666;letter-spacing:.5px"></span>
+      <div style="font-size:9px;color:#444;letter-spacing:.5px;" id="nm-linux-model">model: —</div>
     </div>
   </div>
 
@@ -450,11 +319,63 @@
         <span>Job Queue</span>
         <div class="coord-hdr-meta">
           <span>TOTAL&nbsp;<span id="queue-count">0</span></span>
-          <button class="action-btn" style="font-size:12px;padding:4px 12px;" onclick="pollQueue()">&#8635;</button>
+          <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="pollQueue()">&#8635;</button>
         </div>
       </div>
       <div class="queue-list" id="queue-list">
         <div style="text-align:center;color:#2a2a2a;padding:20px;letter-spacing:2px;font-size:11px" id="queue-empty">QUEUE EMPTY</div>
+      </div>
+    </div>
+
+    <!-- ── Dispatch Panel ─────────────────────────────────── -->
+    <div class="info-card">
+      <div class="info-card-hdr">Job Dispatch</div>
+      <div class="form-body">
+        <div class="dispatch-grid">
+          <div class="form-group">
+            <label class="form-label">Target Node</label>
+            <select class="form-select" id="d-node">
+              <option value="spark">SPARK-BOB</option>
+              <option value="linux">LINUX-DSKTP</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Model</label>
+            <select class="form-select" id="d-model">
+              <option value="claude-3-5-sonnet">claude-3-5-sonnet</option>
+              <option value="gpt-4o">gpt-4o</option>
+              <option value="local/spark-model">local/spark-model</option>
+              <option value="local/linux-model">local/linux-model</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Iterations</label>
+            <input class="form-input" id="d-maxiter" type="number" value="10" min="1" max="200" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Temperature</label>
+            <input class="form-input" id="d-temp" type="number" value="0.7" min="0" max="2" step="0.05" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Workers</label>
+            <input class="form-input" id="d-workers" type="number" value="1" min="1" max="18" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Queue Mode</label>
+            <select class="form-select" id="d-queued">
+              <option value="false">Immediate</option>
+              <option value="true">Queued</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:6px">
+          <label class="form-label">Task</label>
+          <textarea class="form-input" id="d-task" rows="3"
+            style="resize:vertical;font-family:inherit;line-height:1.6;"
+            placeholder="Describe the task for the run…"></textarea>
+        </div>
+        <button class="form-submit" onclick="dispatchRun()">&#9654; Dispatch Job</button>
+        <div class="form-output" id="d-output">--</div>
       </div>
     </div>
 
@@ -465,7 +386,7 @@
         <div class="coord-hdr-meta">
           <span>RUNNING&nbsp;<span id="active-running">0</span></span>
           <span>QUEUED&nbsp;<span id="active-queued">0</span></span>
-          <button class="action-btn" style="font-size:12px;padding:4px 12px;" onclick="pollRuns()">&#8635;</button>
+          <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="pollRuns()">&#8635;</button>
         </div>
       </div>
       <div class="run-wrap">
@@ -489,7 +410,7 @@
         <span>Recent Runs</span>
         <div class="coord-hdr-meta">
           <span>SHOWING&nbsp;<span id="history-count">0</span></span>
-          <button class="action-btn" style="font-size:12px;padding:4px 12px;" onclick="pollRuns()">&#8635;</button>
+          <button class="action-btn" style="font-size:10px;padding:2px 10px;" onclick="pollRuns()">&#8635;</button>
         </div>
       </div>
       <div class="run-wrap">
@@ -521,6 +442,31 @@
   <span>COORDINATOR</span>
 </div>
 
+<!-- TERMINAL DOCK -->
+<div class="terminal-dock" id="terminal-dock">
+  <div class="terminal-bar">
+    <div class="terminal-tabs">
+      <div class="terminal-tab active" data-term="spark" onclick="switchTerm('spark')">SPARK-BOB</div>
+      <div class="terminal-tab" data-term="linux" onclick="switchTerm('linux')">LINUX-DSKTP</div>
+    </div>
+    <div class="terminal-controls">
+      <button class="term-ctrl" id="term-minimize" title="Minimize">_</button>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminal-body">
+    <div class="terminal-output" id="term-out-spark">
+      <div class="term-line sys">[bcom-c] coordinator terminal ready</div>
+    </div>
+    <div class="terminal-output" id="term-out-linux" style="display:none">
+      <div class="term-line sys">[bcom-c] coordinator terminal ready</div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="term-prompt" id="term-prompt">spark-bob $</span>
+      <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" spellcheck="false" placeholder="type command..." />
+    </div>
+  </div>
+</div>
+
 <script src="../assets/js/bcom.js?v=5"></script>
 <script>
   BCOM.apiBase      = '';
@@ -528,21 +474,18 @@
   startPolling();
 
   // ── State ───────────────────────────────────────────────
-  var _allRuns    = [];
-  var _queue      = [];
-  var _activeJob  = null;
+  var _allRuns  = [];
+  var _queue    = [];
 
   // ── Boot ────────────────────────────────────────────────
   (function boot() {
     pollNodeStats();
     pollQueue();
     pollRuns();
-    pollActiveJob();
 
-    setInterval(pollNodeStats,  8000);
-    setInterval(pollQueue,      6000);
-    setInterval(pollRuns,       6000);
-    setInterval(pollActiveJob,  5000);
+    setInterval(pollNodeStats, 8000);
+    setInterval(pollQueue,     6000);
+    setInterval(pollRuns,      6000);
   })();
 
   // ── Node stats — /api/system/stats + /api/system/linux/stats ──
@@ -737,148 +680,61 @@
     document.getElementById('cs-tokens').textContent  = tokens > 999 ? (tokens/1000).toFixed(1)+'k' : tokens;
   }
 
-  // ── Active Coordinator Job ──────────────────────────────
-  async function pollActiveJob() {
-    try {
-      var r = await fetch('/api/coordinator/jobs/active', { cache: 'no-store' });
-      var banner = document.getElementById('acj-banner');
-      if (!r.ok) { banner.classList.remove('visible'); _activeJob = null; return; }
-      var d = await r.json();
-      if (!d || !d.id) { banner.classList.remove('visible'); _activeJob = null; return; }
-      _activeJob = d;
-      banner.classList.add('visible');
-      renderActiveJob(d);
-    } catch(_) { /* soft fail — API may not exist yet */ }
-  }
+  // ── Dispatch ────────────────────────────────────────────
+  async function dispatchRun() {
+    var task    = document.getElementById('d-task').value.trim();
+    var model   = document.getElementById('d-model').value;
+    var maxIter = parseInt(document.getElementById('d-maxiter').value) || 10;
+    var temp    = parseFloat(document.getElementById('d-temp').value) || 0.7;
+    var workers = Math.min(18, Math.max(1, parseInt(document.getElementById('d-workers').value) || 1));
+    var queued  = document.getElementById('d-queued').value === 'true';
 
-  function renderActiveJob(job) {
-    document.getElementById('acj-id').textContent = (job.id || '').slice(0, 16);
+    if (!task) { logLine('Task is required', 'warn'); return; }
 
-    var taskShort = (job.task || job.description || '—').slice(0, 80);
-    var nodeCount = Array.isArray(job.nodes) ? job.nodes.length : '?';
-    document.getElementById('acj-meta').textContent =
-      nodeCount + ' node' + (nodeCount !== 1 ? 's' : '') +
-      ' · ' + taskShort;
+    var out = document.getElementById('d-output');
+    out.textContent = 'Dispatching ' + workers + ' worker' + (workers>1?'s':'') + '…';
+    out.style.color = 'var(--orange-dark)';
+    logLine('CMD: DISPATCH — ' + workers + ' worker' + (workers>1?'s':'') + ' / ' + model, 'info');
 
-    var container = document.getElementById('acj-nodes');
-    var empty     = document.getElementById('acj-nodes-empty');
-    var nodes     = Array.isArray(job.nodes) ? job.nodes : [];
-
-    // Remove old node rows (keep empty placeholder)
-    Array.from(container.querySelectorAll('.acj-node-row')).forEach(function(el){ el.remove(); });
-
-    if (!nodes.length) {
-      empty.style.display = 'block';
-      return;
+    var launched = [];
+    for (var i = 0; i < workers; i++) {
+      var runId = await launchOne(task, model, maxIter, temp, queued);
+      if (runId) launched.push(runId);
+      if (workers > 1) await sleep(300);
     }
-    empty.style.display = 'none';
 
-    nodes.forEach(function(node) {
-      var name   = node.name || node.node_name || node.id || '?';
-      var status = (node.status || 'running').toLowerCase();
-      var tokOut = node.tokens_out != null ? Number(node.tokens_out).toLocaleString() + ' tok' : '';
-      var pairs  = node.pairs_done != null ? node.pairs_done + ' pairs' : '';
-      var meta   = [tokOut, pairs].filter(Boolean).join(' · ') || '—';
-
-      var row = document.createElement('div');
-      row.className = 'acj-node-row';
-
-      var nameEl = document.createElement('span');
-      nameEl.className = 'acj-node-name';
-      nameEl.textContent = name.toUpperCase();
-      row.appendChild(nameEl);
-
-      var statusEl = document.createElement('span');
-      statusEl.className = 'acj-node-status ' + status;
-      statusEl.textContent = status.toUpperCase();
-      row.appendChild(statusEl);
-
-      var metaEl = document.createElement('span');
-      metaEl.className = 'acj-node-meta';
-      metaEl.textContent = meta;
-      row.appendChild(metaEl);
-
-      var actions = document.createElement('div');
-      actions.className = 'acj-node-actions';
-
-      if (status === 'running') {
-        var pauseBtn = document.createElement('button');
-        pauseBtn.className = 'ctr-btn';
-        pauseBtn.textContent = 'PAUSE';
-        pauseBtn.addEventListener('click', function() { pauseNode(job.id, name); });
-        actions.appendChild(pauseBtn);
-      } else if (status === 'paused') {
-        var resumeBtn = document.createElement('button');
-        resumeBtn.className = 'ctr-btn';
-        resumeBtn.textContent = 'RESUME';
-        resumeBtn.addEventListener('click', function() { resumeNode(job.id, name); });
-        actions.appendChild(resumeBtn);
-      }
-
-      row.appendChild(actions);
-      container.insertBefore(row, empty);
-    });
+    if (launched.length) {
+      out.textContent = 'Launched: ' + launched.map(function(id){ return id.slice(0,10); }).join(', ');
+      logLine('Dispatched ' + launched.length + ' run(s)', 'info');
+      setTimeout(function(){ pollQueue(); pollRuns(); }, 800);
+    } else {
+      out.textContent = 'Dispatch failed — check log';
+      out.style.color = '#e74c3c';
+    }
   }
 
-  async function addNodeToJob() {
-    if (!_activeJob) { logLine('No active coordinator job', 'warn'); return; }
-    var node   = document.getElementById('acj-add-node-select').value;
-    var output = document.getElementById('acj-add-output');
-    output.textContent = 'Adding…';
-    output.style.color = 'var(--orange-dark)';
+  async function launchOne(task, model, maxIter, temp, queued) {
     try {
-      var res = await fetch('/api/coordinator/jobs/active/add-node', {
-        method:  'POST',
+      var res = await fetch('/api/runs', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ node: node, job_id: _activeJob.id })
+        body: JSON.stringify({
+          task, model,
+          max_iter: maxIter,
+          queued: queued,
+          config: { temperature: temp }
+        })
       });
-      if (res.ok) {
-        logLine('CMD: ADD NODE ' + node.toUpperCase() + ' → job ' + _activeJob.id.slice(0,8), 'info');
-        output.textContent = node.toUpperCase() + ' added';
-        output.style.color = '#27ae60';
-        setTimeout(pollActiveJob, 600);
-      } else {
-        var err = await res.json().catch(function(){ return {}; });
-        logLine('Add node error ' + res.status + ': ' + (err.detail || err.error || '?'), 'error');
-        output.textContent = 'Error ' + res.status;
-        output.style.color = '#e74c3c';
+      if (!res.ok) {
+        logLine('Dispatch error ' + res.status, 'error');
+        return null;
       }
+      var d = await res.json();
+      return d.run_id || d.id || null;
     } catch(e) {
-      logLine('Add node error: ' + e.message, 'error');
-      output.textContent = 'Request failed';
-      output.style.color = '#e74c3c';
+      logLine('Dispatch error: ' + e.message, 'error');
+      return null;
     }
-    setTimeout(function(){ output.textContent = ''; }, 4000);
-  }
-
-  async function pauseNode(jobId, nodeName) {
-    try {
-      var res = await fetch(
-        '/api/coordinator/jobs/' + encodeURIComponent(jobId) +
-        '/nodes/' + encodeURIComponent(nodeName) + '/pause',
-        { method: 'PUT' }
-      if (res.ok) {
-        logLine('CMD: PAUSE NODE ' + nodeName.toUpperCase(), 'warn');
-        setTimeout(pollActiveJob, 400);
-      } else {
-        logLine('Pause failed ' + res.status, 'error');
-      }
-    } catch(e) { logLine('Pause error: ' + e.message, 'error'); }
-  }
-
-  async function resumeNode(jobId, nodeName) {
-    try {
-      var res = await fetch(
-        '/api/coordinator/jobs/' + encodeURIComponent(jobId) +
-        '/nodes/' + encodeURIComponent(nodeName) + '/resume',
-        { method: 'PUT' }
-      if (res.ok) {
-        logLine('CMD: RESUME NODE ' + nodeName.toUpperCase(), 'info');
-        setTimeout(pollActiveJob, 400);
-      } else {
-        logLine('Resume failed ' + res.status, 'error');
-      }
-    } catch(e) { logLine('Resume error: ' + e.message, 'error'); }
   }
 
   // ── Cancel ──────────────────────────────────────────────
@@ -912,7 +768,18 @@
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+  // ── Terminal ────────────────────────────────────────────
+  var _termNode = 'spark';
+  function switchTerm(node) {
+    _termNode = node;
+    document.querySelectorAll('.terminal-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.term===node); });
+    ['spark','linux'].forEach(function(n){ var el=document.getElementById('term-out-'+n); if(el) el.style.display=n===node?'block':'none'; });
+    document.getElementById('term-prompt').textContent = (node==='spark'?'spark-bob':'linux-dsktp')+' $';
+    document.getElementById('terminal-input').focus();
   }
+  switchTerm('spark');
 </script>
+<script src="../assets/js/bcom-terminal.js?v=3"></script>
 </body>
 </html>
