@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Models - BCOM-C Dashboard</title>
-  <link rel="stylesheet" href="../assets/css/bcom.css?v=3">
+  <link rel="stylesheet" href="../bcom.css?v=3">
   <style>
     body {
       background: #080604;
@@ -442,19 +442,25 @@
   </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="topbar-title">BCOM-C</div>
-  <div class="topbar-right">
-    <a class="nav-btn" href="dashboard.html">DASHBOARD</a>
-    <a class="nav-btn" href="data-gen.html">DATA GEN</a>
-    <a class="nav-btn" href="pipeline.html">PIPELINE</a>
-    <a class="nav-btn" href="resources.html">RESOURCES</a>
-    <a class="nav-btn" href="reports.html">REPORTS</a>
-    <a class="nav-btn" href="orchestrator.html">ORCHESTRATOR</a>
-    <a class="cog-btn" href="settings.html" title="Settings">⚙</a>
-    <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
-  </div>
-</div>
+  <nav class="bcom-nav">
+    <div class="nav-container">
+      <div class="nav-logo">BCOM-C</div>
+      <div class="nav-links">
+        <a href="./registry.html">REGISTRY</a>
+        <a href="./datagen.html">DATAGEN</a>
+        <a href="./analytics.html">ANALYTICS</a>
+        <a href="./coordinator.html">COORDINATOR</a>
+        <a href="./datasets.html">DATASETS</a>
+        <a href="./evals.html">EVALS</a>
+        <a href="./models.html" class="active">MODELS</a>
+        <a href="./monitor.html">MONITOR</a>
+        <a href="./pipeline.html">PIPELINE</a>
+        <a href="./deploy.html">DEPLOY</a>
+        <a href="./reports.html">REPORTS</a>
+        <a href="./settings.html">⚙</a>
+      </div>
+    </div>
+  </nav>
 
   <div class="container">
     <div class="hero-row">
@@ -534,8 +540,8 @@
     </div>
   </div>
 
-  <link rel="stylesheet" href="../assets/css/bcom.css?v=3">
-  <script src="../assets/js/bcom.js?v=5"></script>
+  <link rel="stylesheet" href="../bcom.css?v=3">
+  <script src="../bcom.js?v=5"></script>
   <script>
     window.BCOM = window.BCOM || {};
     BCOM.apiBase = '';
