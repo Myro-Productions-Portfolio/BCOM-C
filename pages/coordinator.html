@@ -214,20 +214,22 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-title">BCOM-C</div>
-  <div class="topbar-right">
-    <a class="nav-btn" href="../index.html"><span class="nav-arrow">&#8592;</span> DASHBOARD</a>
-    <a class="nav-btn" href="data-gen.html">DATA GEN</a>
-    <a class="nav-btn" href="pipeline.html">PIPELINE</a>
-    <a class="nav-btn active" href="coordinator.html">COORDINATOR</a>
-    <a class="nav-btn" href="datasets.html">DATASETS</a>
-    <a class="nav-btn" href="resources.html">RESOURCES</a>
-    <a class="nav-btn" href="reports.html">REPORTS</a>
-    <a class="cog-btn" href="settings.html" title="Settings">⚙</a>
-    <div class="timestamp"><span id="clock">--:--:--</span>&nbsp;&nbsp;<span id="datestamp">----/--/--</span></div>
+<nav class="bcom-nav">
+  <a href="../index.html" class="bcom-nav-brand">BCOM-C</a>
+  <div class="bcom-nav-links">
+    <a href="pipeline.html">PIPELINE</a>
+    <a href="data-gen.html">DATAGEN</a>
+    <a href="analytics.html">ANALYTICS</a>
+    <a href="coordinator.html" class="active">COORDINATOR</a>
+    <a href="datasets.html">DATASETS</a>
+    <a href="evals.html">EVALS</a>
+    <a href="models.html">MODELS</a>
+    <a href="monitor.html">MONITOR</a>
+    <a href="deploy.html">DEPLOY</a>
+    <a href="reports.html">REPORTS</a>
+    <a href="resources.html">⚙</a>
   </div>
-</div>
+</nav>
 
 <div class="actionbar">
   <button class="action-btn" onclick="dispatchRun()">&#9654; DISPATCH RUN</button>
