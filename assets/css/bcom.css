@@ -30,6 +30,10 @@
   --fg:           #e0e0e0;
   --card:         #0c0804;
   --muted:        #888888;
+  /* status colors */
+  --status-ok:    #27ae60;
+  --status-err:   #e74c3c;
+  --status-warn:  #f39c12;
 }
 
 /* ── LIGHT MODE ────────────────────────────────────────── */

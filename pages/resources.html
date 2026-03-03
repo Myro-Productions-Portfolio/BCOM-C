@@ -72,6 +72,30 @@
 
   /* ── Log panel override ───────────────────────────────────────────── */
   .log-panel { margin-top:16px; }
+
+  /* ── Node stats (from monitor) ────────────────────────────────────── */
+  .mon-node-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  .mon-node-card { flex:1 1 300px; background:var(--card); border:1px solid var(--border); padding:14px 16px; }
+  .mon-node-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .mon-node-name { font-size:11px; letter-spacing:2px; color:var(--orange-dark); font-weight:600; }
+  .mon-status-pill { font-size:9px; letter-spacing:1.5px; padding:2px 8px; border:1px solid; }
+  .mon-status-pill.online  { color:var(--status-ok);  border-color:var(--status-ok); }
+  .mon-status-pill.offline { color:var(--status-err); border-color:var(--status-err); }
+  .mon-status-pill.unknown { color:var(--muted);      border-color:#444; }
+  .mon-metrics { display:flex; flex-direction:column; gap:8px; }
+  .mon-metric { display:flex; flex-direction:column; gap:3px; }
+  .mon-metric-hdr { display:flex; justify-content:space-between; font-size:10px; }
+  .mon-metric-key { color:#444; letter-spacing:1px; }
+  .mon-metric-val { color:var(--text-dim); font-variant-numeric:tabular-nums; }
+  .mon-bar-track { background:#0e0a06; height:4px; }
+  .mon-bar-fill  { height:4px; background:var(--orange-dark); transition:width .5s; }
+  .mon-bar-fill.warn { background:var(--status-warn); }
+  .mon-bar-fill.crit { background:var(--status-err); }
+  .mon-metrics-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px; }
+  .mon-m-chip { background:var(--card); border:1px solid var(--border); padding:8px 14px; }
+  .mon-m-chip-label { font-size:9px; letter-spacing:1.5px; color:#444; }
+  .mon-m-chip-val   { font-size:16px; color:var(--orange-dark); font-variant-numeric:tabular-nums; }
+  .mon-empty { color:#333; font-size:11px; letter-spacing:1.5px; padding:16px; text-align:center; }
 </style>
 </head>
 <body>
@@ -94,6 +118,39 @@
 </nav>
 
 <div class="main">
+
+  <!-- ── NODE STATS ──────────────────────────────────────────────────── -->
+  <div class="mon-node-row">
+    <div class="mon-node-card">
+      <div class="mon-node-hdr">
+        <span class="mon-node-name">SPARK-BOB</span>
+        <span class="mon-status-pill unknown" id="spark-status-pill">CHECKING…</span>
+      </div>
+      <div class="mon-metrics" id="spark-metrics">
+        <div class="mon-empty">LOADING…</div>
+      </div>
+    </div>
+    <div class="mon-node-card">
+      <div class="mon-node-hdr">
+        <span class="mon-node-name">LINUX-DSKTP</span>
+        <span class="mon-status-pill unknown" id="linux-status-pill">CHECKING…</span>
+      </div>
+      <div class="mon-metrics" id="linux-metrics">
+        <div class="mon-empty">LOADING…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── API HEALTH ───────────────────────────────────────────────────── -->
+  <div class="section-panel" style="margin-bottom:12px">
+    <div class="section-hdr">
+      <span class="section-title">API HEALTH</span>
+      <span class="section-meta" id="metrics-updated">—</span>
+    </div>
+    <div class="mon-metrics-chips" id="metrics-chips">
+      <div class="mon-empty">LOADING…</div>
+    </div>
+  </div>
 
   <!-- ── Hero chips ──────────────────────────────────────────────────── -->
   <div class="hero-row">
@@ -626,8 +683,101 @@ async function refreshApiHealth() {
   }
 }
 
+// ── Node stats (from monitor) ──────────────────────────────────────────
+function _pct(n){ return Math.min(100,Math.max(0,parseFloat(n)||0)); }
+function _fmtBytes(b){
+  if(b==null)return '\u2014';
+  if(b>=1e12)return (b/1e12).toFixed(1)+'TB';
+  if(b>=1e9) return (b/1e9).toFixed(1)+'GB';
+  if(b>=1e6) return (b/1e6).toFixed(1)+'MB';
+  return b+'B';
+}
+function _barCls(p){ return p>=90?' crit':p>=70?' warn':''; }
+function _metricBarEl(label,valStr,p){
+  p=_pct(p);
+  var row=document.createElement('div'); row.className='mon-metric';
+  var hdr=document.createElement('div'); hdr.className='mon-metric-hdr';
+  var k=document.createElement('span'); k.className='mon-metric-key'; k.textContent=label;
+  var v=document.createElement('span'); v.className='mon-metric-val'; v.textContent=valStr||'\u2014';
+  hdr.appendChild(k); hdr.appendChild(v); row.appendChild(hdr);
+  var track=document.createElement('div'); track.className='mon-bar-track';
+  var fill=document.createElement('div'); fill.className='mon-bar-fill'+_barCls(p); fill.style.width=p+'%';
+  track.appendChild(fill); row.appendChild(track);
+  return row;
+}
+function _buildNodeMetrics(container,d,isLinux){
+  container.textContent='';
+  var cpu=d.cpu_percent||d.cpu||0, ram=d.memory_percent||d.ram_percent||0;
+  var ramU=d.memory_used||d.ram_used, ramT=d.memory_total||d.ram_total;
+  container.appendChild(_metricBarEl('CPU',cpu.toFixed(1)+'%',cpu));
+  container.appendChild(_metricBarEl('RAM',ramU!=null?_fmtBytes(ramU)+(ramT?'/'+_fmtBytes(ramT):''):ram.toFixed(1)+'%',ram));
+  if(isLinux){
+    if(d.disk_percent||d.disk){
+      var dp=d.disk_percent||d.disk;
+      container.appendChild(_metricBarEl('DISK',dp.toFixed(1)+'%',dp));
+    }
+    return;
+  }
+  var gpus=d.gpus||d.gpu||[]; if(!Array.isArray(gpus))gpus=[gpus];
+  gpus.forEach(function(g,i){
+    var gp=g.utilization||g.gpu_percent||0;
+    var vp=g.memory_percent||g.vram_percent||(g.memory_used&&g.memory_total?Math.round(g.memory_used/g.memory_total*100):0);
+    var vU=g.memory_used, vT=g.memory_total;
+    var label=gpus.length>1?'GPU '+i+' ':'GPU ';
+    container.appendChild(_metricBarEl(label+'UTIL',gp.toFixed(1)+'%',gp));
+    container.appendChild(_metricBarEl(label+'VRAM',vU!=null?_fmtBytes(vU)+(vT?'/'+_fmtBytes(vT):''):vp.toFixed(1)+'%',vp));
+  });
+  if(d.temperature||d.temp){
+    var tmp=d.temperature||d.temp;
+    container.appendChild(_metricBarEl('TEMP',tmp.toFixed(1)+'\u00b0C',(tmp-40)/50*100));
+  }
+}
+function applySparkStats(d){
+  var pill=document.getElementById('spark-status-pill');
+  pill.textContent='ONLINE'; pill.className='mon-status-pill online';
+  _buildNodeMetrics(document.getElementById('spark-metrics'),d,false);
+}
+function setSparkOffline(){
+  var p=document.getElementById('spark-status-pill'); p.textContent='OFFLINE'; p.className='mon-status-pill offline';
+  var m=document.getElementById('spark-metrics'); m.textContent=''; var e=document.createElement('div'); e.className='mon-empty'; e.textContent='NODE OFFLINE'; m.appendChild(e);
+}
+function applyLinuxStats(d){
+  var pill=document.getElementById('linux-status-pill');
+  pill.textContent='ONLINE'; pill.className='mon-status-pill online';
+  _buildNodeMetrics(document.getElementById('linux-metrics'),d,true);
+}
+function setLinuxOffline(){
+  var p=document.getElementById('linux-status-pill'); p.textContent='OFFLINE'; p.className='mon-status-pill offline';
+  var m=document.getElementById('linux-metrics'); m.textContent=''; var e=document.createElement('div'); e.className='mon-empty'; e.textContent='NODE OFFLINE'; m.appendChild(e);
+}
+function pollNodes(){
+  fetch('/api/system/stats',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(d)applySparkStats(d);else setSparkOffline();}).catch(setSparkOffline);
+  fetch('/api/system/linux/stats',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(d)applyLinuxStats(d);else setLinuxOffline();}).catch(setLinuxOffline);
+}
+function applyApiMetrics(d){
+  var keys=['requests_total','requests_per_sec','avg_latency_ms','active_connections','errors_total'];
+  var labels=['REQUESTS TOTAL','REQ/S','AVG LATENCY','ACTIVE CONN','ERRORS'];
+  var chips=document.getElementById('metrics-chips');
+  chips.textContent='';
+  var found=false;
+  keys.forEach(function(k,i){
+    var v=d[k]; if(v==null)return;
+    var chip=document.createElement('div'); chip.className='mon-m-chip';
+    var lbl=document.createElement('div'); lbl.className='mon-m-chip-label'; lbl.textContent=labels[i];
+    var val=document.createElement('div'); val.className='mon-m-chip-val'; val.textContent=String(v);
+    chip.appendChild(lbl); chip.appendChild(val); chips.appendChild(chip); found=true;
+  });
+  if(!found){var e=document.createElement('div');e.className='mon-empty';e.textContent='NO METRICS DATA';chips.appendChild(e);}
+  document.getElementById('metrics-updated').textContent=new Date().toLocaleTimeString();
+}
+function pollApiMetrics(){
+  fetch('/api/metrics',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(d)applyApiMetrics(d);}).catch(function(){});
+}
+
 // ── Poll all ───────────────────────────────────────────────────────────
 function pollAll() {
+  pollNodes();
+  pollApiMetrics();
   refreshContainers();
   refreshServices();
   refreshModels();
@@ -639,6 +789,8 @@ function pollAll() {
 pollAll();
 
 // Staggered intervals
+setInterval(pollNodes,            6000);
+setInterval(pollApiMetrics,      10000);
 setInterval(refreshContainers,   12000);
 setInterval(refreshServices,     15000);
 setInterval(refreshModels,       20000);

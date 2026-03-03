@@ -12,6 +12,7 @@
   })();
 </script>
 <link rel="stylesheet" href="../assets/css/bcom.css?v=3" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
   /* ── Job table ───────────────────────────────────────────── */
   .job-table { width:100%; border-collapse:collapse; font-size:12px; letter-spacing:.5px; }
@@ -31,6 +32,24 @@
   .opt-toggle input { accent-color:var(--orange-dark); }
   .prog-track { background:#0e0905; height:4px; margin-top:4px; }
   .prog-fill   { height:4px; background:var(--orange-dark); transition:width .4s; }
+
+  /* ── Analytics section ───────────────────────────────────── */
+  .an-section-hdr { font-size:9px; letter-spacing:2.5px; color:var(--orange-dark); margin:20px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+  .an-hero { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .an-chip { background:var(--card); border:1px solid var(--border); padding:12px 18px; display:flex; flex-direction:column; gap:3px; min-width:130px; }
+  .an-chip-label { font-size:9px; letter-spacing:1.8px; color:var(--muted); text-transform:uppercase; }
+  .an-chip-val { font-size:22px; color:var(--orange-dark); font-variant-numeric:tabular-nums; line-height:1; }
+  .an-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+  @media (max-width:900px) { .an-grid { grid-template-columns:1fr; } }
+  .an-chart-card { background:var(--card); border:1px solid var(--border); padding:14px 16px; }
+  .an-chart-title { font-size:9px; letter-spacing:2px; color:var(--muted); margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+  .an-chart-wrap { position:relative; height:200px; }
+  .an-chart-wrap canvas { max-height:200px; }
+  .an-full-card { background:var(--card); border:1px solid var(--border); padding:14px 16px; margin-bottom:12px; }
+  .an-range-bar { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .an-range-btn { background:none; border:1px solid var(--border); color:var(--muted); padding:4px 12px; font-size:9px; letter-spacing:1.5px; cursor:pointer; font-family:inherit; }
+  .an-range-btn:hover, .an-range-btn.active { border-color:var(--orange-dark); color:var(--orange-dark); }
+  .an-no-data { display:flex; align-items:center; justify-content:center; height:180px; color:#333; font-size:11px; letter-spacing:2px; }
 
   /* ── Live Monitor / Worker Cards ────────────────────────── */
   #live-monitor { display:none; }
@@ -536,6 +555,58 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ── Analytics ── -->
+  <div class="an-section-hdr">ANALYTICS</div>
+
+  <div class="an-hero">
+    <div class="an-chip"><span class="an-chip-label">TOTAL RUNS</span><span class="an-chip-val" id="chip-total">—</span></div>
+    <div class="an-chip"><span class="an-chip-label">COMPLETED</span><span class="an-chip-val" id="chip-completed">—</span></div>
+    <div class="an-chip"><span class="an-chip-label">FAILED</span><span class="an-chip-val" id="chip-failed">—</span></div>
+    <div class="an-chip"><span class="an-chip-label">TOTAL TOKENS OUT</span><span class="an-chip-val" id="chip-tokens">—</span></div>
+    <div class="an-chip"><span class="an-chip-label">AVG DURATION</span><span class="an-chip-val" id="chip-duration">—</span></div>
+    <div class="an-chip"><span class="an-chip-label">AVG TOK/S</span><span class="an-chip-val" id="chip-tokps">—</span></div>
+  </div>
+
+  <div class="an-range-bar">
+    <button class="an-range-btn" data-range="24h">24H</button>
+    <button class="an-range-btn active" data-range="7d">7D</button>
+    <button class="an-range-btn" data-range="30d">30D</button>
+    <button class="an-range-btn" data-range="all">ALL</button>
+  </div>
+
+  <div class="an-grid">
+    <div class="an-chart-card">
+      <div class="an-chart-title">RUNS OVER TIME</div>
+      <div class="an-chart-wrap"><canvas id="chart-runs-time"></canvas></div>
+    </div>
+    <div class="an-chart-card">
+      <div class="an-chart-title">TOKENS OUT PER RUN (TREND)</div>
+      <div class="an-chart-wrap"><canvas id="chart-tokens-trend"></canvas></div>
+    </div>
+    <div class="an-chart-card">
+      <div class="an-chart-title">MODEL DISTRIBUTION</div>
+      <div class="an-chart-wrap"><canvas id="chart-model-dist"></canvas></div>
+    </div>
+    <div class="an-chart-card">
+      <div class="an-chart-title">COMPLETION RATE BY MODEL</div>
+      <div class="an-chart-wrap"><canvas id="chart-completion-rate"></canvas></div>
+    </div>
+  </div>
+
+  <div class="an-full-card">
+    <div class="an-chart-title">AVG THROUGHPUT (TOK/S) OVER TIME</div>
+    <div class="an-chart-wrap" style="height:180px">
+      <canvas id="chart-throughput"></canvas>
+    </div>
+  </div>
+
+  <div class="an-full-card">
+    <div class="an-chart-title">DATAGEN STATS — TOP MODELS</div>
+    <div class="an-chart-wrap" style="height:160px">
+      <canvas id="chart-model-tokens"></canvas>
+    </div>
   </div>
 
   <div class="log-panel" id="log">
@@ -1142,5 +1213,201 @@
   switchTerm('spark');
 </script>
   <script src="../assets/js/bcom-terminal.js?v=3"></script>
+<script>
+(function(){
+  'use strict';
+  if (typeof Chart === 'undefined') return;
+
+  Chart.defaults.color = '#555';
+  Chart.defaults.font.family = 'inherit';
+  Chart.defaults.font.size = 10;
+
+  var ORANGE      = 'rgba(180,90,20,1)';
+  var ORANGE_DIM  = 'rgba(180,90,20,0.15)';
+  var ORANGE2     = 'rgba(220,120,30,0.8)';
+  var GREEN       = 'rgba(39,174,96,0.8)';
+  var GRID_COLOR  = 'rgba(255,255,255,0.04)';
+
+  var _charts = {};
+  var _range  = '7d';
+  var _analyticsData = null;
+  var _datagen = null;
+
+  function fmtK(n){
+    if (n == null) return '\u2014';
+    if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+    return String(Math.round(n));
+  }
+  function fmtDur(s){
+    if (!s && s !== 0) return '\u2014';
+    var m = Math.floor(s/60), sec = Math.round(s%60);
+    return m > 0 ? m+'m '+sec+'s' : sec+'s';
+  }
+  function noDataEl(msg) {
+    var d = document.createElement('div');
+    d.className = 'an-no-data';
+    d.textContent = msg || 'NO DATA';
+    return d;
+  }
+
+  document.querySelectorAll('.an-range-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      _range = btn.getAttribute('data-range');
+      document.querySelectorAll('.an-range-btn').forEach(function(b){ b.classList.toggle('active', b===btn); });
+      if (_analyticsData) renderCharts(_analyticsData, _datagen);
+    });
+  });
+
+  function baseOpts(type) {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: type === 'doughnut' || type === 'pie',
+          labels: { color: '#555', boxWidth: 10, padding: 12, font:{size:10} } },
+        tooltip: { backgroundColor:'#0e0804', borderColor:'#1a0e06', borderWidth:1,
+          titleColor: ORANGE, bodyColor:'#aaa' }
+      },
+      scales: type === 'doughnut' || type === 'pie' ? {} : {
+        x: { grid:{ color:GRID_COLOR }, ticks:{ color:'#444', maxRotation:30 } },
+        y: { grid:{ color:GRID_COLOR }, ticks:{ color:'#444' }, beginAtZero: true }
+      }
+    };
+  }
+
+  function makeChart(id, type, labels, datasets) {
+    var ctx = document.getElementById(id);
+    if (!ctx) return;
+    if (_charts[id]) { _charts[id].destroy(); }
+    if (!labels || !labels.length) {
+      var wrap = ctx.parentElement;
+      wrap.textContent = '';
+      wrap.appendChild(noDataEl());
+      return;
+    }
+    _charts[id] = new Chart(ctx, { type:type, data:{ labels:labels, datasets:datasets }, options:baseOpts(type) });
+  }
+
+  function filterByRange(items, dateKey) {
+    if (_range === 'all' || !items) return items;
+    var now = Date.now();
+    var ms  = _range === '24h' ? 86400000 : _range === '7d' ? 604800000 : 2592000000;
+    return items.filter(function(item){
+      var ts = item[dateKey]; if (!ts) return true;
+      return new Date(ts).getTime() >= now - ms;
+    });
+  }
+
+  function renderCharts(data, datagen) {
+    var runsTime = data.runs_over_time || data.by_date || [];
+    var filtered = filterByRange(runsTime, 'date');
+    makeChart('chart-runs-time', 'bar',
+      filtered.map(function(d){ return d.date ? d.date.slice(5) : ''; }),
+      [{ label:'Runs', data:filtered.map(function(d){ return d.count||d.runs||0; }),
+         backgroundColor:ORANGE_DIM, borderColor:ORANGE, borderWidth:1 }]
+    );
+    var tokensData = data.tokens_per_run || data.tokens_over_time || runsTime;
+    var filtTok = filterByRange(tokensData, 'date');
+    makeChart('chart-tokens-trend', 'line',
+      filtTok.map(function(d){ return d.date ? d.date.slice(5) : (d.run_id||'').slice(-6); }),
+      [{ label:'Tokens Out', data:filtTok.map(function(d){ return d.avg_tokens||d.tokens_out||d.tokens||0; }),
+         borderColor:ORANGE, backgroundColor:ORANGE_DIM, borderWidth:1.5, pointRadius:2, tension:0.35, fill:true }]
+    );
+    var byModel = data.by_model || data.model_distribution || [];
+    makeChart('chart-model-dist', 'doughnut',
+      byModel.map(function(m){ return (m.model||m.name||'unknown').replace(/^.+\//,''); }),
+      [{ data:byModel.map(function(m){ return m.count||m.runs||0; }),
+         backgroundColor:['rgba(180,90,20,0.85)','rgba(39,174,96,0.75)','rgba(52,152,219,0.75)',
+                          'rgba(155,89,182,0.75)','rgba(241,196,15,0.75)','rgba(231,76,60,0.75)'],
+         borderWidth:1, borderColor:ORANGE_DIM }]
+    );
+    var compData = data.completion_by_model || byModel;
+    makeChart('chart-completion-rate', 'bar',
+      compData.map(function(m){ return (m.model||m.name||'unknown').replace(/^.+\//,''); }),
+      [{ label:'Completed', data:compData.map(function(m){ return m.completed||m.success||0; }),
+         backgroundColor:'rgba(39,174,96,0.7)', borderWidth:0 },
+       { label:'Failed', data:compData.map(function(m){ return m.failed||m.errors||0; }),
+         backgroundColor:'rgba(231,76,60,0.6)', borderWidth:0 }]
+    );
+    var throughput = data.throughput_over_time || data.tokps_over_time || filtTok;
+    var filtTp = filterByRange(throughput, 'date');
+    makeChart('chart-throughput', 'line',
+      filtTp.map(function(d){ return d.date ? d.date.slice(5) : ''; }),
+      [{ label:'Avg tok/s', data:filtTp.map(function(d){ return d.avg_tokps||d.throughput||d.tokps||0; }),
+         borderColor:GREEN, backgroundColor:'rgba(39,174,96,0.1)', borderWidth:1.5, pointRadius:2, tension:0.35, fill:true }]
+    );
+    var dgModels = datagen && (datagen.by_model || datagen.model_stats);
+    if (dgModels && dgModels.length) {
+      makeChart('chart-model-tokens', 'bar',
+        dgModels.map(function(m){ return (m.model||m.name||'').replace(/^.+\//,''); }),
+        [{ label:'Total Tokens Out', data:dgModels.map(function(m){ return m.total_tokens||m.tokens||0; }),
+           backgroundColor:ORANGE_DIM, borderColor:ORANGE2, borderWidth:1 }]
+      );
+    } else {
+      var el = document.getElementById('chart-model-tokens');
+      if (el) { var w = el.parentElement; w.textContent = ''; w.appendChild(noDataEl('NO DATAGEN STATS')); }
+    }
+  }
+
+  function updateHero(data) {
+    var t = data.totals || data.summary || data;
+    document.getElementById('chip-total').textContent     = fmtK(t.total_runs||t.runs||0);
+    document.getElementById('chip-completed').textContent = fmtK(t.completed||t.success||0);
+    document.getElementById('chip-failed').textContent    = fmtK(t.failed||t.errors||0);
+    document.getElementById('chip-tokens').textContent    = fmtK(t.total_tokens_out||t.tokens||0);
+    document.getElementById('chip-duration').textContent  = fmtDur(t.avg_duration||t.avg_dur||0);
+    document.getElementById('chip-tokps').textContent     = (t.avg_tokps||t.throughput||0).toFixed(1);
+  }
+
+  function buildSyntheticAnalytics(runs) {
+    var totalTok=0, totalDur=0, totalTps=0, tpsCount=0, completed=0, failed=0;
+    var byDate={}, byModel={};
+    runs.forEach(function(r){
+      var date=(r.created_at||'').slice(0,10);
+      if (date){ byDate[date]=byDate[date]||{date:date,count:0,tokens:0}; byDate[date].count++; byDate[date].tokens+=r.tokens_out||0; }
+      var model=r.model||'unknown';
+      byModel[model]=byModel[model]||{model:model,count:0,completed:0,failed:0,tokens:0};
+      byModel[model].count++; byModel[model].tokens+=r.tokens_out||0;
+      if(r.status==='completed'){completed++;byModel[model].completed++;}
+      if(r.status==='failed'||r.status==='error'){failed++;byModel[model].failed++;}
+      totalTok+=r.tokens_out||0;
+      if(r.duration_s){totalDur+=r.duration_s;}
+      if(r.tokens_out&&r.duration_s&&r.duration_s>0){totalTps+=r.tokens_out/r.duration_s;tpsCount++;}
+    });
+    var dateList=Object.values(byDate).sort(function(a,b){return a.date<b.date?-1:1;});
+    var modelList=Object.values(byModel).sort(function(a,b){return b.count-a.count;});
+    return {
+      totals:{total_runs:runs.length,completed:completed,failed:failed,total_tokens_out:totalTok,
+              avg_duration:runs.length?totalDur/runs.length:0,avg_tokps:tpsCount?totalTps/tpsCount:0},
+      runs_over_time:dateList.map(function(d){return{date:d.date,count:d.count};}),
+      tokens_per_run:dateList.map(function(d){return{date:d.date,avg_tokens:d.count?Math.round(d.tokens/d.count):0};}),
+      by_model:modelList, completion_by_model:modelList,
+      throughput_over_time:dateList.map(function(d){return{date:d.date,avg_tokps:0};})
+    };
+  }
+
+  function loadAnalytics() {
+    Promise.all([
+      fetch('/api/runs/analytics',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+      fetch('/api/reports/datagen-stats',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+    ]).then(function(results){
+      _analyticsData=results[0]; _datagen=results[1];
+      if(_analyticsData){ updateHero(_analyticsData); renderCharts(_analyticsData,_datagen); }
+      else {
+        fetch('/api/runs?limit=500',{cache:'no-store'}).then(function(r){return r.ok?r.json():[];}).then(function(runs){
+          var list=Array.isArray(runs)?runs:(runs.runs||runs.items||[]);
+          var synth=buildSyntheticAnalytics(list);
+          _analyticsData=synth; updateHero(synth); renderCharts(synth,_datagen);
+        });
+      }
+    });
+  }
+
+  loadAnalytics();
+  setInterval(loadAnalytics, 60000);
+})();
+</script>
 </body>
 </html>
