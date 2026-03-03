@@ -11,7 +11,7 @@
   --bg-panel:     #3b3b3b;
   --bg-bar:       #3b3b3b;
   --bg-deep:      #3b3b3b;
-  --border:       #b8613a;
+  --border:       #1e1008;
   --border-dim:   #5a3a28;
   /* text tokens */
   --text:         #ffffff;
@@ -26,6 +26,10 @@
   /* alternating table row colors */
   --table-row-1:  #090603;
   --table-row-2:  #0f0b07;
+  /* P2 page tokens */
+  --fg:           #e0e0e0;
+  --card:         #0c0804;
+  --muted:        #888888;
 }
 
 /* ── LIGHT MODE ────────────────────────────────────────── */
@@ -1021,3 +1025,140 @@ body {
 tbody tr:nth-child(odd)  td { background: var(--table-row-1); }
 tbody tr:nth-child(even) td { background: var(--table-row-2); }
 tbody tr:hover           td { background: var(--orange-deep) !important; }
+
+/* ══════════════════════════════════════════════════════
+   P2 NAV — .bcom-nav, .bcom-nav-brand, .bcom-nav-links
+   ════════════════════════════════════════════════════ */
+.bcom-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--orange-dark);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 44px;
+  border-bottom: 2px solid var(--orange);
+  flex-shrink: 0;
+}
+
+.bcom-nav-brand {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0 0 10px rgba(218,119,86,0.5);
+  flex-shrink: 0;
+}
+.bcom-nav-brand:hover { color: #fff; opacity: .85; }
+
+.bcom-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  flex: 1;
+  justify-content: flex-end;
+}
+.bcom-nav-links::-webkit-scrollbar { display: none; }
+
+.bcom-nav-links a {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,.65);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.bcom-nav-links a:hover {
+  color: #fff;
+  background: rgba(0,0,0,.2);
+  border-color: rgba(255,255,255,.2);
+}
+.bcom-nav-links a.active {
+  color: #fff;
+  background: rgba(0,0,0,.35);
+  border-color: rgba(255,255,255,.4);
+}
+
+/* ══════════════════════════════════════════════════════
+   P2 PAGE LAYOUT — .bcom-page, header, title, actions
+   ════════════════════════════════════════════════════ */
+.bcom-page {
+  flex: 1;
+  padding: 20px 20px 32px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.bcom-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bcom-page-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--orange);
+  text-transform: uppercase;
+}
+
+.bcom-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ══════════════════════════════════════════════════════
+   P2 BUTTONS — .bcom-btn, .bcom-btn-sm, .bcom-btn-danger
+   ════════════════════════════════════════════════════ */
+.bcom-btn {
+  background: var(--orange-deep);
+  border: 1px solid var(--orange-dark);
+  color: var(--orange);
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 7px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.bcom-btn:hover  { background: var(--orange-dark); color: #fff; border-color: var(--orange); }
+.bcom-btn:active { transform: scale(.97); }
+
+.bcom-btn-sm { font-size: 9px; padding: 3px 10px; letter-spacing: 1px; }
+
+.bcom-btn-danger {
+  background: #1a0505;
+  border-color: #c0392b;
+  color: #e05030;
+}
+.bcom-btn-danger:hover { background: #6a1a08; color: #fff; border-color: #ff6040; }
+
+/* Light mode overrides for P2 components */
+[data-theme="light"] .bcom-nav          { background: var(--orange-dark); }
+[data-theme="light"] .bcom-nav-links a  { color: rgba(255,255,255,.75); }
+[data-theme="light"] .bcom-page-title   { color: var(--orange-dark); }
+[data-theme="light"] .bcom-btn          { background: var(--bg-deep); color: var(--orange-dark); }
+[data-theme="light"] .bcom-btn:hover    { background: var(--orange-dark); color: #fff; }
