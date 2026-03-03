@@ -11,7 +11,7 @@
     try { var raw=localStorage.getItem("bcom-theme-vars"); if(raw){ var vars=JSON.parse(raw); Object.keys(vars).forEach(function(k){ document.documentElement.style.setProperty(k,vars[k]); }); } } catch(_) {}
   })();
 </script>
-<link rel="stylesheet" href="../bcom.css?v=3" />
+<link rel="stylesheet" href="../assets/css/bcom.css?v=3" />
 <style>
   /* ── Hero ─────────────────────────────────────────────────────────── */
   .hero-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
@@ -263,7 +263,7 @@
   <div id="slide-content">—</div>
 </div>
 
-<script src="../bcom.js?v=5"></script>
+<script src="../assets/js/bcom.js?v=5"></script>
 <script>
 window.BCOM = window.BCOM || {};
 BCOM.apiBase = '';
