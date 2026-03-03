@@ -120,6 +120,27 @@
 .ev-log-line.warn{color:#f39c12}
 .ev-log-line.err{color:#e74c3c}
 .ev-log-line .ev-time{color:#333;margin-right:8px}
+
+/* ── Advisor panel ──────────────────────────────────────── */
+.adv-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:18px;margin-bottom:14px}
+@media(max-width:800px){.adv-grid{grid-template-columns:1fr}}
+.adv-col-label{font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.adv-summary{font-size:12px;color:var(--fg);line-height:1.65;letter-spacing:.3px}
+.adv-pending{font-size:11px;color:#333;letter-spacing:1.5px;font-style:italic}
+.adv-svc-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.adv-svc-name{font-size:11px;color:var(--fg);flex:1;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adv-svc-bar-wrap{width:72px;height:3px;background:var(--border);flex-shrink:0}
+.adv-svc-bar{height:3px;background:var(--orange-dark);transition:width .5s ease}
+.adv-svc-score{font-size:10px;color:var(--orange-dark);width:16px;text-align:right;flex-shrink:0}
+.adv-action{font-size:11px;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);letter-spacing:.3px;line-height:1.5}
+.adv-action::before{content:'▸  ';color:var(--orange-dark)}
+.adv-trend{font-size:11px;color:#666;font-style:italic;line-height:1.55;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.adv-target-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg);border:1px solid var(--border);font-size:10px;letter-spacing:1.5px;color:var(--muted);flex-wrap:wrap}
+.adv-target-bar .adv-chip{background:rgba(218,119,86,.08);border:1px solid var(--orange-dark);color:var(--orange);padding:2px 10px;font-size:10px;letter-spacing:1px}
+
+/* ── Synthesizer config toggle ──────────────────────────── */
+.opt-toggle{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.5px;color:var(--fg);cursor:pointer;user-select:none}
+.opt-toggle input{accent-color:var(--orange-dark);width:14px;height:14px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -157,18 +178,42 @@
     </div>
     <div class="stage-flow-wrap">
       <div class="stage-flow" id="stage-flow">
-        <div class="stage-card" id="st-data">
+        <!-- 01 EVALUATE -->
+        <div class="stage-card" id="st-evaluate">
           <span class="stage-num">01</span>
+          <div class="stage-icon-box">
+            <svg viewBox="0 0 22 22"><polyline class="ico" points="2,16 6,10 10,13 14,6 20,9"/><line class="ico" x1="2" y1="19" x2="20" y2="19"/><line class="ico" x1="20" y1="6" x2="20" y2="19"/></svg>
+          </div>
+          <div class="stage-name">EVALUATE</div>
+          <div class="stage-sub">BASE MODEL</div>
+          <div class="stage-live" id="live-evaluate">—</div>
+        </div>
+        <div class="stage-conn" id="arr-0"><div class="conn-line"></div><div class="conn-arrow"></div></div>
+        <!-- 02 ANALYZE -->
+        <div class="stage-card" id="st-analyze">
+          <span class="stage-num">02</span>
+          <div class="stage-icon-box">
+            <svg viewBox="0 0 22 22"><circle class="ico" cx="9" cy="9" r="5.5"/><line class="ico" x1="13.5" y1="13.5" x2="19" y2="19"/><line class="ico" x1="6.5" y1="9" x2="11.5" y2="9"/><line class="ico" x1="9" y1="6.5" x2="9" y2="11.5"/></svg>
+          </div>
+          <div class="stage-name">ANALYZE</div>
+          <div class="stage-sub">ADVISOR</div>
+          <div class="stage-live" id="live-analyze">—</div>
+        </div>
+        <div class="stage-conn" id="arr-1"><div class="conn-line"></div><div class="conn-arrow"></div></div>
+        <!-- 03 GENERATE -->
+        <div class="stage-card" id="st-generate">
+          <span class="stage-num">03</span>
           <div class="stage-icon-box">
             <svg viewBox="0 0 22 22"><rect class="ico" x="2" y="3" width="18" height="4" rx=".5"/><rect class="ico" x="2" y="9" width="18" height="4" rx=".5"/><rect class="ico" x="2" y="15" width="11" height="4" rx=".5"/><path class="ico" d="M15 15 L20 17 L15 19"/></svg>
           </div>
-          <div class="stage-name">DATA GEN</div>
+          <div class="stage-name">GENERATE</div>
           <div class="stage-sub">Q&amp;A PAIRS</div>
-          <div class="stage-live" id="live-data">—</div>
+          <div class="stage-live" id="live-generate">—</div>
         </div>
-        <div class="stage-conn" id="arr-0"><div class="conn-line"></div><div class="conn-arrow"></div></div>
+        <div class="stage-conn" id="arr-2"><div class="conn-line"></div><div class="conn-arrow"></div></div>
+        <!-- 04 FINE-TUNE -->
         <div class="stage-card" id="st-train">
-          <span class="stage-num">02</span>
+          <span class="stage-num">04</span>
           <div class="stage-icon-box">
             <svg viewBox="0 0 22 22"><circle class="ico" cx="3" cy="6" r="2"/><circle class="ico" cx="3" cy="16" r="2"/><circle class="ico" cx="11" cy="11" r="2.5"/><circle class="ico" cx="19" cy="7" r="2"/><circle class="ico" cx="19" cy="15" r="2"/><line class="ico" x1="5" y1="6.8" x2="8.5" y2="10"/><line class="ico" x1="5" y1="15.2" x2="8.5" y2="12"/><line class="ico" x1="13.5" y1="10" x2="17" y2="7.8"/><line class="ico" x1="13.5" y1="12" x2="17" y2="14.2"/><line class="ico" x1="3" y1="8" x2="3" y2="14"/></svg>
           </div>
@@ -176,42 +221,35 @@
           <div class="stage-sub">LoRA</div>
           <div class="stage-live" id="live-train">—</div>
         </div>
-        <div class="stage-conn" id="arr-1"><div class="conn-line"></div><div class="conn-arrow"></div></div>
+        <div class="stage-conn" id="arr-3"><div class="conn-line"></div><div class="conn-arrow"></div></div>
+        <!-- 05 DEPLOY -->
         <div class="stage-card" id="st-deploy">
-          <span class="stage-num">03</span>
+          <span class="stage-num">05</span>
           <div class="stage-icon-box">
             <svg viewBox="0 0 22 22"><rect class="ico" x="3" y="13" width="16" height="6" rx="1"/><circle class="ico-fill" cx="6.5" cy="16" r="1"/><circle class="ico-fill" cx="9.5" cy="16" r="1"/><rect class="ico" x="3" y="8.5" width="16" height="4" rx=".5"/><circle class="ico-fill" cx="6.5" cy="10.5" r=".8"/><line class="ico" x1="11" y1="7" x2="11" y2="1"/><path class="ico" d="M8 4 L11 1 L14 4"/></svg>
           </div>
           <div class="stage-name">DEPLOY</div>
-          <div class="stage-sub">vLLM / OLLAMA</div>
+          <div class="stage-sub">CHECKPOINT</div>
           <div class="stage-live" id="live-deploy">—</div>
         </div>
-        <div class="stage-conn" id="arr-2"><div class="conn-line"></div><div class="conn-arrow"></div></div>
-        <div class="stage-card" id="st-eval">
-          <span class="stage-num">04</span>
+        <div class="stage-conn" id="arr-4"><div class="conn-line"></div><div class="conn-arrow"></div></div>
+        <!-- 06 RE-EVAL -->
+        <div class="stage-card" id="st-reeval">
+          <span class="stage-num">06</span>
           <div class="stage-icon-box">
             <svg viewBox="0 0 22 22"><path class="ico" d="M11 2 L13.2 8 L19.5 8 L14.5 11.8 L16.5 18 L11 14.2 L5.5 18 L7.5 11.8 L2.5 8 L8.8 8 Z"/></svg>
           </div>
-          <div class="stage-name">EVAL</div>
-          <div class="stage-sub">JUDGE + SUITE</div>
-          <div class="stage-live" id="live-eval">—</div>
-        </div>
-        <div class="stage-conn" id="arr-3"><div class="conn-line"></div><div class="conn-arrow"></div></div>
-        <div class="stage-card" id="st-check">
-          <span class="stage-num">05</span>
-          <div class="stage-icon-box">
-            <svg viewBox="0 0 22 22"><circle class="ico" cx="11" cy="11" r="8"/><path class="ico" d="M7.5 11 L10 13.5 L15 8"/><path class="ico" d="M15 14.5 Q17.5 17 15.5 19 Q13 21 11 19.5" stroke-dasharray="1.5 1.5"/><path class="ico" d="M11 19.5 L9.5 21.5 M11 19.5 L12.5 21.5"/></svg>
-          </div>
-          <div class="stage-name">CHECK</div>
-          <div class="stage-sub">PASS / LOOP</div>
-          <div class="stage-live" id="live-check">—</div>
+          <div class="stage-name">RE-EVAL</div>
+          <div class="stage-sub">SCORE CHECK</div>
+          <div class="stage-live" id="live-reeval">—</div>
         </div>
       </div>
+      <!-- Loop-back: RE-EVAL → ANALYZE (iter 2+ skips initial eval) -->
       <div class="loop-back" id="loop-row">
         <div class="lb-stem-l"></div>
         <div class="lb-line">
           <div class="lb-arrow"></div>
-          <span class="lb-label">↺ LOOP — SCORE BELOW TARGET</span>
+          <span class="lb-label">↺ LOOP BACK TO ANALYZE — SCORE BELOW TARGET</span>
         </div>
         <div class="lb-stem-r"></div>
       </div>
@@ -227,6 +265,43 @@
         PROGRESS
         <div class="prog-track"><div class="prog-fill" id="bp-prog" style="width:0%"></div></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Advisor Analysis Panel (shown when ANALYZE stage fires) -->
+  <div class="pl-section" id="advisor-panel" style="display:none">
+    <div class="pl-section-title">
+      Advisor Analysis
+      <span style="font-size:10px;color:var(--muted);font-weight:400;letter-spacing:.5px" id="adv-meta">—</span>
+    </div>
+    <div class="adv-grid">
+      <!-- Summary -->
+      <div>
+        <div class="adv-col-label">Analysis Summary</div>
+        <div class="adv-summary" id="adv-summary"><span class="adv-pending">Awaiting advisor result...</span></div>
+      </div>
+      <!-- Priority Services -->
+      <div>
+        <div class="adv-col-label">Priority Services</div>
+        <div id="adv-services"><span class="adv-pending">—</span></div>
+      </div>
+      <!-- Suggested Actions -->
+      <div>
+        <div class="adv-col-label">Suggested Actions</div>
+        <div id="adv-actions"><span class="adv-pending">—</span></div>
+        <div class="adv-trend" id="adv-trend" style="display:none"></div>
+      </div>
+    </div>
+    <!-- Target bar: what datagen will target -->
+    <div class="adv-target-bar" id="adv-target-bar">
+      <span>TARGETING</span>
+      <span class="adv-chip" id="adv-target-services">—</span>
+      <span style="color:#333">·</span>
+      <span style="color:var(--fg)" id="adv-target-count">—</span>
+      <span>EXAMPLES</span>
+      <span style="color:#333;margin-left:4px">·</span>
+      <span>MODEL</span>
+      <span class="adv-chip" id="adv-gen-model">—</span>
     </div>
   </div>
 
@@ -251,9 +326,37 @@
         <div class="cfg-group"><label>Epochs / Iter</label><input id="pl-epochs" type="number" value="3" min="1"></div>
         <div class="cfg-group"><label>Learning Rate</label><input id="pl-lr" type="text" value="0.0002"></div>
       </div>
-      <div class="cfg-grid g2" style="margin-bottom:14px">
+      <div class="cfg-grid g2" style="margin-bottom:10px">
         <div class="cfg-group"><label>Data Gen Count / Iter</label><input id="pl-dgcount" type="number" value="200" min="1"></div>
         <div class="cfg-group"><label>Data Domain</label><input id="pl-domain" type="text" placeholder="e.g. IAM, S3"></div>
+      </div>
+      <!-- Synthesizer / Generator config -->
+      <div style="border-top:1px solid var(--border);padding-top:10px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px;font-weight:600">DATAGEN CONFIG</div>
+        <div class="cfg-grid" style="margin-bottom:8px">
+          <div class="cfg-group">
+            <label>Generator Model</label>
+            <select id="pl-gen-model">
+              <option value="claude-3-5-haiku">Claude Haiku (Bedrock)</option>
+              <option value="claude-3-haiku">Claude Haiku 3 (Bedrock)</option>
+              <option value="local-ollama">Local Ollama</option>
+            </select>
+          </div>
+          <div class="cfg-group">
+            <label>Generator Backend</label>
+            <select id="pl-gen-backend">
+              <option value="bedrock">Bedrock</option>
+              <option value="local">Local</option>
+              <option value="anthropic">Anthropic API</option>
+            </select>
+          </div>
+          <div class="cfg-group" style="display:flex;align-items:flex-end;padding-bottom:2px">
+            <label class="opt-toggle">
+              <input type="checkbox" id="pl-synth" checked>
+              Synthesizer (Sonnet)
+            </label>
+          </div>
+        </div>
       </div>
       <button class="bcom-btn" onclick="launchPipeline()" style="width:100%">▶ Launch Pipeline</button>
       <div id="pl-output" style="margin-top:10px;font-size:12px;color:var(--muted);font-family:monospace">—</div>
@@ -307,9 +410,22 @@ var _lossData = { labels: [], datasets: [] };
 var _lossChart = null;
 var _lossIter = 1;
 
-var STAGES     = ['st-data','st-train','st-deploy','st-eval','st-check'];
-var ARROWS     = ['arr-0','arr-1','arr-2','arr-3'];
-var STAGE_MAP  = { datagen:0, 'data-gen':0, data:0, finetune:1, train:1, training:1, deploy:2, eval:3, check:4, complete:4 };
+var STAGES    = ['st-evaluate','st-analyze','st-generate','st-train','st-deploy','st-reeval'];
+var ARROWS    = ['arr-0','arr-1','arr-2','arr-3','arr-4'];
+var STAGE_MAP = {
+  // 0 — EVALUATE
+  evaluate:0, evaluating:0, eval_start:0, initial_eval:0, base_eval:0,
+  // 1 — ANALYZE
+  analyze:1, analyzing:1, analysis:1, advisor:1, analysis_complete:1,
+  // 2 — GENERATE
+  generate:2, generating:2, datagen:2, 'data-gen':2, data:2, generation:2,
+  // 3 — FINE-TUNE
+  finetune:3, fine_tune:3, finetuning:3, train:3, training:3,
+  // 4 — DEPLOY
+  deploy:4, deploying:4, deploy_checkpoint:4,
+  // 5 — RE-EVAL
+  reeval:5, re_eval:5, reevaluate:5, re_evaluate:5, reeval_start:5, complete:5, check:5, target_reached:5
+};
 
 /* ── Toast ─────────────────────────────────────────────── */
 function toast(msg, type) {
@@ -364,6 +480,17 @@ function resetStages() {
   document.getElementById('loop-row').className = 'loop-back';
   document.getElementById('active-banner').style.display = 'none';
   document.getElementById('btn-cancel').style.display = 'none';
+  resetAdvisor();
+}
+
+/* Show advisor panel in PENDING state when ANALYZE stage goes active */
+function setAnalyzePending(iterNum) {
+  document.getElementById('advisor-panel').style.display = '';
+  document.getElementById('adv-meta').textContent = 'ITER ' + iterNum + '  ·  ANALYZING...';
+  var sumEl = document.getElementById('adv-summary');
+  sumEl.textContent = '';
+  sumEl.appendChild(advMakePending('Advisor is reading eval results...'));
+  document.getElementById('live-analyze').textContent = 'running...';
 }
 
 function setLive(stageKey, text) {
@@ -428,6 +555,12 @@ function openSSE(pipelineId) {
     _sse.addEventListener('training_update', function(e) {
       try { handleEvent(JSON.parse(e.data)); } catch(_) {}
     });
+    _sse.addEventListener('advisor_result', function(e) {
+      try { handleAdvisorResult(JSON.parse(e.data)); } catch(_) {}
+    });
+    _sse.addEventListener('analysis_complete', function(e) {
+      try { handleAdvisorResult(JSON.parse(e.data)); } catch(_) {}
+    });
     _sse.addEventListener('pipeline_end', function(e) {
       try { handleEvent(JSON.parse(e.data)); onPipelineEnd(); } catch(_) {}
     });
@@ -443,6 +576,12 @@ function handleEvent(ev) {
   var loss  = ev.loss;
   var score = ev.score;
 
+  // Route advisor events before anything else
+  if (type === 'advisor_result' || type === 'analysis_complete' || ev.advisor_result) {
+    handleAdvisorResult(ev);
+    return;
+  }
+
   if (msg) logEvent('[' + type + '] ' + msg, type === 'error' ? 'err' : 'info');
 
   if (stage) {
@@ -452,6 +591,8 @@ function handleEvent(ev) {
       setLive(stage, msg || stage);
       document.getElementById('bp-stage').textContent = stage.toUpperCase();
       document.getElementById('bp-iter').textContent  = iter;
+      // Show advisor pending state when ANALYZE stage activates
+      if (idx === 1) { setAnalyzePending(iter); }
     }
   }
   if (typeof loss === 'number') {
@@ -470,25 +611,139 @@ function onPipelineEnd() {
   toast('Pipeline finished', 'ok');
 }
 
+/* ── Advisor DOM helpers (no innerHTML with user data) ───── */
+function advClearEl(id) {
+  var el = document.getElementById(id);
+  while (el.firstChild) { el.removeChild(el.firstChild); }
+  return el;
+}
+
+function advMakePending(text) {
+  var s = document.createElement('span');
+  s.className = 'adv-pending';
+  s.textContent = text;
+  return s;
+}
+
+function renderAdvisorServices(services) {
+  var el = advClearEl('adv-services');
+  var svcKeys = Object.keys(services).sort(function(a, b) { return services[b] - services[a]; });
+  if (!svcKeys.length) { el.appendChild(advMakePending('No priority services identified.')); return svcKeys; }
+  var maxScore = services[svcKeys[0]] || 1;
+  svcKeys.slice(0, 8).forEach(function(svc) {
+    var score = services[svc];
+    var pct   = Math.round((score / maxScore) * 100);
+    var row   = document.createElement('div'); row.className = 'adv-svc-row';
+    var name  = document.createElement('div'); name.className = 'adv-svc-name'; name.textContent = svc;
+    var wrap  = document.createElement('div'); wrap.className = 'adv-svc-bar-wrap';
+    var bar   = document.createElement('div'); bar.className = 'adv-svc-bar'; bar.style.width = pct + '%';
+    var sc    = document.createElement('div'); sc.className = 'adv-svc-score'; sc.textContent = score;
+    wrap.appendChild(bar);
+    row.appendChild(name); row.appendChild(wrap); row.appendChild(sc);
+    el.appendChild(row);
+  });
+  return svcKeys;
+}
+
+function renderAdvisorActions(actions) {
+  var el = advClearEl('adv-actions');
+  if (!actions.length) { el.appendChild(advMakePending('No actions suggested.')); return; }
+  actions.slice(0, 5).forEach(function(a) {
+    var div = document.createElement('div'); div.className = 'adv-action'; div.textContent = a;
+    el.appendChild(div);
+  });
+}
+
+/* ── Advisor result handler ─────────────────────────────── */
+function handleAdvisorResult(ev) {
+  var ar    = ev.advisor_result || ev;
+  var iter  = ev.iteration || ev.iter || 1;
+  var model = ev.model || ev.advisor_model || 'Sonnet';
+
+  document.getElementById('advisor-panel').style.display = '';
+  document.getElementById('adv-meta').textContent =
+    'ITER ' + iter + '  ·  ' + model.toUpperCase() + '  ·  ' + new Date().toLocaleTimeString();
+
+  // Summary
+  var sumEl = document.getElementById('adv-summary');
+  sumEl.textContent = ar.summary || 'No summary provided.';
+
+  // Priority services (DOM-built, no innerHTML with user data)
+  var svcKeys = renderAdvisorServices(ar.priority_services || {});
+
+  // Suggested actions (DOM-built)
+  renderAdvisorActions(ar.suggested_actions || []);
+
+  // Trend analysis — meaningful on iter 2+
+  var trendEl = document.getElementById('adv-trend');
+  if (ar.trend_analysis && iter > 1) {
+    trendEl.textContent = ar.trend_analysis;
+    trendEl.style.display = '';
+  } else {
+    trendEl.style.display = 'none';
+  }
+
+  // Target bar
+  document.getElementById('adv-target-services').textContent =
+    ar.datagen_services || (svcKeys.slice(0, 3).join(', ') || '—');
+  document.getElementById('adv-target-count').textContent =
+    ar.datagen_count ? String(ar.datagen_count) : '—';
+  document.getElementById('adv-gen-model').textContent =
+    model.replace('claude-3-5-', '').replace('claude-3-', '').toUpperCase();
+
+  // Light up ANALYZE stage live text
+  setLive('analyze', ar.datagen_services
+    ? ar.datagen_services.split(',').length + ' services targeted'
+    : 'analysis complete');
+}
+
+function resetAdvisor() {
+  document.getElementById('advisor-panel').style.display = 'none';
+  var sumEl = document.getElementById('adv-summary');
+  sumEl.textContent = '';
+  sumEl.appendChild(advMakePending('Awaiting advisor result...'));
+  advClearEl('adv-services').appendChild(advMakePending('—'));
+  advClearEl('adv-actions').appendChild(advMakePending('—'));
+  document.getElementById('adv-trend').style.display = 'none';
+  document.getElementById('adv-target-services').textContent = '—';
+  document.getElementById('adv-target-count').textContent = '—';
+  document.getElementById('adv-gen-model').textContent = '—';
+  document.getElementById('adv-meta').textContent = '—';
+}
+
 /* ── Launch ─────────────────────────────────────────────── */
 window.launchPipeline = function() {
-  var model   = document.getElementById('pl-model').value.trim();
-  var backend = document.getElementById('pl-backend').value;
-  var node    = document.getElementById('pl-node').value;
-  var suite   = document.getElementById('pl-suite').value.trim() || 'hard_15';
-  var target  = parseInt(document.getElementById('pl-target').value)  || 80;
-  var maxiter = parseInt(document.getElementById('pl-maxiter').value) || 3;
-  var rank    = parseInt(document.getElementById('pl-rank').value)    || 16;
-  var epochs  = parseInt(document.getElementById('pl-epochs').value)  || 3;
-  var lr      = document.getElementById('pl-lr').value.trim()         || '0.0002';
-  var dgcount = parseInt(document.getElementById('pl-dgcount').value) || 200;
-  var domain  = document.getElementById('pl-domain').value.trim()     || 'general';
+  var model      = document.getElementById('pl-model').value.trim();
+  var backend    = document.getElementById('pl-backend').value;
+  var node       = document.getElementById('pl-node').value;
+  var suite      = document.getElementById('pl-suite').value.trim() || 'hard_15';
+  var target     = parseInt(document.getElementById('pl-target').value)  || 80;
+  var maxiter    = parseInt(document.getElementById('pl-maxiter').value) || 3;
+  var rank       = parseInt(document.getElementById('pl-rank').value)    || 16;
+  var epochs     = parseInt(document.getElementById('pl-epochs').value)  || 3;
+  var lr         = document.getElementById('pl-lr').value.trim()         || '0.0002';
+  var dgcount    = parseInt(document.getElementById('pl-dgcount').value) || 200;
+  var domain     = document.getElementById('pl-domain').value.trim()     || 'general';
+  var genModel   = document.getElementById('pl-gen-model').value;
+  var genBackend = document.getElementById('pl-gen-backend').value;
+  var synthOn    = document.getElementById('pl-synth').checked;
   if (!model) { toast('Base Model required', 'err'); return; }
 
-  var body = { model_id: model, backend: backend, node: node, eval_suite: suite,
-               target_score: target / 100, max_iterations: maxiter,
-               lora_rank: rank, epochs: epochs, learning_rate: parseFloat(lr),
-               datagen_count: dgcount, domain: domain };
+  var body = {
+    model_id: model, backend: backend, node: node, eval_suite: suite,
+    target_score: target / 100, max_iterations: maxiter,
+    lora_rank: rank, epochs: epochs, learning_rate: parseFloat(lr),
+    datagen_count: dgcount, domain: domain,
+    datagen_config: {
+      generator_model:     genModel,
+      generator_backend:   genBackend,
+      synthesizer_enabled: synthOn,
+      synthesizer_model:   'claude-3-5-sonnet',
+      examples_per_service: Math.max(1, Math.round(dgcount / 3)),
+      dataset_type:        'qa-grounded',
+      prompt_config:       { domain: domain }
+    }
+  };
 
   fetch(BCOM.apiBase + '/api/pipeline/start', {
     method: 'POST',
